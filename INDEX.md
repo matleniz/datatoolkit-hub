@@ -1,25 +1,23 @@
 # INDEX — navigation router (read this first)
 
-> **Protocol (context economy).** Read THIS index, find the ONE file relevant to
-> your task, open it, and on large files `grep '^#'` to jump to the section. Do
-> NOT load the whole hub. This router is the single biggest token lever in the
-> system (agent-fleet workflow docs 01 and 06, in the engine repo).
->
-> The docs here are the distilled truth. The code lives in `<code-repo>`. Verify
-> any technical fact against the code (`grep`/`ls`) before asserting.
+> **Protocol (context economy).** Read THIS index, open the ONE file relevant to
+> your task, `grep '^#'` on large files. Do NOT load the whole hub. Code lives in
+> `~/datatoolkit`; verify facts there (`grep`/`ls`) before asserting.
 
 ## Topic → file
 
-| You are looking for… | Open | Note |
-|---|---|---|
-| System overview, current state, conventions | `README.md`, `AGENTS.md` | read at session start |
-| Known bugs / blockers, prioritized | `KNOWN_ISSUES.md` | |
-| How to operate (deploy, run, ops tasks) | `OPERATIONS/` | runbooks |
-| Architecture diagrams | `ARCHITECTURE/` | |
-| Data model / storage | `DATABASE/` or `DATA/` | |
-| Security posture, findings | `SECURITY/` | |
-| Roadmap, dated work journal | `ROADMAP.md` | historical, dated |
-| The fleet workflow, who does what | `OPERATIONS/fleet-workflow.md` | |
+| You are looking for… | Open |
+|---|---|
+| Layers, the engine↔front contract, `Result`, import barrier | `ARCHITECTURE.md` |
+| Which tools/deps are allowed | `STACK.md` |
+| Adding a key | `HOWTO/add-a-key.md` |
+| Adding / switching a front | `HOWTO/add-a-front.md` |
+| What was done when, what's next | `ROADMAP.md` |
 
-Keep this table current. One entry per subsystem is the cheapest future token
-win: it turns raw code reads into a cheap lookup (agent-fleet doc 05 on hub maturity).
+## Keys (one card each — open only the one you need)
+
+| Key | Category | Card |
+|---|---|---|
+| `hello` | demo | `KEYS/hello.md` |
+
+New key → copy `KEYS/_template.md`, add a row here.
