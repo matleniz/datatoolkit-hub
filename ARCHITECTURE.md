@@ -27,7 +27,7 @@ DataFrame crosses it.
 
 ```python
 def list_keys() -> list[dict]
-    # [{"id": "hello", "title": "Hello", "category": "demo", "description": "..."}]
+    # [{"id": "dataset_overview", "title": "Dataset overview", "category": "analysis", "description": "..."}]
 def key_schema(key_id: str) -> dict
     # JSON Schema of the key's Params (pydantic model_json_schema())
 def run_key(key_id: str, params: dict) -> dict
@@ -58,7 +58,7 @@ Helpers: `Result.add_figure(title, fig)`, `Result.add_table(title, df)`
 (convert to JSON-safe records). `Result.show()` for notebooks (imports plotly
 lazily, prints metrics, renders figures; no front dependency). Since the
 contract returns a dict, the notebook idiom is
-`Result(**run_key("hello", {"n": 5})).show()`.
+`Result(**run_key("train_test_check", {})).show()`.
 
 Keys use absolute imports (`from dtk_engine.registry import key`): ruff TID252
 forbids relative parent imports.

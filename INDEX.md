@@ -20,6 +20,6 @@
 | Key | Category | Card |
 |---|---|---|
 | `dataset_overview` | analysis | `KEYS/dataset_overview.md` |
-| `hello` | demo | `KEYS/hello.md` |
+| `train_test_check` | analysis | `KEYS/train_test_check.md` |
 
 New key → copy `KEYS/_template.md`, add a row here.

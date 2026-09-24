@@ -22,6 +22,14 @@
   `id_like`, `pct_numeric_parsable`, years not datetime, Windows paths, fast
   sniffing (X_train read 1.0 s → 0.46 s). Gate: 69 tests.
 
+- Slice 2 merged (PR datatoolkit#4, MAT-25): `train_test_check` (`ops/compare.py`:
+  schema, missing, ranges, categories, row / id overlap, severity-ranked
+  issues); `hello` removed. Review fix before merge: row overlap now ignores
+  ids / row counters, int vs float dtype = info. Gate: 91 tests. On the real
+  X_train / X_test: `time_since_diagnosis` only in test, `age_at_diagnosis`
+  5 % → 0 % missing, 23 identical feature rows across splits (different
+  patients, sparse rows), no `patient_id` leak.
+
 ## Next (see Linear)
 - HTTP API (FastAPI, 3 generic routes) + `HttpClient` — needs FastAPI approval.
 - Slice 2: `train_test_check` (after slice 1 review).
