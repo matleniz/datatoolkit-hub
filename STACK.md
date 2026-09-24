@@ -12,5 +12,6 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | streamlit | first front | `front-streamlit` |
 | ruff | lint + import barrier (TID251) | gate |
 | pytest | tests | gate |
+| hatchling | build backend of the workspace packages (invisible) | `packages/*/pyproject.toml` |
 
 Planned, not yet approved: FastAPI (HTTP API for a web front).

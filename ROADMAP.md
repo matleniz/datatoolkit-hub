@@ -4,7 +4,7 @@
 - Linear project `datatoolkit` (team MAT), fleet project `datatoolkit`
   (queue Linear, gate = ruff + pytest).
 - Hub seeded: architecture/contract, stack allow-list, key cards, howtos.
-- Skeleton dispatched to a Sonnet worker (`dtk-skeleton`): engine + contract +
+- Skeleton built by a Sonnet worker (`dtk-skeleton`, PR #1, gate green, reviewed): engine + contract +
   `hello` key + generic Streamlit front + isolation barrier.
 
 ## Next (see Linear)

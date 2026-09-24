@@ -50,7 +50,12 @@ An HTTP API later exposes exactly these three (`GET /keys`,
 
 Helpers: `Result.add_figure(title, fig)`, `Result.add_table(title, df)`
 (convert to JSON-safe records). `Result.show()` for notebooks (imports plotly
-lazily, renders figures; no front dependency).
+lazily, prints metrics, renders figures; no front dependency). Since the
+contract returns a dict, the notebook idiom is
+`Result(**run_key("hello", {"n": 5})).show()`.
+
+Keys use absolute imports (`from dtk_engine.registry import key`): ruff TID252
+forbids relative parent imports.
 
 ## A key
 
@@ -67,8 +72,8 @@ Recipe: `HOWTO/add-a-key.md`.
 
 ## Front (generic, zero per-key code)
 
-`dtk_streamlit/app.py`: sidebar lists `client.list_keys()` grouped by
-category → `render.form_from_schema(schema)` builds widgets from JSON Schema
+`dtk_streamlit/app.py`: sidebar radio over `client.list_keys()`, labelled
+`category / title`, sorted by category → `render.form_from_schema(schema)` builds widgets from JSON Schema
 (integer, number, string, boolean, enum; unknown types → JSON text input) →
 `client.run_key` → `render.result(result_dict)` shows metrics, tables
 (`st.dataframe`), figures (`st.plotly_chart(plotly.io.from_json(...))`), text.
