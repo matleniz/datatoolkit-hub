@@ -8,7 +8,8 @@
 
 | You are looking for… | Open |
 |---|---|
-| Layers, the engine↔front contract, `Result`, import barrier | `ARCHITECTURE.md` |
+| Layers, the engine↔front contract, `Result`, sources→ops→keys, import barrier | `ARCHITECTURE.md` |
+| What the toolkit will do (families, backlog, status) | `CAPABILITIES.md` |
 | Which tools/deps are allowed | `STACK.md` |
 | Adding a key | `HOWTO/add-a-key.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |

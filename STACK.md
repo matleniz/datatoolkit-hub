@@ -14,4 +14,5 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | pytest | tests | gate |
 | hatchling | build backend of the workspace packages (invisible) | `packages/*/pyproject.toml` |
 
-Planned, not yet approved: FastAPI (HTTP API for a web front).
+Planned, not yet approved: FastAPI (HTTP API for a web front); polars, duckdb,
+pyarrow (future parquet / fast readers).

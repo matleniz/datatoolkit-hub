@@ -81,3 +81,56 @@ Recipe: `HOWTO/add-a-key.md`.
 `EngineClient` is a `typing.Protocol` with the three contract methods.
 `LocalClient` calls `dtk_engine.contract` in-process. `HttpClient` = future.
 Switching front = implement `HOWTO/add-a-front.md`, touch nothing in the engine.
+
+## Engine internals: sources → ops → keys (slice 1, in progress — not merged yet)
+
+Principle: **one generalized input → one output.** Behind the unchanged contract
+the engine splits into three internal layers:
+
+```
+dtk_engine/
+  sources/   SourceSpec (JSON) ──load()──▶ pd.DataFrame        generalized input
+  ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
+  keys/      thin: Params(sources…) → load → ops → Result      one output
+  (pipeline/ later)
+```
+
+- `sources/` never knows about keys; `ops/` never knows about `Result` or
+  pydantic (testable alone); `keys/` only glue.
+- **Canonical frame = pandas** for now: every reader returns a `pd.DataFrame`.
+  A future polars/duckdb reader converts to pandas at the boundary. Making ops
+  backend-agnostic is a separate, later decision.
+- Params are strict: every key's `Params` derives from a `KeyParams` base with
+  `extra="forbid"` (unknown/misspelled params raise `KeyParamsError`).
+
+## Inputs: SourceSpec
+
+A pydantic union discriminated on `kind`; a key declares e.g.
+`source: SourceSpec`. Readers register with `@reader(kind)` (same pattern as
+`registry.py`) and `load(spec)` dispatches. A missing/unreadable file raises a
+typed engine error.
+
+| `kind` | Reader | Status |
+|---|---|---|
+| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `sep=None, engine="python"` sniffing), `encoding`, `decimal`, `header` | slice 1 |
+| `csv_robust` | malformed CSVs (bad lines, mixed separators, junk headers) | later |
+| `parquet` | polars or duckdb backend → pandas | later, needs approval |
+| `upload` | file dropped by the front into a staging dir | later |
+
+Step 1 input = a local path. Default paths point to the demo CSVs shipped in
+`dtk_engine/demo_data/` so `run_key(id, {})` stays runnable.
+
+The Streamlit front renders object params recursively (sub-form per object,
+`const` fields fixed, selectbox on `kind` when a union has several members) —
+still zero per-key code.
+
+## Direction: transforms & pipelines (NOT built — design to be discussed first)
+
+Capability families and backlog: `CAPABILITIES.md`.
+
+- **Catalog**: named tables (`X_train`, `y_train`, `X_test`…), each from a SourceSpec.
+- **Transform op**: table(s) + params → table (join, concat, derived feature, cast, drop, filter).
+- **Check op** (= analysis key): table(s) → `Result`, produces no table.
+- **Pipeline**: JSON list of steps `{op, inputs, params, output}` over the catalog.
+  Reproducibility target: pipeline JSON + input file hashes + versions →
+  deterministic run producing output tables + a run manifest.
