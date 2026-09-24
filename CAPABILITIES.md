@@ -17,8 +17,9 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 
 | Item | Family | What it answers | Status |
 |---|---|---|---|
-| source `csv` (pandas) | input | read any common CSV (sep sniffing, encoding, decimal) | in progress |
-| `dataset_overview` | analysis | shape, memory, per-column dtype / semantic type / missing / uniques, head | in progress |
+| source `csv` (pandas) | input | read any common CSV (sep sniffing, encoding, decimal) | done |
+| `dataset_overview` | analysis | shape, memory, per-column dtype / semantic type / missing / uniques, head | done |
+| harden `semantic_type` + fast sep sniffing | analysis / input | fewer false `id_like` (few non-null, all-distinct ints), "mostly numeric" text, years-as-datetime; sniff on first lines then C engine | planned (before / with slice 2) |
 | `train_test_check` | analysis | columns on one side only (target), dtype mismatches, unseen categories, range and missing-rate shifts | planned (slice 2) |
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
 | `duplicates` | analysis | duplicated rows, duplicated ids | planned |
