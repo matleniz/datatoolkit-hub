@@ -19,10 +19,10 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 |---|---|---|---|
 | source `csv` (pandas) | input | read any common CSV (sep sniffing, encoding, decimal) | done |
 | `dataset_overview` | analysis | shape, memory, per-column dtype / semantic type / missing / uniques, head | done |
-| harden `semantic_type` + fast sep sniffing | analysis / input | fewer false `id_like` (few non-null, all-distinct ints), "mostly numeric" text, years-as-datetime; sniff on first lines then C engine | planned (before / with slice 2) |
-| Windows paths in `csv` source | input | accept `C:\…` and map it to `/mnt/c/…` (WSL) | planned |
-| group-id detection in `semantic_type` | analysis | spot a repeated entity key (e.g. `patient_id`: 6 971 distinct / 55 603 rows) as `group_id`, not `categorical` | planned |
-| `train_test_check` | analysis | columns on one side only (target), dtype mismatches, unseen categories, range and missing-rate shifts | planned (slice 2) |
+| harden `semantic_type` + fast sep sniffing | analysis / input | fewer false `id_like` (few non-null, all-distinct ints), "mostly numeric" text, years-as-datetime; sniff on first lines then C engine | done |
+| Windows paths in `csv` source | input | accept `C:\…` and map it to `/mnt/c/…` (WSL) | done |
+| group-id detection in `semantic_type` | analysis | spot a repeated entity key (e.g. `patient_id`: 6 971 distinct / 55 603 rows) as `group_id`, not `categorical` | done |
+| `train_test_check` | analysis | columns on one side only (target), dtype mismatches, unseen categories, range and missing-rate shifts, train/test overlap | in progress |
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
 | `duplicates` | analysis | duplicated rows, duplicated ids | planned |
 | `correlations` | analysis | numeric correlation heatmap | planned |

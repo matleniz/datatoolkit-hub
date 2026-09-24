@@ -18,6 +18,10 @@
   front forms (`schema.py`). Gate: ruff + 42 tests. Review follow-ups:
   `semantic_type` heuristics, slow `sep="auto"` on big files.
 
+- Hardening merged (PR datatoolkit#3, MAT-24): `group_id` type, fewer false
+  `id_like`, `pct_numeric_parsable`, years not datetime, Windows paths, fast
+  sniffing (X_train read 1.0 s → 0.46 s). Gate: 69 tests.
+
 ## Next (see Linear)
 - HTTP API (FastAPI, 3 generic routes) + `HttpClient` — needs FastAPI approval.
 - Slice 2: `train_test_check` (after slice 1 review).

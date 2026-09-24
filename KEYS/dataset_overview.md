@@ -12,12 +12,13 @@
 
 ## Result
 - metrics: `rows`, `cols`, `memory_mb` (deep, 3 decimals), `pct_missing_cells` (0..100), `n_duplicate_rows` (exact duplicate rows)
-- tables: `columns` — one record per column `{column, dtype, semantic_type, n_missing, pct_missing, n_unique, sample_values}` (from `ops.profile.column_profile`); `head` — first `head_rows` rows
+- tables: `columns` — one record per column `{column, dtype, semantic_type, n_missing, pct_missing, n_unique, pct_numeric_parsable, sample_values}` (from `ops.profile.column_profile`); `head` — first `head_rows` rows
 - figures: `% missing per column` — Plotly bar of `pct_missing` per column
 
 ## Notes
-- `semantic_type` (`ops/profile.py`) is a heuristic in {numeric, categorical, boolean, datetime, text, id_like, constant}: ≤1 distinct non-null → constant; numeric {0,1} → boolean; integer or whitespace-free string with distinct/non-null ≥ 0.95 → id_like; strings fully parseable as ISO-8601 → datetime; strings with distinct ratio > 0.5 → text, else categorical. Low-cardinality integers (e.g. `Pclass`) stay numeric.
-- Known weak spots (review of PR #2): a sparse column with few, all-distinct values (demo `Cabin`) or any all-distinct integer feature → `id_like`; numbers polluted by a token (`Age` = "unknown" in demo test) → `text`; year strings → `datetime`.
-- `sep="auto"` uses pandas' python engine on the whole file: slow on big CSVs.
+- `semantic_type` (`ops/profile.py`) is a heuristic in {numeric, categorical, boolean, datetime, text, id_like, group_id, constant}: ≤1 distinct non-null → constant; numeric {0,1} → boolean; **id_like** = ≥ 20 non-null values (`ID_MIN_NON_NULL`) and distinct/non-null ≥ 0.95, plus whitespace-free for strings or, for integers, distinct values filling ≥ 95 % of their [min, max] range (`Index` 0..n-1 yes, spread-out all-distinct ints → numeric); **group_id** (repeated entity key, e.g. `patient_id`) = ≥ 100 distinct values with ratio in [0.01, 0.95), whitespace-free strings or integers filling ≥ 50 % of their range; strings fully parseable as ISO-8601 → datetime, except pure-digit strings (years); strings with distinct ratio > 0.5 → text, else categorical. Low-cardinality integers (e.g. `Pclass`) stay numeric. Thresholds are module constants.
+- `pct_numeric_parsable` = % of non-null values that read as numbers (100 for numeric dtypes, 0 for bool/datetime). A `text`/`categorical` column scoring high is numbers polluted by tokens (demo test `Age`: 85.0 because of "unknown").
+- Remaining weak spots: a sparse all-distinct string column (demo `Cabin`, 5 values) reads `text`; an integer count feature with ≥ 100 dense distinct values on a large table can read `group_id`.
+- Checked on real data (X_train 55 603 × 12): `Index` → id_like, `patient_id` → group_id, `sexM` → boolean.
 - A missing or unreadable file raises `SourceError` (not `KeyParamsError`); an unknown `kind` or misspelled param raises `KeyParamsError`.
 - Default demo train: 41 rows × 12 cols, 1 deliberate duplicate row.

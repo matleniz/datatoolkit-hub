@@ -124,7 +124,7 @@ reader's spec to this union**), `sources/registry.py` (`@reader`, `load`),
 
 | `kind` | Reader | Status |
 |---|---|---|
-| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `sep=None, engine="python"` sniffing), `encoding`, `decimal`, `header` (null = no header) | done |
+| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header). A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL | done |
 | `csv_robust` | malformed CSVs (bad lines, mixed separators, junk headers) | later |
 | `parquet` | polars or duckdb backend → pandas | later, needs approval |
 | `upload` | file dropped by the front into a staging dir | later |
