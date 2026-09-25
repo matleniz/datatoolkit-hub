@@ -35,6 +35,15 @@
   can fit on train). Three parallel workers: workspace, richer overview stats,
   train/test drift.
 
+- 2026-09-25 — three slices merged: drift in `train_test_check` (PR #5,
+  MAT-30: SMD, KS, PSI, % outside train p1–p99, TVD, overlaid histograms;
+  p1–p99 info threshold raised 1 → 3 % after review), richer
+  `dataset_overview` with tabs per semantic type (PR #6, MAT-29; Result
+  `group` field), workspace + `dataset` source + label join + front top bar
+  (PR #7, MAT-28). Gate: 168 tests on the combined merge. Real data: no drift;
+  `age_at_diagnosis` test missing values imputed with a single value (56.3 on
+  1 162 rows); labeled train 55 603 × 13, no row lost.
+
 ## Next (see Linear)
 - HTTP API (FastAPI, 3 generic routes) + `HttpClient` — needs FastAPI approval.
 - `label_join_preview`, then transform ops one by one.

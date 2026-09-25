@@ -32,6 +32,12 @@ def key_schema(key_id: str) -> dict
     # JSON Schema of the key's Params (pydantic model_json_schema())
 def run_key(key_id: str, params: dict) -> dict
     # Result.model_dump(mode="json"); invalid params -> raises KeyParamsError
+
+# workspace state (see "Workspace" below), mirrored in EngineClient / LocalClient
+def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
+def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
+def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid -> KeyParamsError
+def delete_workspace(name: str) -> None
 ```
 
 Errors (`dtk_engine/errors.py`): `UnknownKeyError` (unknown key id),
@@ -40,8 +46,9 @@ unknown source `kind`), `SourceError` (a source cannot be loaded: missing /
 empty / unreadable file; raised unchanged by `run_key`). The Streamlit front
 shows any engine error via `st.error`.
 
-An HTTP API later exposes exactly these three (`GET /keys`,
-`GET /keys/{id}/schema`, `POST /keys/{id}/run`) with zero per-key code.
+An HTTP API later exposes exactly these (`GET /keys`,
+`GET /keys/{id}/schema`, `POST /keys/{id}/run`, `GET /workspaces`,
+`GET|PUT|DELETE /workspaces/{name}`) with zero per-key code.
 
 ## Result (engine output)
 
@@ -50,12 +57,17 @@ An HTTP API later exposes exactly these three (`GET /keys`,
 | Field | Type | Meaning |
 |---|---|---|
 | `metrics` | `dict[str, float \| int \| str]` | headline numbers |
-| `tables` | `list[Table]` — `{"title": str, "records": list[dict]}` | tabular output |
-| `figures` | `list[Figure]` — `{"title": str, "plotly": dict}` | Plotly figure JSON (`json.loads(fig.to_json())`) |
+| `tables` | `list[Table]` — `{"title": str, "records": list[dict], "group": str \| null}` | tabular output |
+| `figures` | `list[Figure]` — `{"title": str, "plotly": dict, "group": str \| null}` | Plotly figure JSON (`json.loads(fig.to_json())`) |
 | `text` | `str` | markdown commentary, may be empty |
 
-Helpers: `Result.add_figure(title, fig)`, `Result.add_table(title, df)`
-(convert to JSON-safe records). `Result.show()` for notebooks (imports plotly
+Helpers: `Result.add_figure(title, fig, group=None)`,
+`Result.add_table(title, df, group=None)` (convert to JSON-safe records).
+`group` is optional: a front renders one tab per group in first-appearance
+order, ungrouped items in a leading "Overview" tab; nothing grouped → flat
+layout. Streamlit also gives any table with a `column` field a multiselect
+filter on it (generic; pure helpers `group_items`, `filter_options`,
+`filter_records` in `render.py`). `Result.show()` for notebooks (imports plotly
 lazily, prints metrics, renders figures; no front dependency). Since the
 contract returns a dict, the notebook idiom is
 `Result(**run_key("train_test_check", {})).show()`.
@@ -118,13 +130,16 @@ A pydantic union discriminated on `kind`; a key declares e.g.
 `registry.py`) and `load(spec)` dispatches. A missing/unreadable file raises a
 `SourceError`.
 
-Files: `sources/spec.py` (`CsvSource`, the `SourceSpec` union — **add every new
-reader's spec to this union**), `sources/registry.py` (`@reader`, `load`),
-`sources/csv_pandas.py`. Spec models are strict (`extra="forbid"`).
+Files: `sources/spec.py` (`CsvSource`, `DatasetSource`, the `SourceSpec` union
+— **add every new reader's spec to this union, and file readers also to
+`FileSourceSpec`**, the file-only union a workspace uses for X / y so it cannot
+reference a `dataset` source), `sources/registry.py` (`@reader`, `load`),
+`sources/csv_pandas.py`, `sources/dataset.py`. Spec models are strict (`extra="forbid"`).
 
 | `kind` | Reader | Status |
 |---|---|---|
-| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header). A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL | done |
+| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header). A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL. A single-column file (no candidate separator in the header) reads with `,` | done |
+| `dataset` | current state of a workspace dataset: `workspace`, `role` (`train` \| `test`), `labeled` (default true) → load X, join y (or keep / drop `target_column` per `labeled`), replay the steps for the role | done |
 | `csv_robust` | malformed CSVs (bad lines, mixed separators, junk headers) | later |
 | `parquet` | polars or duckdb backend → pandas | later, needs approval |
 | `upload` | file dropped by the front into a staging dir | later |
@@ -142,7 +157,7 @@ the pure module `dtk_streamlit/schema.py` (`build_params(schema, widgets)`, a
 `Widgets` protocol injected by `render.py`), unit-tested without Streamlit in
 `tests/front/test_schema_form.py`.
 
-## Workspace: loaded datasets + transform log (validated 2026-09-25, in progress)
+## Workspace: loaded datasets + transform log (built 2026-09-25, no transform op yet)
 
 Capability families and backlog: `CAPABILITIES.md`.
 
@@ -176,3 +191,27 @@ workspace "parkinson"
   per-op options are decided with Matteo when each op is built.
 - **Front**: a top bar shows the active workspace (train / test / y, number of
   steps); key forms are pre-filled with the workspace datasets.
+
+Implementation:
+- Package `dtk_engine/workspace/`: `models.py` (strict pydantic `Workspace`:
+  `datasets.train` required, `datasets.test` optional; per dataset `y` and
+  `target_column` are mutually exclusive; `label.key` required for mode `key`),
+  `store.py` (`WorkspaceStore` protocol, `JsonWorkspaceStore`: root
+  `$DTK_HOME/workspaces`, default `~/.datatoolkit/workspaces`, or a `root` arg;
+  atomic writes; name pattern `^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`), `replay.py`.
+- **Transform signature**: `@transform(op)` registers `fn(df, params, fit) -> df`.
+  `fit` is None when applied to train or by a test-only step; for a `both` step
+  applied to test, `fit` is the train frame as of that step (earlier train /
+  both steps already replayed). Unknown op → `SourceError`, raised before any
+  work. No op registered yet.
+- **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
+  value column plus an optional index-like column (named index / idx /
+  `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column
+  also exists in X it must be equal row by row (real data: `Index` checked).
+  `key` = one-to-one, no NaN keys, no unmatched row on either side. Both refuse
+  row loss; the error lists the counts. X's row order and index are kept.
+- Front: forms prefilled by the pure `schema.workspace_defaults` (first source
+  param → train, a param named `test` → test, others keep their default); the
+  widget key prefix includes the active workspace so forms reset on switch.
+  Headless `AppTest` smoke tests in `tests/front/test_app.py`.
+- `tests/test_real_data.py` runs on Matteo's real CSVs, skipped when absent.

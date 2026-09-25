@@ -7,8 +7,8 @@ it is implemented. Architecture of the layers: `ARCHITECTURE.md`.
 
 | Family | Shape | Examples | Status |
 |---|---|---|---|
-| **Analysis / check** | table(s) → `Result`, no table produced | overview, train/test consistency, distribution, duplicates, correlations | slice 1 |
-| **Transform** | table(s) + params → table | join X_train + y_train (index / id), concat, derived feature (column combination), cast, drop, filter | later |
+| **Analysis / check** | table(s) → `Result`, no table produced | overview, train/test consistency, distribution, duplicates, correlations | built |
+| **Transform** | table(s) + params → table | join X_train + y_train (index / id), concat, derived feature (column combination), cast, drop, filter | label join built (workspace); step ops next |
 | **Pipeline** | JSON list of steps over a catalog of named tables | replay a preprocessing exactly (hash inputs + manifest) | later |
 
 ## Backlog
@@ -23,9 +23,10 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | Windows paths in `csv` source | input | accept `C:\…` and map it to `/mnt/c/…` (WSL) | done |
 | group-id detection in `semantic_type` | analysis | spot a repeated entity key (e.g. `patient_id`: 6 971 distinct / 55 603 rows) as `group_id`, not `categorical` | done |
 | `train_test_check` | analysis | columns on one side only (target), dtype mismatches, unseen categories, range and missing-rate shifts, train/test overlap | done |
-| workspace + source `dataset` + front top bar | input / state | keep X_train / y_train / X_test in memory across pages (JSON workspace), y separate or already in X, label join by order or key | in progress |
-| richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | in progress |
-| train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | in progress |
+| workspace + source `dataset` + front top bar | input / state | keep X_train / y_train / X_test in memory across pages (JSON workspace), y separate or already in X, label join by order or key | done |
+| richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | done |
+| train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | done |
+| test value spike (imputation) check | analysis | flag a value over-represented in test vs train (real data: `age_at_diagnosis` = 56.3 on 1 162 test rows) | idea, to discuss |
 | `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | planned |
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
 | `duplicates` | analysis | duplicated rows, duplicated ids | planned |
