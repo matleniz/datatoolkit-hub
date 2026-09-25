@@ -16,6 +16,7 @@ preprocessing), raw pages kept locally in `documents/` (gitignored). Planned
 | 8 Categorical Encoding | nominal vs ordinal; one-hot (`handle_unknown`, `min_frequency`, cost); ordinal with explicit order | `onehot`, `ordinal` ops; advisor cardinality / cost | MAT-44, MAT-47 |
 | 9 Feature Engineering | ratios (clip denominator), interactions, datetime parts, cyclical sin+cos, binning, group aggregations and their leak | `derive`, `interactions`, `datetime_parts`, `cyclical`, `bin`, `group_agg` ops | MAT-45 |
 | 10 Scaling and Normalization | who needs scaling; standard / minmax / robust; skew → log1p; target scaling | `scale`, `log1p` ops; advisor per model family | MAT-44, MAT-47 |
+| 11 Feature Selection | curse of dimensionality; filter / wrapper / embedded families (SelectKBest + mutual info, RFECV, Lasso); PCA fitted on scaled train, explained variance | `feature_selection` key; `drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca` ops | MAT-56 |
 
 Not planned (ask first): approximate duplicates (rapidfuzz, not approved),
 NoSQL / MongoDB source, APIs / scraping, images / text manifests, target
