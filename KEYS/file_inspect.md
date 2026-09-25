@@ -3,7 +3,7 @@
 - **Category:** analysis
 - **Code:** `src/dtk_engine/keys/file_inspect.py` · tests `tests/keys/test_file_inspect.py`
 - **Notebook:** contract only (`run_key("file_inspect", {"path": …})`)
-- **What it answers:** What does the raw file look like before loading it (bytes, BOM, encoding, line endings, delimiter, header line, empty `Unnamed:` columns; Excel sheets)?
+- **What it answers:** What does the raw file look like before loading it (bytes, BOM, encoding, decimal mark, line endings, delimiter, header line or none, empty `Unnamed:` columns, leading-zero columns, first malformed line; Excel sheets and header row; JSON record path) — and which spec loads it?
 
 ## Params
 | Name | Type | Default | Meaning |
@@ -11,8 +11,8 @@
 | `path` | str | demo train.csv | local path to the file |
 
 ## Result
-- metrics: `size_bytes`, `modified` (UTC ISO), `first_bytes` (repr of the first bytes), and for text files `bom`, `encoding_guess` (utf-8 else cp1252), `line_endings`, `delimiter`, likely header line, empty `Unnamed:` columns
-- tables: `sheets` (sheet, rows, cols) for Excel
+- metrics: `size_bytes`, `modified` (UTC ISO), `first_bytes` (repr of the first bytes), and for text files `bom`, `encoding_guess` (BOM, utf-8, cp1252 or latin-1), `line_endings`, `delimiter`, `decimal_guess`, `header_guess` (`present` \| `none`); when present `header_line` (1-based), `title_lines_above_header`, `unnamed_columns`, `leading_zero_columns`; when none with title lines `title_lines_above_data`; `bad_line` (first malformed line in the 64 KB sample, or `none`); `load_spec` = JSON csv spec with the guesses applied (sep, encoding, decimal, header, `dtype: str` for leading-zero columns) → `api.load(json.loads(m["load_spec"]))`. JSON files (≤ 50 MB): `suggested_record_path` when records sit under an envelope.
+- tables: `sheets` (sheet, rows, cols, `suggested_header` 0-based) for Excel; `record_paths` (record_path, records) for enveloped JSON
 
 ## Notes
-Course: "look at the file before you load it". Pair with the csv source options (`na_values`, `dtype`, `parse_dates`, `encoding`, `header`).
+Header detection honours CSV quoting (quoted separators / newlines); a line where every numeric column is already numeric is data, not a header (UCI dumps). Course: "look at the file before you load it". Pair with the csv source options (`na_values`, `dtype`, `parse_dates`, `encoding`, `header`).

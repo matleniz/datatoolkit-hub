@@ -209,18 +209,18 @@ Files: `sources/spec.py` (`CsvSource`, `ParquetSource`, `ExcelSource`,
 reference a `dataset` source), `sources/registry.py` (`@reader`, `load`),
 `sources/csv_pandas.py`, `parquet.py`, `excel.py`, `json_reader.py`, `sql.py`,
 `dataset.py`. Spec models are strict (`extra="forbid"`). `api.load(path)` maps
-`.csv` / `.tsv` / `.parquet` / `.xlsx` / `.json` / `.jsonl` through
+`.csv` / `.tsv` / `.parquet` / `.xlsx` / `.json` / `.jsonl` / `.ndjson` through
 `api.SUFFIX_KINDS`.
 
 | `kind` | Reader | Status |
 |---|---|---|
-| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header), `na_values`, `dtype`, `parse_dates`, `usecols`. A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL. A single-column file (no candidate separator in the header) reads with `,` | done |
+| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`; if the Sniffer fails, a single candidate on the header line wins), `encoding` (`"auto"` default: BOM, else utf-8, else cp1252, latin-1 last; explicit values strict), `decimal` (`"auto"` default: `,` for non-comma files holding more `1,5` than `1.5`), `header` (null = no header), `na_values`, `dtype`, `parse_dates`, `usecols`, `on_bad_lines` (`error` default: strict pre-scan → `SourceError` naming the line on unclosed quote / text after a closing quote / too many fields; `warn` / `skip` = pandas recovery), `keep_leading_zeros` (default true: digits-only columns with leading zeros stay strings). The file is read once as bytes and parsed from memory (MAT-61…69). A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL. A single-column file (no candidate separator in the header) reads with `,` | done |
 | `dataset` | current state of a workspace dataset: `workspace`, `role` (`train` \| `test`), `labeled` (default true) → load X, join y (or keep / drop `target_column` per `labeled`), replay the steps for the role | done |
 | `parquet` | pyarrow via pandas: `path` (file or partitioned dir), `columns`, `filters` (`[column, op, value]`, ANDed) | done (MAT-40) |
-| `excel` | openpyxl: `path`, `sheet` (name or index), `header`, `usecols` | done (MAT-40) |
-| `json` | `path`, `lines` (jsonl), `record_path` (dotted); nested objects flattened `a_b`, lists kept as-is | done (MAT-40) |
+| `excel` | openpyxl: `path`, `sheet` (name or index), `header` (0-based; `file_inspect` suggests one per sheet), `usecols` | done (MAT-40) |
+| `json` | `path`, `lines` (jsonl), `encoding` (`utf-8-sig` default, BOM-safe), `record_path` (dotted; `file_inspect` suggests one); nested objects flattened `a_b`, lists kept as-is | done (MAT-40) |
 | `sql` | SQLAlchemy: `url_env` = NAME of an env var holding the URL (never the URL: it would land in workspaces / logs), `query` run on the server; errors never echo the URL. Not a file source (not usable as workspace X / y) | done (MAT-40) |
-| `csv_robust` | malformed CSVs (bad lines, mixed separators, junk headers) | later |
+| `csv_robust` | bad lines are covered by `csv` `on_bad_lines`; mixed separators, junk headers | later |
 | `upload` | file dropped by the front into a staging dir | later |
 
 Step 1 input = a local path. Default paths point to the demo CSVs shipped in

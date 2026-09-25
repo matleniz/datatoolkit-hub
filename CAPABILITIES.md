@@ -17,7 +17,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 
 | Item | Family | What it answers | Status |
 |---|---|---|---|
-| source `csv` (pandas) | input | read any common CSV (sep sniffing, encoding, decimal) | done |
+| source `csv` (pandas) | input | read any common CSV (sep sniffing, auto encoding / decimal, leading zeros kept, strict bad-line check) | done — MAT-61…69 |
 | `dataset_overview` | analysis | shape, memory, per-column dtype / semantic type / missing / uniques, head | done |
 | harden `semantic_type` + fast sep sniffing | analysis / input | fewer false `id_like` (few non-null, all-distinct ints), "mostly numeric" text, years-as-datetime; sniff on first lines then C engine | done |
 | Windows paths in `csv` source | input | accept `C:\…` and map it to `/mnt/c/…` (WSL) | done |
@@ -30,7 +30,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
 | `correlations` | analysis | numeric correlation heatmap | planned |
 | source `upload` | input | file uploaded in the front | planned |
-| source `csv_robust` | input | malformed CSVs | planned |
+| source `csv_robust` | input | malformed CSVs | partial — bad lines strict / recover (MAT-68/69); mixed separators, junk headers later |
 | repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | done — MAT-39 |
 | sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | done — MAT-40 |
