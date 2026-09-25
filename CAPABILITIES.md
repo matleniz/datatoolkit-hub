@@ -23,11 +23,15 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | Windows paths in `csv` source | input | accept `C:\…` and map it to `/mnt/c/…` (WSL) | done |
 | group-id detection in `semantic_type` | analysis | spot a repeated entity key (e.g. `patient_id`: 6 971 distinct / 55 603 rows) as `group_id`, not `categorical` | done |
 | `train_test_check` | analysis | columns on one side only (target), dtype mismatches, unseen categories, range and missing-rate shifts, train/test overlap | done |
+| workspace + source `dataset` + front top bar | input / state | keep X_train / y_train / X_test in memory across pages (JSON workspace), y separate or already in X, label join by order or key | in progress |
+| richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | in progress |
+| train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | in progress |
+| `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | planned |
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
 | `duplicates` | analysis | duplicated rows, duplicated ids | planned |
 | `correlations` | analysis | numeric correlation heatmap | planned |
 | source `upload` | input | file uploaded in the front | planned |
 | source `csv_robust` | input | malformed CSVs | planned |
 | source `parquet` | input | polars / duckdb reader | planned, needs approval |
-| `join`, `derive_feature`, … | transform | build new tables | design to discuss |
-| pipeline runner | pipeline | reproducible replay | design to discuss |
+| transform ops (`drop_columns`, `rename`, `cast`, `fillna`, `filter_rows`, `derive`, realign test on train stats) | transform | modify train / test / both, logged in the workspace | design validated, ops to discuss one by one |
+| pipeline runner | pipeline | reproducible replay of the workspace step log (+ input hashes, manifest) | later |

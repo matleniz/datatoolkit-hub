@@ -30,6 +30,11 @@
   5 % → 0 % missing, 23 identical feature rows across splits (different
   patients, sparse rows), no `patient_id` leak.
 
+- 2026-09-25 — workspace design validated (engine-side JSON, step log =
+  future pipeline, `kind="dataset"` source, tabs per semantic type, stat ops
+  can fit on train). Three parallel workers: workspace, richer overview stats,
+  train/test drift.
+
 ## Next (see Linear)
 - HTTP API (FastAPI, 3 generic routes) + `HttpClient` — needs FastAPI approval.
-- Slice 2: `train_test_check` (after slice 1 review).
+- `label_join_preview`, then transform ops one by one.

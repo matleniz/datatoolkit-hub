@@ -142,13 +142,37 @@ the pure module `dtk_streamlit/schema.py` (`build_params(schema, widgets)`, a
 `Widgets` protocol injected by `render.py`), unit-tested without Streamlit in
 `tests/front/test_schema_form.py`.
 
-## Direction: transforms & pipelines (NOT built — design to be discussed first)
+## Workspace: loaded datasets + transform log (validated 2026-09-25, in progress)
 
 Capability families and backlog: `CAPABILITIES.md`.
 
-- **Catalog**: named tables (`X_train`, `y_train`, `X_test`…), each from a SourceSpec.
-- **Transform op**: table(s) + params → table (join, concat, derived feature, cast, drop, filter).
-- **Check op** (= analysis key): table(s) → `Result`, produces no table.
-- **Pipeline**: JSON list of steps `{op, inputs, params, output}` over the catalog.
-  Reproducibility target: pipeline JSON + input file hashes + versions →
-  deterministic run producing output tables + a run manifest.
+A **workspace** is the engine-side state of one project: which files make train
+and test, how the labels join, and the ordered log of transforms. It lives as
+JSON in `~/.datatoolkit/workspaces/<name>.json` behind a `WorkspaceStore`
+interface (JSON file today; materialized tables, e.g. parquet, later and only
+with approval). Any front (Streamlit, notebook, future web) sees the same state.
+
+```
+workspace "parkinson"
+  datasets:
+    train : X = SourceSpec   y = SourceSpec | null   (or target column already in X)
+    test  : X = SourceSpec   y = null
+  label   : mode "order" (y has one column, same row count) | "key" (common column)
+  steps   : [ {op, target: train|test|both, params}, ... ]   ← full trace
+```
+
+- **Current state = sources + steps replayed in order.** Undo = drop the last
+  step and replay. The step log *is* the future reproducible pipeline (add input
+  hashes + versions → run manifest).
+- **Keys stay unchanged**: a new SourceSpec `kind="dataset"`
+  (`workspace`, `role: train|test`, `labeled`) loads the current state, so every
+  analysis key runs on the transformed data.
+- **Label join** (X + y): `order` (y has a single value column, same row count)
+  or `key` (join column). It refuses to lose rows. A preview key
+  (`label_join_preview`) shows X / Y columns and join candidates before joining.
+- **Transform ops** are pure functions in `ops/`: `(df, params) -> df`, applied
+  to `train`, `test` or `both`. Stat-based ops can fit on train and apply to
+  test (e.g. realign a shifted test column with train statistics); the exact
+  per-op options are decided with Matteo when each op is built.
+- **Front**: a top bar shows the active workspace (train / test / y, number of
+  steps); key forms are pre-filled with the workspace datasets.
