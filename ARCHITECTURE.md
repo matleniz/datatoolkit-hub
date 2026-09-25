@@ -84,6 +84,9 @@ def delete_workspace(name: str) -> None
 # transforms (steps of a workspace)
 def list_transforms() -> list[dict]          # [{"op", "title", "description"}]
 def transform_schema(op: str) -> dict        # JSON Schema of the op's params; unknown -> UnknownTransformError (a KeyError)
+def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
+    # unsaved workspace dict, validated like save_workspace, replayed in memory (no store write):
+    # {"shape": [rows, cols], "columns": [...], "head": records}; bad role / invalid ws -> KeyParamsError
 
 # export (see "Export" above)
 def export_workspace(name: str, out_dir: str, overwrite: bool = False) -> dict

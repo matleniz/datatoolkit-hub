@@ -12,7 +12,7 @@ test, never refitted on test).
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `align_to_train` | yes | Realign a shifted column to train statistics (mean, optionally std). | `columns`, `mode` |
+| `align_to_train` | yes | Realign a shifted / broken numeric column onto train's distribution. | `columns`, `mode`, `group`, `min_rows`, `on_small`, `n_quantiles` |
 | `cast` | — | Cast columns to the given dtypes; a failing conversion raises. | `dtypes` |
 | `clip` | yes | Clip columns to percentile bounds learned on train (state: bounds). | `columns`, `lower`, `upper` |
 | `drop_columns` | — | Remove the listed columns. | `columns`, `missing_ok` |
@@ -79,8 +79,13 @@ test, never refitted on test).
 - `group_agg` refuses to aggregate the declared `target` (leak); unseen groups → NaN.
 - `derive(days_between)` and `datetime_parts` coerce unparseable dates to NaT —
   run `parse_dates` first (it raises) if the column may be dirty.
-- `align_to_train`: minimal version (`shift_mean`, `standardize_to_train`); the
-  frame's own mean / std are measured at apply time. Options to confirm with Matteo.
+- `align_to_train` (MAT-58): modes `shift_mean`, `shift_median`, `standardize`
+  (alias `standardize_to_train`), `robust` (median + IQR), `quantile` (frame
+  quantile → train quantile function, `n_quantiles` = 101). Train statistics
+  are the state; the frame's own are measured at apply, so on train it is the
+  identity. `group`: per-group train statistics, unseen / small groups fall
+  back to global. `min_rows` (30): fewer non-null values → column left
+  unchanged (`on_small="raise"` raises). Zero std / IQR → shift only.
 - `workspace_pipeline` keeps only `both` steps; row-dropping ops
   (`drop_duplicates`, `filter_rows`, `drop_missing_target`) break X / y
   alignment inside an sklearn `Pipeline` — use them as `train` / `test` steps.
