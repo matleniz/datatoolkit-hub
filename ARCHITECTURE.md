@@ -130,7 +130,17 @@ Recipe: `HOWTO/add-a-key.md`.
 `client.run_key` → `render.result(result_dict)` shows metrics, tables
 (`st.dataframe`), figures (`st.plotly_chart(plotly.io.from_json(...))`), text.
 
-`EngineClient` is a `typing.Protocol` with the three contract methods.
+**Transforms panel** (MAT-46, `app.py::transforms_panel` + pure
+`steps.py`): under the workspace bar, lists `client.list_transforms()`, builds
+the op form from `client.transform_schema(op)` (same `schema.py` machinery),
+target train / test / both, "Add step" / "Undo last step" via `save_workspace`,
+step log. "Preview step" shows shape + head before / after through the
+`dataset` source; today it saves and deletes a scratch workspace
+`<name>.preview` (store side effect — MAT-55 moves the preview into the
+engine, no write).
+
+`EngineClient` is a `typing.Protocol` mirroring the contract (keys,
+workspaces, `list_transforms`, `transform_schema`).
 `LocalClient` calls `dtk_engine.contract` in-process. `HttpClient` = future.
 Switching front = implement `HOWTO/add-a-front.md`, touch nothing in the engine.
 

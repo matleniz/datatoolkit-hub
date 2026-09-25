@@ -39,6 +39,6 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | cleaning ops (`drop_columns`, `rename`, `cast`, `drop_duplicates`, `standardize_text`, `parse_dates`, `replace_sentinels`, `drop_missing_target`, `filter_rows`, `clip`, `align_to_train`) | transform | fix the defects found by the analyses; `align_to_train` options to confirm with Matteo | done — MAT-43 |
 | imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | done — MAT-44 |
 | feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | done — MAT-45 |
-| Streamlit Transforms panel | front | add / undo steps generically, before/after preview | planned — MAT-46 |
+| Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46 (preview without store write: MAT-55) |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | planned — MAT-47 |
 | pipeline runner | pipeline | reproducible replay of the workspace step log (+ input hashes, manifest) | later |

@@ -68,6 +68,9 @@
   (MAT-44, KNN / iterative state = train matrix), features (MAT-45). Conflicts
   only on `keys/__init__.py` / `api.py` (unions). Gate: 292 tests. Catalog:
   `TRANSFORMS.md`. B3 dispatched (MAT-46 front, MAT-47 advisor / export).
+- 2026-09-25 — front Transforms panel merged (datatoolkit-streamlit#1, MAT-46,
+  26 front tests). Fleet bug: an inherited `FLEET_CONF` overrides `--project`
+  (MAT-53); front dispatch uses `env -u FLEET_CONF -u FLEET_PROJECT`.
 
 ## Next (see Linear)
-- B3: MAT-46 (front Transforms panel), MAT-47 (advisor + export). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.
+- B3: MAT-47 (advisor + export). Follow-up MAT-55 (preview without store write). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.
