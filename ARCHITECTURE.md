@@ -158,9 +158,9 @@ Recipe: `HOWTO/add-a-key.md`.
 the op form from `client.transform_schema(op)` (same `schema.py` machinery),
 target train / test / both, "Add step" / "Undo last step" via `save_workspace`,
 step log. "Preview step" shows shape + head before / after through the
-`dataset` source; today it saves and deletes a scratch workspace
-`<name>.preview` (store side effect — MAT-55 moves the preview into the
-engine, no write).
+`dataset` source replayed in memory by `client.preview_workspace` for the
+workspace and for workspace + pending step (MAT-55: nothing written to the
+store).
 
 `EngineClient` is a `typing.Protocol` mirroring the contract (keys,
 workspaces, `list_transforms`, `transform_schema`).
