@@ -2,7 +2,8 @@
 
 > **Protocol (context economy).** Read THIS index, open the ONE file relevant to
 > your task, `grep '^#'` on large files. Do NOT load the whole hub. Code lives in
-> `~/datatoolkit`; verify facts there (`grep`/`ls`) before asserting.
+> `~/datatoolkit` (engine) and `~/datatoolkit-streamlit` (front); verify facts
+> there (`grep`/`ls`) before asserting.
 
 ## Topic → file
 
@@ -14,6 +15,7 @@
 | Adding a key | `HOWTO/add-a-key.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |
 | What was done when, what's next | `ROADMAP.md` |
+| Course section → capability → Linear issue | `COURSE-MAP.md` |
 
 ## Keys (one card each — open only the one you need)
 

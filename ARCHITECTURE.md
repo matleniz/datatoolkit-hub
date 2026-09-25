@@ -3,6 +3,34 @@
 Trusted-fact doc. Code in `~/datatoolkit`. If the code contradicts this file,
 flag it (`propose-doc-change`), do not silently diverge.
 
+## Planned (validated 2026-09-25, not built yet)
+
+Status: **planned** — the sections below describe what is built today; this
+block becomes the reference as MAT-38 / MAT-39 merge (detail travels with the
+merge).
+
+- **Two repos.** `matleniz/datatoolkit` = engine only (`src/dtk_engine` at the
+  root, installable `uv add git+https://github.com/matleniz/datatoolkit`, no
+  streamlit). `matleniz/datatoolkit-streamlit` = the front, depends on the engine
+  via git, keeps the TID251 barrier + isolation test. (MAT-38)
+- **One implementation, three doors.** Every capability lives once in
+  `dtk_engine/ops/` and is reached through:
+  1. the JSON contract (fronts): `run_key`, workspaces, plus
+     `list_transforms()` / `transform_schema(op)`;
+  2. the notebook facade `dtk_engine.api`: DataFrame in → `Result` (rendered by
+     `_repr_html_`) or DataFrame out — `load`, `overview`, `check`, `duplicates`,
+     `missing`, `outliers`, …;
+  3. sklearn: `DtkTransformer(op, **params)` (fit / transform, pandas in/out)
+     and `workspace_pipeline(name)` → `Pipeline`, usable in `cross_val_score`.
+- **Transform protocol** (replaces `fn(df, params, fit)`):
+  `@transform(op, params_model=...)` registers `fit(df, params) -> state`
+  (JSON-safe dict) and `apply(df, params, state) -> df`. Replay: `both` → fit
+  on train as of that step, apply to train and test; `train` / `test` → fit and
+  apply on that role. Strict pydantic params → the front builds forms
+  generically. Ops split by file: `ops/transforms/{cleaning,impute,encode,scale,features}.py`.
+- **Export** (MAT-47): processed parquet + `manifest.json` (source hashes,
+  steps with fitted states, versions) — raw inputs never modified.
+
 ## Layers
 
 ```

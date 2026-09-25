@@ -26,13 +26,19 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | workspace + source `dataset` + front top bar | input / state | keep X_train / y_train / X_test in memory across pages (JSON workspace), y separate or already in X, label join by order or key | done |
 | richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | done |
 | train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | done |
-| test value spike (imputation) check | analysis | flag a value over-represented in test vs train (real data: `age_at_diagnosis` = 56.3 on 1 162 test rows) | idea, to discuss |
 | `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | planned |
 | `column_distribution` | analysis | histogram / value counts of one column, train vs test overlay | planned |
-| `duplicates` | analysis | duplicated rows, duplicated ids | planned |
 | `correlations` | analysis | numeric correlation heatmap | planned |
 | source `upload` | input | file uploaded in the front | planned |
 | source `csv_robust` | input | malformed CSVs | planned |
-| source `parquet` | input | polars / duckdb reader | planned, needs approval |
-| transform ops (`drop_columns`, `rename`, `cast`, `fillna`, `filter_rows`, `derive`, realign test on train stats) | transform | modify train / test / both, logged in the workspace | design validated, ops to discuss one by one |
+| repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | planned — MAT-38 |
+| fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | planned — MAT-39 |
+| sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | planned — MAT-40 |
+| `duplicates` + `inconsistencies` | analysis | exact / partial duplicates, key conflicts; casing / whitespace variants, mixed types, ambiguous dates, suggested mapping | planned — MAT-41 |
+| `missing_values` + `outliers` | analysis | missing rate, per-row missing spikes, sentinels, co-occurrence, test imputation spike; IQR / z / IsolationForest | planned — MAT-42 |
+| cleaning ops (`drop_columns`, `rename`, `cast`, `drop_duplicates`, `standardize_text`, `parse_dates`, `replace_sentinels`, `drop_missing_target`, `filter_rows`, `clip`, `align_to_train`) | transform | fix the defects found by the analyses; `align_to_train` options to confirm with Matteo | planned — MAT-43 |
+| imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | planned — MAT-44 |
+| feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | planned — MAT-45 |
+| Streamlit Transforms panel | front | add / undo steps generically, before/after preview | planned — MAT-46 |
+| `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | planned — MAT-47 |
 | pipeline runner | pipeline | reproducible replay of the workspace step log (+ input hashes, manifest) | later |

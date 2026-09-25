@@ -44,6 +44,15 @@
   `age_at_diagnosis` test missing values imputed with a single value (56.3 on
   1 162 rows); labeled train 55 603 × 13, no row lost.
 
+- 2026-09-25 — course backlog planned from Matteo's data collection /
+  preprocessing course (`COURSE-MAP.md`). Decisions: split into two repos
+  (engine alone installable, Streamlit apart), three doors to one `ops/`
+  implementation (JSON contract, notebook `api`, sklearn `DtkTransformer`),
+  fit/apply transform protocol; scikit-learn, pyarrow, openpyxl, sqlalchemy
+  approved. Linear MAT-38 … MAT-47 in 4 batches: B0 split + foundations
+  (sequential, opus) → B1 sources + quality keys ∥ B2 transform ops → B3
+  front panel + advisor/export.
+
 ## Next (see Linear)
-- HTTP API (FastAPI, 3 generic routes) + `HttpClient` — needs FastAPI approval.
-- `label_join_preview`, then transform ops one by one.
+- B0: MAT-38 (repo split) then MAT-39 (foundations).
+- B1 ∥ B2 after MAT-39; B3 last. HTTP API (MAT-5) still needs FastAPI approval.
