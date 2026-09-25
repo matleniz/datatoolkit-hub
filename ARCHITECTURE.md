@@ -215,7 +215,8 @@ the engine splits into three internal layers:
 dtk_engine/
   sources/   SourceSpec (JSON) ──load()──▶ pd.DataFrame        generalized input
   ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
-  ops/transforms/{cleaning,impute,encode,scale,features,selection}.py   fit/apply ops (steps)
+  ops/transforms/{cleaning,align,impute,encode,scale,features,selection}.py   fit/apply ops (steps)
+  ops/advisor/, ops/compare/   packages (stage / concern modules); shared helpers in ops/_util.py
   keys/      thin: Params(sources…) → load → ops → Result      one output
 ```
 

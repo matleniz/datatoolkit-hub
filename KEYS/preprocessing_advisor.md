@@ -1,7 +1,7 @@
 # Key `preprocessing_advisor` — Preprocessing advisor
 
 - **Category:** analysis
-- **Code:** `src/dtk_engine/keys/preprocessing_advisor.py` (logic `ops/advisor.py`) · tests `tests/keys/test_preprocessing_advisor.py`, `tests/ops/test_advisor.py`
+- **Code:** `src/dtk_engine/keys/preprocessing_advisor.py` (logic `ops/advisor/`: stage modules `rows`, `drops`, `cleaning`, `missing`, `numeric`, `encode` behind `advise()` / `as_steps()`) · tests `tests/keys/test_preprocessing_advisor.py`, `tests/ops/test_advisor.py`
 - **Notebook:** `api.advise(train_df, test_df, model_family="linear", target="y")`
 - **What it answers:** what should I do to each column before modelling — as workspace steps I can apply?
 

@@ -1,7 +1,7 @@
 # Key `train_test_check` — Train / test check
 
 - **Category:** analysis
-- **Code:** `src/dtk_engine/keys/train_test_check.py` (ops: `ops/compare.py`) · tests `tests/keys/test_train_test_check.py`, `tests/ops/test_compare.py`
+- **Code:** `src/dtk_engine/keys/train_test_check.py` (ops: `ops/compare/` — `schema.py`, `drift.py`, `issues.py`) · tests `tests/keys/test_train_test_check.py`, `tests/ops/test_compare.py`
 - **What it answers:** can a model fit on this train table be applied to this test table: same columns and dtypes, similar missing rates, ranges and distributions (drift, relative outliers), no unseen categories, no row / entity leak?
 
 ## Params
@@ -31,6 +31,6 @@
 - Categorical checks run when either side is `categorical` / `boolean`; values compared as strings so `1` vs `"1"` is not a new category.
 - Row counter: integer column whose distinct values are exactly 0..n-1 or 1..n on **both** sides (index reset in test) → overlap reported as info, not leak.
 - Row overlap hashes the stringified common columns **minus** id columns (given or auto) and row counters, so an identical row with a different `Index` / `patient_id` is found. NaN equals NaN in this comparison (a `merge` on the same columns finds fewer). Rows differing only by dtype (14.0 vs "14") do not match. On sparse data, identical rows can be coincidences between different entities (real data: 23 rows, 13 distinct test patients, 5–6 non-null features each).
-- Thresholds are module constants in `ops/compare.py` (`MISSING_DELTA_WARNING`, `MISSING_DELTA_INFO`, `OUT_OF_RANGE_WARNING`, `PSI_WARNING`, `PSI_INFO`, `SMD_WARNING`, `KS_WARNING`, `OUTSIDE_P1_P99_WARNING`, `OUTSIDE_P1_P99_INFO`, `TVD_WARNING`), not params. Drift = one finding per column, worst severity wins.
+- Thresholds are module constants in `ops/compare/` (re-exported by the package) (`MISSING_DELTA_WARNING`, `MISSING_DELTA_INFO`, `OUT_OF_RANGE_WARNING`, `PSI_WARNING`, `PSI_INFO`, `SMD_WARNING`, `KS_WARNING`, `OUTSIDE_P1_P99_WARNING`, `OUTSIDE_P1_P99_INFO`, `TVD_WARNING`), not params. Drift = one finding per column, worst severity wins.
 - Drift statistics miss a single imputed spike near the mean (real data: `age_at_diagnosis` = 56.3 on 1 162 test rows, PSI 0.025); the missing-rate check catches it. Real data otherwise: no drift (PSI ≤ 0.025, KS ≤ 0.05, |SMD| ≤ 0.04), ~4–5 s.
 - Default demo: `Survived` only in train (info), `Age` float64 vs str (error) + numeric vs text (warning) + 14.63 % → 0 % missing (warning), `Embarked="Q"` unseen (warning, 30 % of test rows), `Fare` 10 % out of range (warning). Auto ids: `PassengerId`; no overlap.
