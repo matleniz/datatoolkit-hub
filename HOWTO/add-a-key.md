@@ -13,6 +13,9 @@
 
 Keys stay thin: `load(source)` → functions from `dtk_engine/ops/` (pure,
 no `Result`) → `Result`. Put reusable logic in `ops/`, not in the key.
+When a key also has step counterparts, keep both sides apart: analysis helpers
+in `ops/<name>.py`, fit/apply mutators in `ops/transforms/<family>.py` (example:
+`feature_selection` → `ops/selection.py` + `ops/transforms/selection.py`).
 
 Rules: any new dependency → `STACK.md` + Matteo's approval first. Keys return
 data, never render. `fleet gate` must be clean before the PR.

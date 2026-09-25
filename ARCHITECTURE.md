@@ -176,7 +176,7 @@ the engine splits into three internal layers:
 dtk_engine/
   sources/   SourceSpec (JSON) ──load()──▶ pd.DataFrame        generalized input
   ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
-  ops/transforms/{cleaning,impute,encode,scale,features}.py   fit/apply ops (steps)
+  ops/transforms/{cleaning,impute,encode,scale,features,selection}.py   fit/apply ops (steps)
   keys/      thin: Params(sources…) → load → ops → Result      one output
 ```
 
@@ -256,12 +256,12 @@ workspace "parkinson"
   (`workspace`, `role: train|test`, `labeled`) loads the current state, so every
   analysis key runs on the transformed data.
 - **Label join** (X + y): `order` (y has a single value column, same row count)
-  or `key` (join column). It refuses to lose rows. A preview key
-  (`label_join_preview`) shows X / Y columns and join candidates before joining.
-- **Transform ops** are pure functions in `ops/`: `(df, params) -> df`, applied
-  to `train`, `test` or `both`. Stat-based ops can fit on train and apply to
-  test (e.g. realign a shifted test column with train statistics); the exact
-  per-op options are decided with Matteo when each op is built.
+  or `key` (join column). It refuses to lose rows. A preview key showing X / Y
+  columns and join candidates before joining is planned (see `CAPABILITIES.md`),
+  not built.
+- **Transform ops** are workspace steps applied to `train`, `test` or `both`,
+  following the fit/apply protocol below (stat-based ops fit on train and apply
+  to test). Catalog: `TRANSFORMS.md`.
 - **Front**: a top bar shows the active workspace (train / test / y, number of
   steps); key forms are pre-filled with the workspace datasets.
 

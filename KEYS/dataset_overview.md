@@ -7,7 +7,7 @@
 ## Params
 | Name | Type | Default | Meaning |
 |---|---|---|---|
-| `source` | `SourceSpec` (discriminated on `kind`: `csv`, `dataset`) | `{"kind": "csv", "path": <demo_data/train.csv>}` | table to load. `csv`: `path`, `sep` (`"auto"` sniffs), `encoding` (`utf-8`), `decimal` (`.`), `header` (`0`, null = no header) |
+| `source` | `SourceSpec` (discriminated on `kind`: `csv`, `parquet`, `excel`, `json`, `sql`, `dataset` — `sources/spec.py`) | `{"kind": "csv", "path": <demo_data/train.csv>}` | table to load. `csv`: `path`, `sep` (`"auto"` sniffs), `encoding` (`utf-8`), `decimal` (`.`), `header` (`0`, null = no header) |
 | `head_rows` | int, 1..1000 | 5 | rows returned in the `head` table |
 
 ## Result

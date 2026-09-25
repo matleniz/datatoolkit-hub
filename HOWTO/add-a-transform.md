@@ -20,5 +20,8 @@ A transform is a workspace step (and an sklearn `DtkTransformer`). Protocol:
 5. **Tests** (`tests/ops/transforms/test_<family>.py`): via `DtkTransformer`
    (fit on train, transform test uses train state) and via workspace replay
    on `both`.
+6. **Hub catalog** — add the op to the hub `TRANSFORMS.md` (and its row in
+   `CAPABILITIES.md` if a status changes): a worker files it with
+   `propose-doc-change`, the coordinator writes it.
 
 Zero front code: `list_transforms` / `transform_schema` expose it.
