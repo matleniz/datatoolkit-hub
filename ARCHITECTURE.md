@@ -163,18 +163,25 @@ A pydantic union discriminated on `kind`; a key declares e.g.
 `registry.py`) and `load(spec)` dispatches. A missing/unreadable file raises a
 `SourceError`.
 
-Files: `sources/spec.py` (`CsvSource`, `DatasetSource`, the `SourceSpec` union
+Files: `sources/spec.py` (`CsvSource`, `ParquetSource`, `ExcelSource`,
+`JsonSource`, `SqlSource`, `DatasetSource`, the `SourceSpec` union
 — **add every new reader's spec to this union, and file readers also to
 `FileSourceSpec`**, the file-only union a workspace uses for X / y so it cannot
 reference a `dataset` source), `sources/registry.py` (`@reader`, `load`),
-`sources/csv_pandas.py`, `sources/dataset.py`. Spec models are strict (`extra="forbid"`).
+`sources/csv_pandas.py`, `parquet.py`, `excel.py`, `json_reader.py`, `sql.py`,
+`dataset.py`. Spec models are strict (`extra="forbid"`). `api.load(path)` maps
+`.csv` / `.tsv` / `.parquet` / `.xlsx` / `.json` / `.jsonl` through
+`api.SUFFIX_KINDS`.
 
 | `kind` | Reader | Status |
 |---|---|---|
-| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header). A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL. A single-column file (no candidate separator in the header) reads with `,` | done |
+| `csv` | pandas `read_csv`: `path`, `sep` (`"auto"` → `csv.Sniffer` on the first 64 KB among `,` `;` tab `\|`, then C engine; fallback `sep=None, engine="python"`), `encoding`, `decimal`, `header` (null = no header), `na_values`, `dtype`, `parse_dates`, `usecols`. A Windows `path` (`C:\…`, `C:/…`) that does not exist is mapped to `/mnt/<drive>/…` on Linux/WSL. A single-column file (no candidate separator in the header) reads with `,` | done |
 | `dataset` | current state of a workspace dataset: `workspace`, `role` (`train` \| `test`), `labeled` (default true) → load X, join y (or keep / drop `target_column` per `labeled`), replay the steps for the role | done |
+| `parquet` | pyarrow via pandas: `path` (file or partitioned dir), `columns`, `filters` (`[column, op, value]`, ANDed) | done (MAT-40) |
+| `excel` | openpyxl: `path`, `sheet` (name or index), `header`, `usecols` | done (MAT-40) |
+| `json` | `path`, `lines` (jsonl), `record_path` (dotted); nested objects flattened `a_b`, lists kept as-is | done (MAT-40) |
+| `sql` | SQLAlchemy: `url_env` = NAME of an env var holding the URL (never the URL: it would land in workspaces / logs), `query` run on the server; errors never echo the URL. Not a file source (not usable as workspace X / y) | done (MAT-40) |
 | `csv_robust` | malformed CSVs (bad lines, mixed separators, junk headers) | later |
-| `parquet` | polars or duckdb backend → pandas | later, needs approval |
 | `upload` | file dropped by the front into a staging dir | later |
 
 Step 1 input = a local path. Default paths point to the demo CSVs shipped in

@@ -33,12 +33,12 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | source `csv_robust` | input | malformed CSVs | planned |
 | repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | done — MAT-39 |
-| sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | planned — MAT-40 |
-| `duplicates` + `inconsistencies` | analysis | exact / partial duplicates, key conflicts; casing / whitespace variants, mixed types, ambiguous dates, suggested mapping | planned — MAT-41 |
-| `missing_values` + `outliers` | analysis | missing rate, per-row missing spikes, sentinels, co-occurrence, test imputation spike; IQR / z / IsolationForest | planned — MAT-42 |
-| cleaning ops (`drop_columns`, `rename`, `cast`, `drop_duplicates`, `standardize_text`, `parse_dates`, `replace_sentinels`, `drop_missing_target`, `filter_rows`, `clip`, `align_to_train`) | transform | fix the defects found by the analyses; `align_to_train` options to confirm with Matteo | planned — MAT-43 |
-| imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | planned — MAT-44 |
-| feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | planned — MAT-45 |
+| sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | done — MAT-40 |
+| `duplicates` + `inconsistencies` | analysis | exact / partial duplicates, key conflicts; casing / whitespace variants, mixed types, ambiguous dates, suggested mapping | done — MAT-41 |
+| `missing_values` + `outliers` | analysis | missing rate, per-row missing spikes, sentinels, co-occurrence, test imputation spike; IQR / z / IsolationForest | done — MAT-42 |
+| cleaning ops (`drop_columns`, `rename`, `cast`, `drop_duplicates`, `standardize_text`, `parse_dates`, `replace_sentinels`, `drop_missing_target`, `filter_rows`, `clip`, `align_to_train`) | transform | fix the defects found by the analyses; `align_to_train` options to confirm with Matteo | done — MAT-43 |
+| imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | done — MAT-44 |
+| feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | done — MAT-45 |
 | Streamlit Transforms panel | front | add / undo steps generically, before/after preview | planned — MAT-46 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | planned — MAT-47 |
 | pipeline runner | pipeline | reproducible replay of the workspace step log (+ input hashes, manifest) | later |

@@ -61,6 +61,13 @@
   notebook `api` + `Result._repr_html_`, `DtkTransformer` /
   `workspace_pipeline`, deps sklearn / pyarrow / openpyxl / sqlalchemy.
   Gate: 172 tests. Batch 1 + 2 dispatched (6 workers, MAT-40 … MAT-45).
+- 2026-09-25 — batches 1 + 2 merged (6 parallel workers, PRs datatoolkit#10–15):
+  sources parquet / excel / json / sql + csv options + `file_inspect` (MAT-40),
+  `duplicates` + `inconsistencies` (MAT-41), `missing_values` + `outliers`
+  (MAT-42), 26 transform ops — cleaning (MAT-43), impute / encode / scale
+  (MAT-44, KNN / iterative state = train matrix), features (MAT-45). Conflicts
+  only on `keys/__init__.py` / `api.py` (unions). Gate: 292 tests. Catalog:
+  `TRANSFORMS.md`. B3 dispatched (MAT-46 front, MAT-47 advisor / export).
 
 ## Next (see Linear)
-- B1 ∥ B2 after MAT-39; B3 last. HTTP API (MAT-5) still needs FastAPI approval.
+- B3: MAT-46 (front Transforms panel), MAT-47 (advisor + export). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.
