@@ -6,13 +6,10 @@ flag it (`propose-doc-change`), do not silently diverge.
 ## Planned (validated 2026-09-25, not built yet)
 
 Status: **planned** — the sections below describe what is built today; this
-block becomes the reference as MAT-38 / MAT-39 merge (detail travels with the
+block becomes the reference as MAT-39 merges (detail travels with the
 merge).
 
-- **Two repos.** `matleniz/datatoolkit` = engine only (`src/dtk_engine` at the
-  root, installable `uv add git+https://github.com/matleniz/datatoolkit`, no
-  streamlit). `matleniz/datatoolkit-streamlit` = the front, depends on the engine
-  via git, keeps the TID251 barrier + isolation test. (MAT-38)
+- **Two repos** — built (MAT-38), see "Layers".
 - **One implementation, three doors.** Every capability lives once in
   `dtk_engine/ops/` and is reached through:
   1. the JSON contract (fronts): `run_key`, workspaces, plus
@@ -37,15 +34,20 @@ merge).
 dtk_engine  ──  contract (JSON)  ──  EngineClient  ──  front (dtk_streamlit today, web tomorrow)
 ```
 
-| Layer | Package / path | May import |
+| Layer | Repo · path | May import |
 |---|---|---|
-| Engine | `packages/engine/src/dtk_engine/` | pydantic, pandas, plotly, stdlib. **Never** a front. |
-| Client | `packages/front-streamlit/src/dtk_streamlit/client.py` | `dtk_engine.contract` only |
-| Front | `packages/front-streamlit/src/dtk_streamlit/` (all other modules) | `dtk_streamlit.client`, streamlit, plotly. **Never** `dtk_engine`. |
+| Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, plotly, stdlib. **Never** a front. |
+| Client | `datatoolkit-streamlit` · `src/dtk_streamlit/client.py` | `dtk_engine.contract` only |
+| Front | `datatoolkit-streamlit` · `src/dtk_streamlit/` (all other modules) | `dtk_streamlit.client`, streamlit, plotly. **Never** `dtk_engine`. |
 
-Enforced mechanically: ruff `TID251` bans `dtk_engine` in the front except
-`client.py`; `tests/test_front_isolation.py` asserts the same. Both run in
-`fleet gate`.
+Two repos since MAT-38 (2026-09-25): the engine is a standalone package
+(`uv add git+https://github.com/matleniz/datatoolkit`, no streamlit); the front
+depends on it via git (`dtk-engine @ git+…/datatoolkit`, locked in its
+`uv.lock` — re-run `uv lock` there to pick up a new engine commit).
+
+Enforced mechanically in the front repo: ruff `TID251` bans `dtk_engine`
+except `client.py`; `tests/test_front_isolation.py` asserts the same. Both run
+in its `fleet gate`.
 
 ## The contract (the only engine ↔ front boundary)
 
@@ -183,7 +185,7 @@ The Streamlit front renders object params recursively (sub-form per object,
 parent defaults flow into the sub-form) — still zero per-key code. The logic is
 the pure module `dtk_streamlit/schema.py` (`build_params(schema, widgets)`, a
 `Widgets` protocol injected by `render.py`), unit-tested without Streamlit in
-`tests/front/test_schema_form.py`.
+`tests/front/test_schema_form.py` (front repo).
 
 ## Workspace: loaded datasets + transform log (built 2026-09-25, no transform op yet)
 
@@ -241,5 +243,5 @@ Implementation:
 - Front: forms prefilled by the pure `schema.workspace_defaults` (first source
   param → train, a param named `test` → test, others keep their default); the
   widget key prefix includes the active workspace so forms reset on switch.
-  Headless `AppTest` smoke tests in `tests/front/test_app.py`.
+  Headless `AppTest` smoke tests in `tests/front/test_app.py` (front repo).
 - `tests/test_real_data.py` runs on Matteo's real CSVs, skipped when absent.

@@ -1,6 +1,6 @@
 # How to add a key (3 files, zero front code)
 
-1. **Code** — `packages/engine/src/dtk_engine/keys/<id>.py`: a
+1. **Code** — `src/dtk_engine/keys/<id>.py`: a
    `Params(KeyParams)` (strict; defaults = runnable demo — for data keys, a
    `source: SourceSpec` defaulting to `dtk_engine.demo_data`) + a `@key(...)`-decorated
    `run(params) -> Result`. Import the module in `keys/__init__.py`.

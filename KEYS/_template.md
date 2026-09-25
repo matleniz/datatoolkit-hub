@@ -1,7 +1,7 @@
 # Key `<id>` — <title>
 
 - **Category:** <category>
-- **Code:** `packages/engine/src/dtk_engine/keys/<id>.py` · test `tests/keys/test_<id>.py`
+- **Code:** `src/dtk_engine/keys/<id>.py` · test `tests/keys/test_<id>.py`
 - **What it answers:** <one sentence: the question this key answers>
 
 ## Params

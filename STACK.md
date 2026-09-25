@@ -5,11 +5,11 @@ listed here needs Matteo's explicit approval first**, then a line here.
 
 | Tool | Role | Where |
 |---|---|---|
-| uv | env + workspace (monorepo) | root `pyproject.toml` |
+| uv | env + lockfile, one project per repo | `pyproject.toml` of each repo |
 | pydantic v2 | key params + Result, JSON Schema export | engine |
 | pandas | tabular data in keys | engine |
 | plotly | figures (JSON contract) | engine, fronts |
-| streamlit | first front | `front-streamlit` |
+| streamlit | first front | repo `datatoolkit-streamlit` |
 | ruff | lint + import barrier (TID251) | gate |
 | pytest | tests | gate |
 | hatchling | build backend of both repos (invisible) | `pyproject.toml` |

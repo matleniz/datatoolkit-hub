@@ -52,7 +52,11 @@
   approved. Linear MAT-38 … MAT-47 in 4 batches: B0 split + foundations
   (sequential, opus) → B1 sources + quality keys ∥ B2 transform ops → B3
   front panel + advisor/export.
+- 2026-09-25 — repo split merged (PR datatoolkit#8, MAT-38): engine flattened
+  at the root of `datatoolkit` (147 tests), front in new private repo
+  `datatoolkit-streamlit` (21 tests, own fleet project, same hub and Linear
+  queue), front pinned to engine `main`.
 
 ## Next (see Linear)
-- B0: MAT-38 (repo split) then MAT-39 (foundations).
+- B0: MAT-39 (foundations).
 - B1 ∥ B2 after MAT-39; B3 last. HTTP API (MAT-5) still needs FastAPI approval.

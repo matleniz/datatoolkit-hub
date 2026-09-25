@@ -1,7 +1,7 @@
 # Key `train_test_check` — Train / test check
 
 - **Category:** analysis
-- **Code:** `packages/engine/src/dtk_engine/keys/train_test_check.py` (ops: `ops/compare.py`) · tests `tests/keys/test_train_test_check.py`, `tests/ops/test_compare.py`
+- **Code:** `src/dtk_engine/keys/train_test_check.py` (ops: `ops/compare.py`) · tests `tests/keys/test_train_test_check.py`, `tests/ops/test_compare.py`
 - **What it answers:** can a model fit on this train table be applied to this test table: same columns and dtypes, similar missing rates, ranges and distributions (drift, relative outliers), no unseen categories, no row / entity leak?
 
 ## Params

@@ -1,7 +1,7 @@
 # Key `dataset_overview` — Dataset overview
 
 - **Category:** analysis
-- **Code:** `packages/engine/src/dtk_engine/keys/dataset_overview.py` · test `tests/keys/test_dataset_overview.py`
+- **Code:** `src/dtk_engine/keys/dataset_overview.py` · test `tests/keys/test_dataset_overview.py`
 - **What it answers:** what does this table look like: size, memory, missing values, duplicates, the type / cardinality of each column, then per-type statistics (numeric distribution and outliers, category values, dates, text, ids)?
 
 ## Params

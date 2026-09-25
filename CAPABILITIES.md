@@ -31,7 +31,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | `correlations` | analysis | numeric correlation heatmap | planned |
 | source `upload` | input | file uploaded in the front | planned |
 | source `csv_robust` | input | malformed CSVs | planned |
-| repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | planned — MAT-38 |
+| repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | planned — MAT-39 |
 | sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | planned — MAT-40 |
 | `duplicates` + `inconsistencies` | analysis | exact / partial duplicates, key conflicts; casing / whitespace variants, mixed types, ambiguous dates, suggested mapping | planned — MAT-41 |
