@@ -40,6 +40,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | done — MAT-44 |
 | feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | done — MAT-45 |
 | Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46, MAT-55 |
+| front: export button, apply result steps, needs_target, clean errors | front | finish the loop analyse → apply → export from the UI | done — MAT-91/92/93 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
 | `align_to_train` complete (median / robust / quantile modes, per-group, small-frame guard) | transform | realign a shifted test column on train's distribution | done — MAT-58 |
 | `feature_selection` key + selection ops (`drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca`) | analysis / transform | which columns to keep; reduce width without leak | done — MAT-56 |

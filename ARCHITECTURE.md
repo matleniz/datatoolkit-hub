@@ -168,6 +168,16 @@ step log. "Preview step" shows shape + head before / after through the
 workspace and for workspace + pending step (MAT-55: nothing written to the
 store).
 
+**Front panels** (MAT-91/92/93, datatoolkit-streamlit#3): "Export workspace"
+expander (`client.export_workspace`, shows outputs + manifest); **Apply
+steps** under any result whose table rows are all steps (`op`, `target`,
+`params` — advisor recommendations, feature_selection / correlations suggested
+steps): pick rows, preview in memory, append in order; `needs_target` read from
+the schema (non-nullable `target` string param) disables Run / Add step with a
+warning when the workspace has no y; engine errors shown as
+`<Type>: <message>` (`render.error`), never a traceback. Optional unions offer
+"(none)".
+
 `EngineClient` is a `typing.Protocol` mirroring the contract (keys,
 workspaces, `list_transforms`, `transform_schema`).
 `LocalClient` calls `dtk_engine.contract` in-process. `HttpClient` = future.
