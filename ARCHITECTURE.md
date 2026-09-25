@@ -19,7 +19,8 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, **params)`
    (pandas in/out; the op's params are the estimator params, so `clone` /
    `set_params` / grid search work; fitted `state_`, `feature_names_out_`;
-   params validated at fit). `workspace_pipeline(name, store=None)` → unfitted
+   params validated at fit; `set_params(op=...)` switching op keeps only the
+   current params the new op declares, MAT-85). `workspace_pipeline(name, store=None)` → unfitted
    `Pipeline` of the workspace's `both` steps only (`train` / `test`-only steps
    are one-side cleaning, skipped); empty → passthrough.
 
@@ -78,7 +79,8 @@ def run_key(key_id: str, params: dict) -> dict
 # workspace state (see "Workspace" below), mirrored in EngineClient / LocalClient
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
-def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid -> KeyParamsError
+def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
+    # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
 def delete_workspace(name: str) -> None
 
 # transforms (steps of a workspace)
@@ -91,14 +93,18 @@ def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
 # export (see "Export" above)
 def export_workspace(name: str, out_dir: str, overwrite: bool = False) -> dict
     # writes processed parquet + manifest.json, returns the manifest; unknown -> WorkspaceNotFoundError;
-    # existing export without overwrite / output == raw input -> KeyParamsError; source or step failure -> SourceError
+    # existing export without overwrite / output == raw input -> KeyParamsError; source or step failing on the data -> SourceError;
+    # unknown step op -> UnknownTransformError, invalid step params -> KeyParamsError
 ```
 
 Errors (`dtk_engine/errors.py`): `UnknownKeyError` (unknown key id),
 `UnknownTransformError` (unknown transform op),
 `KeyParamsError` (params fail validation — incl. a misspelled param or an
-unknown source `kind`), `SourceError` (a source cannot be loaded: missing /
-empty / unreadable file; raised unchanged by `run_key`). The Streamlit front
+unknown source `kind`, or invalid workspace step params), `SourceError` (a
+source cannot be loaded — missing / empty / unreadable file — or a workspace
+step fails on the data; raised unchanged by `run_key`). An unknown step op is
+`UnknownTransformError` everywhere (save, preview, replay, export), never
+`SourceError` (MAT-84). The Streamlit front
 shows any engine error via `st.error`.
 
 An HTTP API later exposes exactly these (`GET /keys`,
@@ -279,8 +285,9 @@ Implementation:
   ops get `{}`); title defaults to the op name, description to the first
   docstring line. Replay (`workspace/replay.py`): `both` → fit on train as of
   that step, apply to train and test; `train` / `test` → fit and apply on that
-  role. Unknown op → `SourceError`, invalid params → `KeyParamsError`, both
-  before any work; an op failing on the data → `SourceError` naming the step.
+  role. Unknown op → `UnknownTransformError`, invalid params → `KeyParamsError`
+  (same check as `save_workspace`, `replay.validate_steps`), both before any
+  work; an op failing on the data → `SourceError` naming the step (MAT-84).
   Ops live in `ops/transforms/<family>.py` (all imported by its `__init__`);
   `drop_columns` is the reference op. Recipe: `HOWTO/add-a-transform.md`.
   Supervised ops declare `needs_target=True` (their params must have a
@@ -288,7 +295,8 @@ Implementation:
   for fit only (MAT-56); unsupervised ops ignore `y`.
   `replay.replay_fitted(steps, train, test) -> (train, test, fitted)` is the
   single-pass variant that keeps each step's fitted state (`fitted_on` train |
-  test), used by the export; `sources/dataset.py::labeled_frame` is public.
+  test), used by the export; `replay` and `replay_fitted` share one loop
+  (`_run`, MAT-79); `sources/dataset.py::labeled_frame` is public.
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
   value column plus an optional index-like column (named index / idx /
   `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column

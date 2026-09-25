@@ -23,4 +23,6 @@
 ## Notes
 - Scoring median-fills missing feature values (said in the text); the selection **ops** refuse missing values — impute first.
 - PCA here is on standardized numeric features. L1 uses `l1_ratio=1.0` (sklearn 1.9 deprecates `penalty=`).
+- Errors → `KeyParamsError`: target not in the frame or all missing, `task=regression` with a non-numeric target, explicit `columns` absent / non-numeric / the target.
+- No numeric feature besides the target (default `columns`): no exception; the Result has metrics `task, n_rows, n_features=0, n_non_numeric_columns, n_encode_steps`, tables `non_numeric_columns`, `encode_first_steps` (preprocessing_advisor recommendations) and `families`, no figures; the text says to apply those steps and re-run.
 - Apply the choice with the selection ops (`TRANSFORMS.md` → `selection.py`), fitted on train.
