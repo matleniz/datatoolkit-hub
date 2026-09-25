@@ -10,9 +10,10 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 1. **JSON contract** (fronts) — `dtk_engine/contract.py`, see below.
 2. **Notebook** — `dtk_engine/api.py`: `load(path | spec dict | spec model)`
    (suffix → source kind via `api.SUFFIX_KINDS`), `overview(df)`,
-   `check(train, test, id_columns=None)`, `transform(df, op, **params)`,
-   `list_transforms()`; batch 1 adds `duplicates`, `inconsistencies`,
-   `missing`, `outliers`. DataFrame in → `Result` (displayed in Jupyter via
+   `check(train, test, id_columns=None)`, `duplicates`, `inconsistencies`,
+   `missing`, `outliers`, `advise(df, test=None, model_family=None,
+   target=None)`, `transform(df, op, **params)`, `list_transforms()`,
+   `export_workspace(name, out_dir, overwrite=False, store=None)`. DataFrame in → `Result` (displayed in Jupyter via
    `_repr_html_`) or DataFrame out. Keys and api share the same builders
    (`overview_result`, `check_result`), no duplication.
 3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, **params)`
@@ -22,8 +23,22 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
    `Pipeline` of the workspace's `both` steps only (`train` / `test`-only steps
    are one-side cleaning, skipped); empty → passthrough.
 
-Still planned: **export** (MAT-47) — processed parquet + `manifest.json`
-(source hashes, steps with fitted states, versions); raw inputs never modified.
+**Export** (MAT-47, `dtk_engine/workspace/export.py`):
+`export_workspace(name, out_dir)` loads the raw sources (labels joined),
+replays every step once (`replay_fitted`) and writes
+`processed/train.parquet`, `processed/test.parquet` (if a test set; index not
+kept), then `manifest.json` **last** (its presence marks a complete export).
+Manifest: `generator: "dtk_engine"`, `manifest_version`, `workspace`,
+`exported_at` (UTC), `versions` (dtk_engine, pandas, sklearn, pyarrow,
+python), `sources` (role, part x | y, spec, resolved path, size, sha256, mtime;
+a partitioned parquet dir hashed file by file), `label`, `steps` (op, target,
+params, `fitted_on`, and `state` inline, or `state_file` + bytes + sha256 when
+the state JSON exceeds 64 KiB — `states/step_<i>_<op>.json`), `outputs`
+(path, rows, columns, sha256). Raw inputs are only read (an output path that
+is a source is refused). An existing export needs `overwrite=True`, which
+deletes only the files **our** manifest listed, validated first (relative,
+inside `processed/` or `states/`; a manifest without the `dtk_engine` marker is
+refused).
 
 ## Layers
 
@@ -69,6 +84,11 @@ def delete_workspace(name: str) -> None
 # transforms (steps of a workspace)
 def list_transforms() -> list[dict]          # [{"op", "title", "description"}]
 def transform_schema(op: str) -> dict        # JSON Schema of the op's params; unknown -> UnknownTransformError (a KeyError)
+
+# export (see "Export" above)
+def export_workspace(name: str, out_dir: str, overwrite: bool = False) -> dict
+    # writes processed parquet + manifest.json, returns the manifest; unknown -> WorkspaceNotFoundError;
+    # existing export without overwrite / output == raw input -> KeyParamsError; source or step failure -> SourceError
 ```
 
 Errors (`dtk_engine/errors.py`): `UnknownKeyError` (unknown key id),
@@ -260,6 +280,9 @@ Implementation:
   before any work; an op failing on the data → `SourceError` naming the step.
   Ops live in `ops/transforms/<family>.py` (all imported by its `__init__`);
   `drop_columns` is the reference op. Recipe: `HOWTO/add-a-transform.md`.
+  `replay.replay_fitted(steps, train, test) -> (train, test, fitted)` is the
+  single-pass variant that keeps each step's fitted state (`fitted_on` train |
+  test), used by the export; `sources/dataset.py::labeled_frame` is public.
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
   value column plus an optional index-like column (named index / idx /
   `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column

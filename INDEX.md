@@ -30,5 +30,6 @@
 | `inconsistencies` | analysis | `KEYS/inconsistencies.md` |
 | `missing_values` | analysis | `KEYS/missing_values.md` |
 | `outliers` | analysis | `KEYS/outliers.md` |
+| `preprocessing_advisor` | analysis | `KEYS/preprocessing_advisor.md` |
 
 New key → copy `KEYS/_template.md`, add a row here.

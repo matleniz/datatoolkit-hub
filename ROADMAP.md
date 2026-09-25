@@ -71,6 +71,12 @@
 - 2026-09-25 — front Transforms panel merged (datatoolkit-streamlit#1, MAT-46,
   26 front tests). Fleet bug: an inherited `FLEET_CONF` overrides `--project`
   (MAT-53); front dispatch uses `env -u FLEET_CONF -u FLEET_PROJECT`.
+- 2026-09-25 — advisor + export merged (PR datatoolkit#16, MAT-47): key
+  `preprocessing_advisor` (per-column plan as workspace steps, per model
+  family), `export_workspace` (parquet + provenance manifest, big states in
+  side files). Review fix before merge: overwrite only deletes validated paths
+  of a `dtk_engine` manifest. Gate: 329 tests. **The course backlog
+  (MAT-38 … MAT-47) is complete.**
 
 ## Next (see Linear)
-- B3: MAT-47 (advisor + export). Follow-up MAT-55 (preview without store write). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.
+- Confirm `align_to_train` options with Matteo. MAT-55 (preview without store write). MAT-56 feature selection (course 11, not in `documents/` yet). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.

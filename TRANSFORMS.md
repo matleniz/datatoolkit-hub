@@ -64,7 +64,9 @@ test, never refitted on test).
   JSON, so the state is the **train matrix** of the imputed columns; `apply`
   refits the sklearn imputer on it deterministically (fixed `random_state`),
   parity-tested with sklearn. Cost: state = rows × columns, refit at each apply;
-  export writes such states to a side file (MAT-47).
+  export writes any state whose JSON exceeds 64 KiB (`INLINE_STATE_BYTES`) to
+  `states/step_<i>_<op>.json`, referenced from the manifest with its sha256
+  (`workspace.export.load_state` reads either form).
 - `impute(add_indicator=true)` always emits `<col>_was_missing`, so train and
   test get the same columns. Constant fill defaults to `"MISSING"` for text, 0
   for numbers.
