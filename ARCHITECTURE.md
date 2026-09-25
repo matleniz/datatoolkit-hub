@@ -3,30 +3,27 @@
 Trusted-fact doc. Code in `~/datatoolkit`. If the code contradicts this file,
 flag it (`propose-doc-change`), do not silently diverge.
 
-## Planned (validated 2026-09-25, not built yet)
+## One implementation, three doors (built 2026-09-25, MAT-39)
 
-Status: **planned** — the sections below describe what is built today; this
-block becomes the reference as MAT-39 merges (detail travels with the
-merge).
+Every capability lives once in `dtk_engine/ops/` and is reached through:
 
-- **Two repos** — built (MAT-38), see "Layers".
-- **One implementation, three doors.** Every capability lives once in
-  `dtk_engine/ops/` and is reached through:
-  1. the JSON contract (fronts): `run_key`, workspaces, plus
-     `list_transforms()` / `transform_schema(op)`;
-  2. the notebook facade `dtk_engine.api`: DataFrame in → `Result` (rendered by
-     `_repr_html_`) or DataFrame out — `load`, `overview`, `check`, `duplicates`,
-     `missing`, `outliers`, …;
-  3. sklearn: `DtkTransformer(op, **params)` (fit / transform, pandas in/out)
-     and `workspace_pipeline(name)` → `Pipeline`, usable in `cross_val_score`.
-- **Transform protocol** (replaces `fn(df, params, fit)`):
-  `@transform(op, params_model=...)` registers `fit(df, params) -> state`
-  (JSON-safe dict) and `apply(df, params, state) -> df`. Replay: `both` → fit
-  on train as of that step, apply to train and test; `train` / `test` → fit and
-  apply on that role. Strict pydantic params → the front builds forms
-  generically. Ops split by file: `ops/transforms/{cleaning,impute,encode,scale,features}.py`.
-- **Export** (MAT-47): processed parquet + `manifest.json` (source hashes,
-  steps with fitted states, versions) — raw inputs never modified.
+1. **JSON contract** (fronts) — `dtk_engine/contract.py`, see below.
+2. **Notebook** — `dtk_engine/api.py`: `load(path | spec dict | spec model)`
+   (suffix → source kind via `api.SUFFIX_KINDS`), `overview(df)`,
+   `check(train, test, id_columns=None)`, `transform(df, op, **params)`,
+   `list_transforms()`; batch 1 adds `duplicates`, `inconsistencies`,
+   `missing`, `outliers`. DataFrame in → `Result` (displayed in Jupyter via
+   `_repr_html_`) or DataFrame out. Keys and api share the same builders
+   (`overview_result`, `check_result`), no duplication.
+3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, **params)`
+   (pandas in/out; the op's params are the estimator params, so `clone` /
+   `set_params` / grid search work; fitted `state_`, `feature_names_out_`;
+   params validated at fit). `workspace_pipeline(name, store=None)` → unfitted
+   `Pipeline` of the workspace's `both` steps only (`train` / `test`-only steps
+   are one-side cleaning, skipped); empty → passthrough.
+
+Still planned: **export** (MAT-47) — processed parquet + `manifest.json`
+(source hashes, steps with fitted states, versions); raw inputs never modified.
 
 ## Layers
 
@@ -36,7 +33,7 @@ dtk_engine  ──  contract (JSON)  ──  EngineClient  ──  front (dtk_st
 
 | Layer | Repo · path | May import |
 |---|---|---|
-| Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, plotly, stdlib. **Never** a front. |
+| Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
 | Client | `datatoolkit-streamlit` · `src/dtk_streamlit/client.py` | `dtk_engine.contract` only |
 | Front | `datatoolkit-streamlit` · `src/dtk_streamlit/` (all other modules) | `dtk_streamlit.client`, streamlit, plotly. **Never** `dtk_engine`. |
 
@@ -68,9 +65,14 @@ def list_workspaces() -> list[dict]          # full workspace dicts, sorted by n
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid -> KeyParamsError
 def delete_workspace(name: str) -> None
+
+# transforms (steps of a workspace)
+def list_transforms() -> list[dict]          # [{"op", "title", "description"}]
+def transform_schema(op: str) -> dict        # JSON Schema of the op's params; unknown -> UnknownTransformError (a KeyError)
 ```
 
 Errors (`dtk_engine/errors.py`): `UnknownKeyError` (unknown key id),
+`UnknownTransformError` (unknown transform op),
 `KeyParamsError` (params fail validation — incl. a misspelled param or an
 unknown source `kind`), `SourceError` (a source cannot be loaded: missing /
 empty / unreadable file; raised unchanged by `run_key`). The Streamlit front
@@ -97,10 +99,10 @@ Helpers: `Result.add_figure(title, fig, group=None)`,
 order, ungrouped items in a leading "Overview" tab; nothing grouped → flat
 layout. Streamlit also gives any table with a `column` field a multiselect
 filter on it (generic; pure helpers `group_items`, `filter_options`,
-`filter_records` in `render.py`). `Result.show()` for notebooks (imports plotly
-lazily, prints metrics, renders figures; no front dependency). Since the
-contract returns a dict, the notebook idiom is
-`Result(**run_key("train_test_check", {})).show()`.
+`filter_records` in `render.py`). In a notebook a `Result` displays itself
+(`_repr_html_`: metrics table, first `HTML_TABLE_ROWS` = 10 rows of each
+table, figures with plotly.js loaded once from the CDN, escaped text), so the
+idiom is `api.overview(df)`; `Result(**run_key(id, {})).show()` still works.
 
 Keys use absolute imports (`from dtk_engine.registry import key`): ruff TID252
 forbids relative parent imports.
@@ -141,12 +143,13 @@ the engine splits into three internal layers:
 dtk_engine/
   sources/   SourceSpec (JSON) ──load()──▶ pd.DataFrame        generalized input
   ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
+  ops/transforms/{cleaning,impute,encode,scale,features}.py   fit/apply ops (steps)
   keys/      thin: Params(sources…) → load → ops → Result      one output
-  (pipeline/ later)
 ```
 
-- `sources/` never knows about keys; `ops/` never knows about `Result` or
-  pydantic (testable alone); `keys/` only glue.
+- `sources/` never knows about keys; analysis `ops/` never know about
+  `Result` or pydantic (testable alone); transform ops declare pydantic params
+  (`TransformParams`) so fronts build their forms; `keys/` only glue.
 - **Canonical frame = pandas** for now: every reader returns a `pd.DataFrame`.
   A future polars/duckdb reader converts to pandas at the boundary. Making ops
   backend-agnostic is a separate, later decision.
@@ -187,7 +190,7 @@ the pure module `dtk_streamlit/schema.py` (`build_params(schema, widgets)`, a
 `Widgets` protocol injected by `render.py`), unit-tested without Streamlit in
 `tests/front/test_schema_form.py` (front repo).
 
-## Workspace: loaded datasets + transform log (built 2026-09-25, no transform op yet)
+## Workspace: loaded datasets + transform log (built 2026-09-25)
 
 Capability families and backlog: `CAPABILITIES.md`.
 
@@ -229,11 +232,17 @@ Implementation:
   `store.py` (`WorkspaceStore` protocol, `JsonWorkspaceStore`: root
   `$DTK_HOME/workspaces`, default `~/.datatoolkit/workspaces`, or a `root` arg;
   atomic writes; name pattern `^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`), `replay.py`.
-- **Transform signature**: `@transform(op)` registers `fn(df, params, fit) -> df`.
-  `fit` is None when applied to train or by a test-only step; for a `both` step
-  applied to test, `fit` is the train frame as of that step (earlier train /
-  both steps already replayed). Unknown op → `SourceError`, raised before any
-  work. No op registered yet.
+- **Transform protocol** (`dtk_engine/transform_registry.py`, MAT-39):
+  `@transform(op, params_model=<TransformParams subclass>, fit=<optional>,
+  title=?, description=?)` on `apply(df, params, state) -> df`;
+  `fit(df, params) -> state` must return a JSON-safe dict (checked; stateless
+  ops get `{}`); title defaults to the op name, description to the first
+  docstring line. Replay (`workspace/replay.py`): `both` → fit on train as of
+  that step, apply to train and test; `train` / `test` → fit and apply on that
+  role. Unknown op → `SourceError`, invalid params → `KeyParamsError`, both
+  before any work; an op failing on the data → `SourceError` naming the step.
+  Ops live in `ops/transforms/<family>.py` (all imported by its `__init__`);
+  `drop_columns` is the reference op. Recipe: `HOWTO/add-a-transform.md`.
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
   value column plus an optional index-like column (named index / idx /
   `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column

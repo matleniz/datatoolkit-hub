@@ -13,6 +13,7 @@
 | What the toolkit will do (families, backlog, status) | `CAPABILITIES.md` |
 | Which tools/deps are allowed | `STACK.md` |
 | Adding a key | `HOWTO/add-a-key.md` |
+| Adding a transform op (workspace step / sklearn) | `HOWTO/add-a-transform.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |
 | What was done when, what's next | `ROADMAP.md` |
 | Course section → capability → Linear issue | `COURSE-MAP.md` |

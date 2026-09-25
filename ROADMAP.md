@@ -56,7 +56,11 @@
   at the root of `datatoolkit` (147 tests), front in new private repo
   `datatoolkit-streamlit` (21 tests, own fleet project, same hub and Linear
   queue), front pinned to engine `main`.
+- 2026-09-25 — foundations merged (PR datatoolkit#9, MAT-39): fit/apply
+  transform protocol + replay, `list_transforms` / `transform_schema`,
+  notebook `api` + `Result._repr_html_`, `DtkTransformer` /
+  `workspace_pipeline`, deps sklearn / pyarrow / openpyxl / sqlalchemy.
+  Gate: 172 tests. Batch 1 + 2 dispatched (6 workers, MAT-40 … MAT-45).
 
 ## Next (see Linear)
-- B0: MAT-39 (foundations).
 - B1 ∥ B2 after MAT-39; B3 last. HTTP API (MAT-5) still needs FastAPI approval.
