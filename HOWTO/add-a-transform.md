@@ -5,8 +5,10 @@ A transform is a workspace step (and an sklearn `DtkTransformer`). Protocol:
 `src/dtk_engine/ops/transforms/cleaning.py::drop_columns`.
 
 1. **Pick the family module** in `src/dtk_engine/ops/transforms/`
-   (`cleaning`, `impute`, `encode`, `scale`, `features`). Never edit
-   `__init__.py`: it already imports every module.
+   (`cleaning`, `impute`, `encode`, `scale`, `features`, `selection`). Never
+   edit `__init__.py` for an op in an existing module (it imports them all).
+   A supervised op (fit reads the target) passes `needs_target=True` and has a
+   `target` param.
 2. **Params** — `class XParams(TransformParams)` (strict pydantic, one
    `Field(description=...)` per param: the front builds its form from it).
 3. **fit** (only if the op learns something) — `def _fit(df, params) -> dict`

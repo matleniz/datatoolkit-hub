@@ -42,6 +42,6 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46, MAT-55 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
 | `align_to_train` complete (median / robust / quantile modes, per-group, small-frame guard) | transform | realign a shifted test column on train's distribution | done — MAT-58 |
-| `feature_selection` key + selection ops (`drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca`) | analysis / transform | which columns to keep; reduce width without leak | in progress — MAT-56 |
+| `feature_selection` key + selection ops (`drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca`) | analysis / transform | which columns to keep; reduce width without leak | done — MAT-56 |
 | step preview without store write (`preview_workspace`) | contract / front | before / after of a pending step, no scratch workspace | done — MAT-55 |
 | pipeline runner | pipeline | reproducible replay of the workspace step log (+ input hashes, manifest) | later |

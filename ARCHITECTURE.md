@@ -11,7 +11,7 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 2. **Notebook** — `dtk_engine/api.py`: `load(path | spec dict | spec model)`
    (suffix → source kind via `api.SUFFIX_KINDS`), `overview(df)`,
    `check(train, test, id_columns=None)`, `duplicates`, `inconsistencies`,
-   `missing`, `outliers`, `advise(df, test=None, model_family=None,
+   `missing`, `outliers`, `select_features(df, target, ...)`, `preview_workspace`, `advise(df, test=None, model_family=None,
    target=None)`, `transform(df, op, **params)`, `list_transforms()`,
    `export_workspace(name, out_dir, overwrite=False, store=None)`. DataFrame in → `Result` (displayed in Jupyter via
    `_repr_html_`) or DataFrame out. Keys and api share the same builders
@@ -283,6 +283,9 @@ Implementation:
   before any work; an op failing on the data → `SourceError` naming the step.
   Ops live in `ops/transforms/<family>.py` (all imported by its `__init__`);
   `drop_columns` is the reference op. Recipe: `HOWTO/add-a-transform.md`.
+  Supervised ops declare `needs_target=True` (their params must have a
+  `target` field): `DtkTransformer.fit(X, y)` joins `y` to X under that name
+  for fit only (MAT-56); unsupervised ops ignore `y`.
   `replay.replay_fitted(steps, train, test) -> (train, test, fitted)` is the
   single-pass variant that keeps each step's fitted state (`fitted_on` train |
   test), used by the export; `sources/dataset.py::labeled_frame` is public.

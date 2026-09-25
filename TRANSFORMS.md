@@ -58,6 +58,25 @@ test, never refitted on test).
 | `group_agg` | yes | Join per-group statistics (fitted on train) onto each row. | `group`, `value`, `aggs`, `target` |
 | `interactions` | — | Add pairwise products '<a>*<b>' of the listed columns. | `columns`, `interaction_only` |
 
+## `ops/transforms/selection.py` (course 11)
+
+| Op | Fitted | What it does | Params |
+|---|---|---|---|
+| `drop_low_variance` | yes | Drop numeric columns whose train variance is at or below a threshold. | `threshold`, `columns`, `target` |
+| `drop_correlated` | yes (target-aware) | Drop one column of each highly correlated pair (keeps the more target-correlated). | `threshold`, `columns`, `target` |
+| `select_k_best` | yes (supervised) | Filter: keep the k best columns by mutual information or F-test with the target. | `target`, `score`, `k`, `percentile`, `task`, `columns`, `random_state` |
+| `select_from_model` | yes (supervised) | Embedded: keep the columns an L1 model or a random forest finds important. | `target`, `model`, `threshold`, `max_features`, `task`, `columns`, `random_state` |
+| `pca` | yes | Replace numeric columns by principal components `pc1..pcN` (fitted on train). | `n_components`, `columns`, `standardize`, `whiten`, `target`, `prefix` |
+
+State = the `selected` / `dropped` lists (+ scores); `apply` drops exactly
+train's `dropped` list, so text columns and the target pass through and test
+gets train's columns. Missing values in candidates → error (impute first).
+`pca`: `standardize=true` by default (train mean / std in the state),
+`n_components` int or variance fraction. **Supervised ops** are registered
+with `needs_target=True`: in a workspace the target is a column of the train
+frame; in sklearn, `DtkTransformer.fit(X, y)` joins `y` under the `target`
+name for fit only.
+
 ## Design notes
 
 - `impute_knn` / `impute_iterative`: a fitted KNN / iterative imputer is not

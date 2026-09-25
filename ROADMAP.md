@@ -77,6 +77,12 @@
   side files). Review fix before merge: overwrite only deletes validated paths
   of a `dtk_engine` manifest. Gate: 329 tests. **The course backlog
   (MAT-38 … MAT-47) is complete.**
+- 2026-09-25 — follow-ups merged: `align_to_train` complete (PR #17, MAT-58:
+  shift_mean / shift_median / standardize / robust / quantile, per-group,
+  small-frame guard), `preview_workspace` in memory (PR #18 + front #2,
+  MAT-55), feature selection from course 11 (PR #19, MAT-56: key +
+  5 selection ops incl. PCA, `needs_target` for supervised ops in sklearn).
+  Gate: engine 381 tests, front 27.
 
 ## Next (see Linear)
-- Confirm `align_to_train` options with Matteo. MAT-55 (preview without store write). MAT-56 feature selection (course 11, not in `documents/` yet). Then: confirm `align_to_train` options with Matteo. HTTP API (MAT-5) still needs FastAPI approval.
+- HTTP API (MAT-5) still needs FastAPI approval. Fleet bug MAT-53 (Agent Fleet).

@@ -31,5 +31,6 @@
 | `missing_values` | analysis | `KEYS/missing_values.md` |
 | `outliers` | analysis | `KEYS/outliers.md` |
 | `preprocessing_advisor` | analysis | `KEYS/preprocessing_advisor.md` |
+| `feature_selection` | analysis | `KEYS/feature_selection.md` |
 
 New key → copy `KEYS/_template.md`, add a row here.
