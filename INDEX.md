@@ -32,5 +32,8 @@
 | `outliers` | analysis | `KEYS/outliers.md` |
 | `preprocessing_advisor` | analysis | `KEYS/preprocessing_advisor.md` |
 | `feature_selection` | analysis | `KEYS/feature_selection.md` |
+| `column_distribution` | analysis | `KEYS/column_distribution.md` |
+| `target_analysis` | analysis | `KEYS/target_analysis.md` |
+| `correlations` | analysis | `KEYS/correlations.md` |
 
 New key → copy `KEYS/_template.md`, add a row here.

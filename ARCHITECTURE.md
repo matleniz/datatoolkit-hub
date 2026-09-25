@@ -83,6 +83,10 @@ def save_workspace(ws: dict) -> dict         # create / overwrite, returns the n
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
 def delete_workspace(name: str) -> None
 
+def source_columns(spec: dict) -> list[dict]
+    # columns of a source, file order: [{"name", "dtype", "numeric"}] (numeric = numeric and not bool);
+    # the options of a column-selector param; invalid spec -> KeyParamsError, unreadable source -> SourceError
+
 # transforms (steps of a workspace)
 def list_transforms() -> list[dict]          # [{"op", "title", "description"}]
 def transform_schema(op: str) -> dict        # JSON Schema of the op's params; unknown -> UnknownTransformError (a KeyError)
@@ -110,6 +114,25 @@ shows any engine error via `st.error`.
 An HTTP API later exposes exactly these (`GET /keys`,
 `GET /keys/{id}/schema`, `POST /keys/{id}/run`, `GET /workspaces`,
 `GET|PUT|DELETE /workspaces/{name}`) with zero per-key code.
+
+## Column-selector params (MAT-95)
+
+A key param built with `params.columns_field(...)` (`list[str]`, default `[]`
+= every eligible column, capped per key; `nullable=True` keeps a "null = auto"
+default) or `params.column_field(...)` (`str`, e.g. a target) carries in its
+JSON Schema:
+
+| hint | values | meaning |
+|---|---|---|
+| `x-dtk-widget` | `columns` / `column` | multiselect / single choice |
+| `x-dtk-source` | name of a sibling param | the `SourceSpec` param whose columns are the options |
+| `x-dtk-dtype` | `any` / `numeric` | offer every column / only numeric ones |
+
+The front calls `source_columns(<value of the x-dtk-source param>)` (a
+workspace `dataset` source works too) and falls back to a free-text field if
+that fails. Used by every key with a target or column-list param
+(`column_distribution`, `target_analysis`, `correlations`, `feature_selection`,
+`missing_values`, `preprocessing_advisor`, `train_test_check.id_columns`, …).
 
 ## Result (engine output)
 
