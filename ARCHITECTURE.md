@@ -219,6 +219,11 @@ train X file; a required column selector whose default is not among the source
 columns is left empty, reported as missing, and Run / Add step are disabled.
 The front reads the contract `needs_target` flags and `Table.kind == "steps"`
 first, with the schema / row-shape inference as fallback.
+**Presentation** (MAT-121): sidebar grouped by category; params pointing at
+the workspace datasets collapse into a "Data source" expander with a one-line
+summary; numeric metrics as tiles with humanized labels, string metrics in a
+small table; humanized table titles, "Nothing to report." for empty tables;
+workspace summary shows basenames.
 
 `EngineClient` is a `typing.Protocol` mirroring the contract (keys,
 workspaces, `list_transforms`, `transform_schema`).
