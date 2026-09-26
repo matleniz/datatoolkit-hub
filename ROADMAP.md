@@ -84,28 +84,24 @@
   5 selection ops incl. PCA, `needs_target` for supervised ops in sklearn).
   Gate: engine 381 tests, front 27.
 
+- 2026-09-26 — whole Linear backlog processed (coordinator + fleet workers, no
+  human in the loop). Engine PRs datatoolkit#20–29: json/excel fixes (E2),
+  robust csv + CSV-aware `file_inspect` with `load_spec` (E1), nested / binary
+  columns + mixed date formats + typed feature_selection errors (E3), step
+  validation at save / error taxonomy / single replay loop (E4), comparison
+  keys `column_distribution`, `target_analysis`, `correlations` + column-selector
+  convention + `source_columns` (C1, MAT-94), ops refactor into `advisor/` /
+  `compare/` packages (E5), contract `needs_target` flags + `Table.kind` steps
+  + engine doc honesty (E6), dogfood fixes (MAT-114 encoding on big samples,
+  MAT-115 excel header), transform column-selector hints (MAT-119). Front PRs
+  datatoolkit-streamlit#3–6: export / apply steps / needs_target / clean errors,
+  column selectors + dataset input for any format with upload, workspace target
+  prefill, Transforms-panel selectors. Gate: engine 523 tests, front 71.
+  End-to-end check on a personal dataset (cp1252 `;` / decimal-comma csv +
+  xlsx test, y in X): workspace → 12 keys → advisor steps applied → re-analyse
+  → add / undo step → export, no error.
+
 ## Next (see Linear)
-- HTTP API (MAT-5) still needs FastAPI approval. Fleet bug MAT-53 (Agent Fleet).
-
-### Batches ready for 2026-09-26 (one worker each, `fleet wait <name>` after dispatch)
-Engine (`cd ~/datatoolkit`), E1–E4 in parallel (disjoint files; merge E1 before E2,
-both touch `sources/`):
-- E1 `dtk-csv-robust` (opus) — MAT-66, 63, 61, 62, 67, 68, 69: csv source + `file_inspect`.
-- E2 `dtk-json-excel` (sonnet) — MAT-72, 77, 76, 73, 75. MAT-74 (`.xls`) needs
-  `xlrd` → STACK + Matteo's approval first; leave out.
-- E3 `dtk-exotic-cols` (opus) — MAT-70, 71, 64, 60, 65: list/dict/binary object
-  columns, mixed dates, feature_selection errors.
-- E4 `dtk-workspace-core` (opus) — MAT-83, 84, 79, 85: save validation, replay
-  errors, replay/replay_fitted unification, `DtkTransformer.set_params`.
-- E5 `dtk-ops-refactor` (sonnet) — MAT-81, 78, 80, 82. **After E3 + E4 merge.**
-- E6 `dtk-engine-docs` (sonnet) — MAT-89. After E5. Hub docs MAT-86/87/88: coordinator.
-- C1 `dtk-compare-keys` (opus) — MAT-95, 96, 97 (parent MAT-94): `column_distribution`,
-  `target_analysis`, `correlations` + column-selector schema convention. Parallel
-  with E1–E4 (new key files); rebase over E3 if it touches profile helpers.
-
-Front (`cd ~/datatoolkit-streamlit`, prefix `env -u FLEET_CONF -u FLEET_PROJECT`, MAT-53):
-- F1 `front-panels` (opus) — MAT-91 → 92 → 93 in one worker (all in `app.py`).
-  MAT-93 error typing is best after E3 + E4 merge.
-- F2 `front-columns` (opus) — MAT-98. After C1 and F1 merge.
-
-Command shape: `fleet dispatch [--model sonnet] <name> "Resolve MAT-.. (batch <name>, hub ROADMAP Next). One PR."`
+- Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`), MAT-5 (FastAPI).
+- Fleet bug MAT-53 (Agent Fleet) still forces `env -u FLEET_CONF -u FLEET_PROJECT`
+  for front dispatches.
