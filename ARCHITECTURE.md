@@ -70,11 +70,13 @@ DataFrame crosses it.
 
 ```python
 def list_keys() -> list[dict]
-    # [{"id": "dataset_overview", "title": "Dataset overview", "category": "analysis", "description": "..."}]
+    # [{"id": "dataset_overview", "title": "Dataset overview", "category": "analysis", "description": "...", "needs_target": false}]
+    # needs_target: the key's `target` param is a required (non-nullable) column (MAT-109)
 def key_schema(key_id: str) -> dict
     # JSON Schema of the key's Params (pydantic model_json_schema())
 def run_key(key_id: str, params: dict) -> dict
-    # Result.model_dump(mode="json"); invalid params -> raises KeyParamsError
+    # Result.model_dump(mode="json"); invalid params (incl. unknown target) -> raises KeyParamsError
+    # omitted source / test default to the shipped demo_data CSVs (run_key(id, {}) is not a no-op)
 
 # workspace state (see "Workspace" below), mirrored in EngineClient / LocalClient
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
@@ -88,7 +90,7 @@ def source_columns(spec: dict) -> list[dict]
     # the options of a column-selector param; invalid spec -> KeyParamsError, unreadable source -> SourceError
 
 # transforms (steps of a workspace)
-def list_transforms() -> list[dict]          # [{"op", "title", "description"}]
+def list_transforms() -> list[dict]          # [{"op", "title", "description", "needs_target"}]
 def transform_schema(op: str) -> dict        # JSON Schema of the op's params; unknown -> UnknownTransformError (a KeyError)
 def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
     # unsaved workspace dict, validated like save_workspace, replayed in memory (no store write):
@@ -141,12 +143,12 @@ that fails. Used by every key with a target or column-list param
 | Field | Type | Meaning |
 |---|---|---|
 | `metrics` | `dict[str, float \| int \| str]` | headline numbers |
-| `tables` | `list[Table]` — `{"title": str, "records": list[dict], "group": str \| null}` | tabular output |
+| `tables` | `list[Table]` — `{"title": str, "records": list[dict], "group": str \| null, "kind": "steps" \| null}` | tabular output; `kind: "steps"` = each record is a workspace step (`op`, `target`, `params`) — advisor recommendations, feature_selection / correlations suggested steps |
 | `figures` | `list[Figure]` — `{"title": str, "plotly": dict, "group": str \| null}` | Plotly figure JSON (`json.loads(fig.to_json())`) |
 | `text` | `str` | markdown commentary, may be empty |
 
 Helpers: `Result.add_figure(title, fig, group=None)`,
-`Result.add_table(title, df, group=None)` (convert to JSON-safe records).
+`Result.add_table(title, df, group=None, kind=None)` (convert to JSON-safe records).
 `group` is optional: a front renders one tab per group in first-appearance
 order, ungrouped items in a leading "Overview" tab; nothing grouped → flat
 layout. Streamlit also gives any table with a `column` field a multiselect
