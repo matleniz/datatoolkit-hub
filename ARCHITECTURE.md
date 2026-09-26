@@ -127,7 +127,7 @@ JSON Schema:
 | hint | values | meaning |
 |---|---|---|
 | `x-dtk-widget` | `columns` / `column` | multiselect / single choice |
-| `x-dtk-source` | name of a sibling param | the `SourceSpec` param whose columns are the options |
+| `x-dtk-source` | name of a sibling param, or `"step"` | the `SourceSpec` param whose columns are the options; `"step"` (transform ops, MAT-119) = the frame the step applies to (workspace `dataset` source of the step's role, state before the step) |
 | `x-dtk-dtype` | `any` / `numeric` | offer every column / only numeric ones |
 
 The front calls `source_columns(<value of the x-dtk-source param>)` (a
@@ -202,6 +202,23 @@ the schema (non-nullable `target` string param) disables Run / Add step with a
 warning when the workspace has no y; engine errors shown as
 `<Type>: <message>` (`render.error`), never a traceback. Optional unions offer
 "(none)".
+
+**Dataset input** (MAT-102, datatoolkit-streamlit#4): the workspace form takes
+a path or an upload (`st.file_uploader`, saved content-addressed under
+`$DTK_UPLOAD_DIR`, default `$DTK_HOME/uploads`); the source kind comes from the
+suffix (front table kept equal to `api.SUFFIX_KINDS` by a test); per-kind
+options (csv sep / decimal / encoding / header, excel sheet + header, json
+lines / record_path) prefilled from `file_inspect` (`load_spec`,
+`suggested_header`, `suggested_record_path`); each source is loaded at save
+(`source_columns`), an unreadable one shows `st.error` and nothing is saved.
+**Column selectors** (MAT-98): params with `x-dtk-widget` render as
+multiselect / selectbox fed by `source_columns` of the resolved sibling source.
+**Workspace prefill** (MAT-118): a string param named `target` defaults to the
+workspace label (`target_column`, or the column the y join adds), `path` to the
+train X file; a required column selector whose default is not among the source
+columns is left empty, reported as missing, and Run / Add step are disabled.
+The front reads the contract `needs_target` flags and `Table.kind == "steps"`
+first, with the schema / row-shape inference as fallback.
 
 `EngineClient` is a `typing.Protocol` mirroring the contract (keys,
 workspaces, `list_transforms`, `transform_schema`).

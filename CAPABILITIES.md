@@ -30,7 +30,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | `column_distribution` | analysis | histogram / value counts of picked columns, train vs test overlay, split by label | done — MAT-95 |
 | `target_analysis` | analysis | each feature vs the label: ranking, per-class stats, class rate per category, binned mean target | done — MAT-96 |
 | `correlations` | analysis | pearson / spearman heatmap over picked numeric columns + pairs above a threshold (drop_correlated rule, suggested step) | done — MAT-97 |
-| source `upload` | input | file uploaded in the front | planned |
+| source `upload` | input | file uploaded in the front (saved under `$DTK_HOME/uploads`, then a normal file source) | done — MAT-102 |
 | source `csv_robust` | input | malformed CSVs | partial — bad lines strict / recover (MAT-68/69); mixed separators, junk headers later |
 | repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | done — MAT-39 |
@@ -42,6 +42,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | done — MAT-45 |
 | Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46, MAT-55 |
 | front: export button, apply result steps, needs_target, clean errors | front | finish the loop analyse → apply → export from the UI | done — MAT-91/92/93 |
+| front: column selectors, dataset input (any format, upload, options), workspace target prefill | front | analyse a personal dataset end to end without typing column names or JSON | done — MAT-98, MAT-102, MAT-118 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
 | `align_to_train` complete (median / robust / quantile modes, per-group, small-frame guard) | transform | realign a shifted test column on train's distribution | done — MAT-58 |
 | `feature_selection` key + selection ops (`drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca`) | analysis / transform | which columns to keep; reduce width without leak | done — MAT-56 |
