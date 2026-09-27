@@ -113,13 +113,32 @@ step fails on the data; raised unchanged by `run_key`). An unknown step op is
 `SourceError` (MAT-84). The Streamlit front
 shows any engine error via `st.error`.
 
-**In progress (MAT-126, 2026-09-27)** — for the web front "Studio"
-(`FRONT-WEB.md`, repo `datatoolkit-web`): contract gains `workspace_rows`,
-`column_profiles`, `preview_step`, `align_report` (MAT-127); workspaces gain
-`merges` and `variables` (MAT-129); new op `formula` (MAT-128); an HTTP API
-`dtk_engine/http.py` (FastAPI, extra `api`, `dtk-api`) exposes the whole
-contract 1:1 with zero per-key code — route table in `FRONT-WEB.md` (MAT-130).
-This section is rewritten when those PRs merge.
+**Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
+web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
+`dtk_engine/workspace/inspect.py`:
+
+```python
+def workspace_rows(ws, role, version=None, offset=0, limit=500) -> dict
+    # {columns[{name,dtype,kind}], rows[... + _rid], total, version}; version = steps replayed (time travel);
+    # _rid = row position in the raw (post-label, post-merge) frame, kept through row-dropping steps
+def column_profiles(ws, role, version=None) -> dict   # {columns[profile], version}
+    # profile: kind, count, missing, sentinel_candidates, distinct, histogram | top_values,
+    # iqr_bounds, outliers, variants, looks_like_dates, numbers_as_text (',' or '.'), skewed
+def preview_step(ws, step, role) -> dict
+    # ws + step replayed in memory: shape, columns, added/removed_columns, removed_rids,
+    # changed[{_rid,column,before,after}] (capped) + changed_total, state (fitted), fitted_on
+def align_report(ws) -> dict   # {columns[{train,test,status,numbers_as_text,train_mean,test_mean,similar}]}
+    # status: match | type_mismatch | missing_in_test | extra_in_test | label
+```
+
+kinds: `number | binary | bool | text | date | identifier` (semantic_type + an
+`id` / `*_id` name heuristic). Workspaces gain `merges` (left join
+many-to-one of an extra file on a key, `apply_to` train | both, refuses
+duplicated keys / clashes / row loss, applied after the label join and before
+steps, `ops/join.py::merge_table`) and `variables` (`[{name, stat, column}]`,
+stored for the front; formula steps carry their own snapshot). The HTTP API
+`dtk_engine/http.py` (extra `api`, `dtk-api --port 8765`) exposes the whole
+contract 1:1 — routes and error mapping in `FRONT-WEB.md`.
 
 ## Column-selector params (MAT-95)
 
@@ -231,7 +250,7 @@ workspace summary shows basenames.
 
 `EngineClient` is a `typing.Protocol` mirroring the contract (keys,
 workspaces, `list_transforms`, `transform_schema`).
-`LocalClient` calls `dtk_engine.contract` in-process. `HttpClient` = future.
+`LocalClient` calls `dtk_engine.contract` in-process. Non-Python fronts use the HTTP API (`dtk-api`, `FRONT-WEB.md`).
 Switching front = implement `HOWTO/add-a-front.md`, touch nothing in the engine.
 
 ## Engine internals: sources → ops → keys
