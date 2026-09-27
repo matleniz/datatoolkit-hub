@@ -77,6 +77,17 @@ with `needs_target=True`: in a workspace the target is a column of the train
 frame; in sklearn, `DtkTransformer.fit(X, y)` joins `y` under the `target`
 name for fit only.
 
+## `ops/transforms/formula.py` (in progress, MAT-128)
+
+| Op | Fitted | What it does | Params |
+|---|---|---|---|
+| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables` and log / log1p / exp / sqrt / abs / round / min / max. | `name`, `expr`, `variables` |
+
+The only free-form expression in the toolkit (approved 2026-09-27): parsed with
+Python `ast` against a node whitelist, never `eval`. `variables` =
+`[{name, stat, column}]`, stats fitted on train and frozen for test. Missing in
+→ missing out; division by ~0 → NaN.
+
 ## Design notes
 
 - `impute_knn` / `impute_iterative`: a fitted KNN / iterative imputer is not

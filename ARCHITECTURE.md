@@ -113,9 +113,13 @@ step fails on the data; raised unchanged by `run_key`). An unknown step op is
 `SourceError` (MAT-84). The Streamlit front
 shows any engine error via `st.error`.
 
-An HTTP API later exposes exactly these (`GET /keys`,
-`GET /keys/{id}/schema`, `POST /keys/{id}/run`, `GET /workspaces`,
-`GET|PUT|DELETE /workspaces/{name}`) with zero per-key code.
+**In progress (MAT-126, 2026-09-27)** — for the web front "Studio"
+(`FRONT-WEB.md`, repo `datatoolkit-web`): contract gains `workspace_rows`,
+`column_profiles`, `preview_step`, `align_report` (MAT-127); workspaces gain
+`merges` and `variables` (MAT-129); new op `formula` (MAT-128); an HTTP API
+`dtk_engine/http.py` (FastAPI, extra `api`, `dtk-api`) exposes the whole
+contract 1:1 with zero per-key code — route table in `FRONT-WEB.md` (MAT-130).
+This section is rewritten when those PRs merge.
 
 ## Column-selector params (MAT-95)
 

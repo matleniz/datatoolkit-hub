@@ -101,6 +101,15 @@
   xlsx test, y in X): workspace → 12 keys → advisor steps applied → re-analyse
   → add / undo step → export, no error.
 
+## 2026-09-27 — web front "Studio" (MAT-126)
+Streamlit felt like a form catalog. Matteo validated a from-scratch design,
+prototyped on Claude Design (Sources → train/test alignment → workbench:
+pipeline bar, Excel-like grid, right-click, manual step editor showing what is
+learned on train, variables + formulas, suggestions as a tab, dockable tools).
+Approved: React + TS + Vite, FastAPI + uvicorn, Vitest, Playwright; new repo
+`datatoolkit-web`; engine gains grid contract (MAT-127), `formula` op
+(MAT-128), merges + variables (MAT-129), HTTP API (MAT-130). Spec: `FRONT-WEB.md`.
+
 ## Next (see Linear)
 - Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`), MAT-5 (FastAPI).
 - Fleet bug MAT-53 (Agent Fleet) still forces `env -u FLEET_CONF -u FLEET_PROJECT`
