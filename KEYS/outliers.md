@@ -9,6 +9,7 @@
 | Name | Type | Default | Meaning |
 |---|---|---|---|
 | `source` | SourceSpec | demo train.csv | table to check |
+| `method` | `all` \| `iqr` \| `zscore` \| `isolation_forest` | `all` | restrict which detector(s) run (MAT-174) |
 | `iqr_k` | float | 1.5 | IQR fence multiplier (Tukey) |
 | `z_threshold` | float | 3.0 | flag values with \|z\| above this |
 | `contamination` | float | 0.01 | expected share of anomalous rows — an assumption you make, no `auto` |

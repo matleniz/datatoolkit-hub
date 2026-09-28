@@ -10,7 +10,7 @@
 |---|---|---|---|
 | `source` | SourceSpec | demo train.csv | frame |
 | `columns` | list[str] (column selector, numeric) | `[]` | empty = every numeric column but ids and the target, first 50 |
-| `method` | `pearson` \| `spearman` | `pearson` | spearman = monotonic, on ranks |
+| `method` | `pearson` \| `spearman` \| `kendall` | `pearson` | spearman = monotonic, on ranks; kendall = rank concordance, robust to outliers, slower (MAT-174) |
 | `threshold` | float (0, 1] | 0.9 | pairs with \|corr\| ≥ this |
 | `target` | str \| null (column selector) | null | excluded from the matrix; decides which column of a pair to keep |
 

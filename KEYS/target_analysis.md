@@ -14,11 +14,12 @@
 | `task` | `auto` \| `classification` \| `regression` | `auto` | same inference as `feature_selection` |
 | `top_k` | int 1–100 | 10 | categories per feature |
 | `bins` | int 2–50 | 10 | quantile bins of a numeric feature (regression) |
+| `target_bins` | int 2–50 | 10 | histogram bins for `target_histogram`, when the target is numeric (regression, MAT-174) |
 | `random_state` | int | 0 | mutual information seed |
 
 ## Result
 - metrics: `task`, `n_rows`, `n_unlabeled`, `n_features`, `n_columns_capped`, `top_feature`, plus `n_classes`, `minority_pct` (classification) or `target_mean`, `target_std` (regression)
-- tables: `ranking` (rank, column, kind, mutual_info, association, measure, f_score, f_pvalue, pearson, spearman, pct_missing); classification: `class_balance`, `numeric_by_class`, `class_rate_by_category`; regression: `binned_target_mean`, `target_mean_by_category`
+- tables: `ranking` (rank, column, kind, mutual_info, association, measure, f_score, f_pvalue, pearson, spearman, pct_missing); classification: `class_balance`, `numeric_by_class`, `class_rate_by_category`; regression: `binned_target_mean`, `target_mean_by_category`, `target_histogram` (regression: bin edges + counts of the target itself, MAT-174)
 - figures: MI bar + per top-6 feature (box by class drawn from quartiles, class-rate bar, binned-mean line)
 
 ## Notes

@@ -17,12 +17,15 @@ test, never refitted on test).
 | `clip` | yes | Clip columns to percentile bounds learned on train (state: bounds). | `columns`, `lower`, `upper` |
 | `drop_columns` | — | Remove the listed columns. | `columns`, `missing_ok` |
 | `drop_duplicates` | — | Drop duplicate rows, keeping first/last by an explicit sort order. | `subset`, `keep`, `sort_by` |
+| `drop_high_missing` | yes | Drop columns whose train missing fraction exceeds a threshold (state: dropped); same columns dropped on train and test; never drops `target`. | `threshold`, `exclude`, `target` |
 | `drop_missing_target` | yes | Drop rows whose target is missing (state: rows dropped at fit). | `target` |
+| `extract` | — | Pull named regex groups from a text column into new typed columns (numeric-looking groups cast to float); pattern length capped at 256 (stdlib `re`, no match timeout). | `column`, `pattern`, `prefix`, `errors` |
 | `filter_rows` | — | Keep the rows matching the conditions (no free-form expressions). | `conditions`, `combine` |
 | `parse_dates` | — | Parse columns to datetime; unparseable values raise, never become NaT. | `columns`, `format` |
 | `rename` | — | Rename columns via an old -> new mapping. | `mapping`, `missing_ok` |
 | `replace_sentinels` | — | Turn sentinel values (-999, 'N/A', ...) into NaN, per column. | `sentinels` |
-| `standardize_text` | — | Strip / lowercase text columns and map variants to canonical values. | `columns`, `strip`, `lower`, `mapping` |
+| `standardize_text` | — | Strip / lowercase text columns, collapse separators (`-`/`_`/`.`/repeated whitespace) into a single space, and map variants to canonical values. | `columns`, `strip`, `lower`, `unify_separators`, `mapping` |
+| `to_numeric` | — | Parse text numbers (currency symbols/codes, thousands / decimal separators, percent signs) to float. | `columns`, `decimal`, `thousands`, `percent`, `errors` |
 
 ## `ops/transforms/impute.py`
 
@@ -56,7 +59,11 @@ test, never refitted on test).
 | `datetime_parts` | — | Extract hour / dayofweek / month / year / is_weekend from a datetime column. | `column`, `parts` |
 | `derive` | — | Add a column combining two columns (ratio, difference, product, days_between). | `a`, `b`, `op`, `name`, `min_denominator` |
 | `group_agg` | yes | Join per-group statistics (fitted on train) onto each row. | `group`, `value`, `aggs`, `target` |
-| `interactions` | — | Add pairwise products '<a>*<b>' of the listed columns. | `columns`, `interaction_only` |
+| `interactions` | — | Add pairwise products '<a>*<b>' of the listed columns. Superseded by `polynomial` for new steps (kept for backward compat of saved workspaces). | `columns`, `interaction_only` |
+| `polynomial` | yes | Replace numeric columns by a `PolynomialFeatures` expansion; readable names (`a^2`, `a*b`); refuses when output width exceeds `max_output_columns`. | `columns`, `degree`, `interaction_only`, `include_bias`, `max_output_columns` |
+| `power_transform` | yes | Power-map columns in place (Yeo-Johnson / Box-Cox), fitted on train. | `columns`, `method`, `standardize` |
+| `quantile_transform` | yes | Map columns to a uniform / normal distribution via train quantiles. | `columns`, `output_distribution`, `n_quantiles`, `random_state` |
+| `spline` | yes | Replace columns by B-spline bases using train knot positions. | `columns`, `n_knots`, `degree`, `knots`, `include_bias`, `max_output_columns` |
 
 ## `ops/transforms/selection.py` (course 11)
 
@@ -81,12 +88,15 @@ name for fit only.
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables` and log / log1p / exp / sqrt / abs / round / min / max. | `name`, `expr`, `variables` |
+| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables` and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1). | `name`, `expr`, `variables` |
 
 The only free-form expression in the toolkit (approved 2026-09-27): parsed with
 Python `ast` against a node whitelist, never `eval`. `variables` =
 `[{name, stat, column}]`, stats fitted on train and frozen for test. Missing in
 → missing out; division by ~0 → NaN; `round(x, n)` needs an integer constant `n`.
+`where(cond, a, b)` and comparisons (`<`, `<=`, `>`, `>=`, `==`, `!=`) were
+added in MAT-173 alongside `clip`/`floor`/`ceil`/`sign`/`square`/`tanh`/
+`log2`/`log10`/`isnull`, still no `eval`.
 
 ## Design notes
 
@@ -119,3 +129,25 @@ Python `ast` against a node whitelist, never `eval`. `variables` =
 - `workspace_pipeline` keeps only `both` steps; row-dropping ops
   (`drop_duplicates`, `filter_rows`, `drop_missing_target`) break X / y
   alignment inside an sklearn `Pipeline` — use them as `train` / `test` steps.
+- `to_numeric`'s currency detection (advisor + workspace profile
+  `currency_as_text`) is a best-effort heuristic in
+  `ops/profile.py::currency_format`: guesses `decimal`/`thousands` from the
+  separators seen once the currency symbol/code and `%` are stripped (comma
+  decimal wins when both `.` and `,` are absent from a value with a space
+  group).
+- `drop_high_missing` never drops the declared `target`, mirroring
+  `group_agg`'s target-leak guard.
+- `extract`: `errors=raise` (default) fails on a non-null cell with no match;
+  `coerce` fills the group columns with NaN. Invalid pattern / missing named
+  groups fail at param validation (`KeyParamsError`). Output names are
+  `<prefix>_<group>` (default prefix = source column). The op does not
+  compute derived values (e.g. the mean of a range) — chain `derive` /
+  `formula` on the extracted `low`/`high` columns.
+- `polynomial` / `power_transform` / `quantile_transform` / `spline` raise a
+  clear engine error when the selected columns still have missing values
+  (impute first); the Studio front surfaces this as a blocking hint before
+  preview (MAT-191).
+- `ops/consistency.py::normalize` (used by the `inconsistencies` key's variant
+  detection and the workspace profile's `variants` field) applies the same
+  separator-unification rule as `standardize_text`'s `unify_separators`, so
+  `'site-a'` / `'site_a'` / `'Site A'` merge without an extra step.

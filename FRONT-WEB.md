@@ -17,26 +17,42 @@ below); never imports the engine.
    Merge, Ignore; guessed from names, never applied without the user); target (y
    file joined by order / key, or a column of train X); merge (key, also into
    test); result columns coloured by origin (X / y / merged); engine errors shown
-   verbatim.
+   verbatim. **Workspace manager** (sidebar, MAT-171): per-workspace name,
+   last modified, train/test summary, step count, target; Rename, Duplicate
+   (shares content-addressed source refs, not copied), Delete (confirmation,
+   multi-select), Export shortcut; search/sort; deleting the active workspace
+   falls back cleanly to another one (MAT-149 race).
 2. **Train / test alignment** — `align_report`: one row per column (match, type
-   mismatch, missing in test, extra in test, label), train/test means. Fixes are
-   explicit clicks: source option (e.g. csv `decimal=","`), test-only steps
-   (`rename`, `cast`, `drop_columns` with `target: test`) flagged as alignment
-   steps and kept first in the pipeline. Removable one by one.
+   mismatch, value mismatch, missing in test, extra in test, label), train/test
+   means. A `value_mismatch` row (categorical values unseen in test) is "to
+   decide" only when `blocking` (near-match spelling variants, or too large a
+   share of test rows affected) — otherwise it stays visible but informational
+   (rare new categories that one-hot `handle_unknown` absorbs, MAT-179). Fixes
+   are explicit clicks: source option (e.g. csv `decimal=","`), Map on test for
+   value mismatches, test-only steps (`rename`, `cast`, `drop_columns` with
+   `target: test`) flagged as alignment steps and kept first in the pipeline.
+   Removable one by one.
 3. **Workbench**
    - **Pipeline bar**: one node per version (op, sub-label, shape, delta, target,
      fitted dot, stage colour = course stage); click = time travel (read-only);
      × = remove step and replay; failing step shown red with the engine message;
-     `+ Step` opens the step picker.
+     `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
+     `quantile_transform`, `spline` under Encode & transform).
    - **Grid**: header = name, kind chip, mini histogram / top values, missing bar,
      up to 2 alerts; cells coloured missing / sentinel / outlier; preview colours
      changed / new / removed. Click header (shift or multi toggle = add), row
      number, cell. **Right-click header** = column menu (inspect, add to
      selection, compare, distribution, type-relevant transforms, rename, cast,
-     new variable, use in formula, set / unset target, drop).
+     new variable, use in formula, set / unset target, drop, Chart…).
    - **Inspector** (right): column profile + Analyse / Transform buttons; row
      inspector; cell → rule (replace as missing, map value); multi-selection →
-     compare, correlation, derive, formula, scale, drop.
+     compare, correlation, derive, **New feature…** (formula editor: selected
+     columns as chips, function palette with one-line help, autocomplete on
+     columns/`@variables`, live preview, inline engine errors, output name),
+     **Polynomial features…** / **Power transform…** / **Quantile
+     transform…** (open the step editor prefilled with the numeric selection;
+     blocked with an "Impute missing values first" hint when the selection has
+     missing values, MAT-191), scale, drop, Chart.
    - **Step editor** (replaces the inspector): what the op does + course ref,
      every param editable (generated from `transform_schema` + column hints),
      Apply to train / train+test / test, **Learned on train** (fitted state
@@ -46,9 +62,24 @@ below); never imports the engine.
      insert), Suggestions (analysis keys' findings, each only *opens the
      editor*), Recipe (steps list, click = time travel).
    - **Tool rail + dock**: Compare, Correlation, Distribution, Missing,
-     Outliers, Target, Train vs test — windows bound to the grid selection,
-     reorder by drag or arrows, wide (2 columns), maximize, dock bottom / right,
-     sizes S / M / L.
+     Outliers, Target, Train vs test, **Chart** — windows bound to the grid
+     selection, reorder by drag or arrows, wide (2 columns), maximize, dock
+     bottom / right, sizes S / M / L. **Parameters** panel (per window,
+     MAT-174): schema-driven knobs for the bound key, generated from
+     `GET /keys/{id}/schema` (same `schemaToFields` mapping as the step
+     editor); changing a param re-runs the key (debounced); **Reset to
+     defaults** uses the schema defaults plus per-column `suggested_params`
+     from `column_profiles`; values persist in Studio UI state per window (and
+     per column for Distribution / Outliers / Target). Distribution always
+     runs the `column_distribution` key (not the profile mini-histogram) so
+     bins/log/norm apply; Correlation runs `correlations` (method/threshold).
+     **Chart** (MAT-172): type (histogram, box, violin, bar/count, scatter,
+     line, heatmap/density_heatmap, pie, scatter_matrix), x/y/color/facets/
+     size/agg/trendline/log axes/bins/sample_size, prefilled from the grid
+     selection; runs the engine `chart` key and reuses the figure renderer
+     (Plotly mode bar for PNG/SVG export). Saved chart specs (name + params)
+     reopen and re-render on the current pipeline version (persisted in
+     browser storage until the engine grows `Workspace.charts`, MAT-185).
    - **Export**: workspace JSON + `export_workspace` outputs, leak line
      ("n fitted steps learned on train, nothing refitted on test").
 
@@ -60,6 +91,9 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `GET /keys` · `GET /keys/{id}/schema` · `POST /keys/{id}/run` `{params}` | `list_keys`, `key_schema`, `run_key` |
 | `GET /transforms` · `GET /transforms/{op}/schema` | `list_transforms`, `transform_schema` |
 | `GET /workspaces` · `GET/PUT/DELETE /workspaces/{name}` | store |
+| `GET /workspaces/summaries` | `list_workspace_summaries` (MAT-171) |
+| `POST /workspaces/{name}/rename` `{new_name}` | `rename_workspace` (MAT-171) |
+| `POST /workspaces/{name}/duplicate` `{new_name}` | `duplicate_workspace` (MAT-171) |
 | `POST /workspaces/{name}/export` `{out_dir, overwrite}` | `export_workspace` |
 | `POST /source/columns` `{spec}` | `source_columns` |
 | `POST /workspace/preview` `{workspace, role, head_rows}` | `preview_workspace` |
@@ -97,6 +131,10 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-09-28)
-Built and merged: engine datatoolkit #30–#34, web datatoolkit-web #1–#10;
-7/7 e2e flows green. Workbench open on 55 603 rows: ~1.5 s. Known gap: the
-export outputs list scrolls rather than showing all lines at once.
+Built and merged: engine datatoolkit #30–#50, web datatoolkit-web #1–#32.
+51/51 e2e specs green on main (10 flows + per-ticket specs: MAT-149, 152, 154,
+155, 160, 167, 169, 171, 173, 174, 177). Workbench open on 55 603 rows: ~1.5 s.
+Known gaps: the export outputs list scrolls rather than showing all lines at
+once; saved chart specs live in browser storage until the engine gains
+`Workspace.charts` (MAT-185); `GET /workspaces/summaries` always returns
+`shape: null` (perf fix MAT-200, lazy/cached shape tracked as MAT-204).

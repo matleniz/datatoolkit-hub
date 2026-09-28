@@ -80,10 +80,15 @@ def run_key(key_id: str, params: dict) -> dict
 
 # workspace state (see "Workspace" below), mirrored in EngineClient / LocalClient
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
+def list_workspace_summaries() -> list[dict]
+    # [{name, mtime, step_count, target, train:{kind,path,file,shape}, test:{...}|null}], lighter than list_workspaces
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
 def delete_workspace(name: str) -> None
+def rename_workspace(name: str, new_name: str) -> dict
+def duplicate_workspace(name: str, new_name: str) -> dict
+    # copy (steps, variables, target); content-addressed source refs stay shared, not copied
 
 def source_columns(spec: dict) -> list[dict]
     # columns of a source, file order: [{"name", "dtype", "numeric"}] (numeric = numeric and not bool);
@@ -127,8 +132,13 @@ def column_profiles(ws, role, version=None) -> dict   # {columns[profile], versi
 def preview_step(ws, step, role) -> dict
     # ws + step replayed in memory: shape, columns, added/removed_columns, removed_rids,
     # changed[{_rid,column,before,after}] (capped) + changed_total, state (fitted), fitted_on
-def align_report(ws) -> dict   # {columns[{train,test,status,numbers_as_text,train_mean,test_mean,similar}]}
-    # status: match | type_mismatch | missing_in_test | extra_in_test | label
+def align_report(ws) -> dict
+    # {columns[{train,test,status,numbers_as_text,train_mean,test_mean,similar,
+    #   only_in_test,pct_test_rows_unseen,near_match_hint,near_matches,blocking}]}
+    # status: match | type_mismatch | value_mismatch | missing_in_test | extra_in_test | label
+    # value_mismatch = a categorical column has test values unseen in train (MAT-155);
+    #   blocking: true if near_matches (likely spelling variants) or pct_test_rows_unseen > 50,
+    #   else informational (rare new categories one-hot handle_unknown absorbs, MAT-179)
 ```
 
 kinds: `number | binary | bool | text | date | identifier` (semantic_type + an
@@ -358,7 +368,9 @@ Implementation:
   `target_column` are mutually exclusive; `label.key` required for mode `key`),
   `store.py` (`WorkspaceStore` protocol, `JsonWorkspaceStore`: root
   `$DTK_HOME/workspaces`, default `~/.datatoolkit/workspaces`, or a `root` arg;
-  atomic writes; name pattern `^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`), `replay.py`.
+  atomic writes; name pattern `^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`; save / delete
+  / rename / duplicate take an exclusive flock on `root/.lock` so concurrent
+  `PUT`s cannot lose an update, MAT-171), `replay.py`.
 - **Transform protocol** (`dtk_engine/transform_registry.py`, MAT-39):
   `@transform(op, params_model=<TransformParams subclass>, fit=<optional>,
   title=?, description=?)` on `apply(df, params, state) -> df`;
