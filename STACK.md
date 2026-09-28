@@ -23,6 +23,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | ESLint | lint of the web front | `datatoolkit-web` gate |
 | Vitest | unit tests of the web front | `datatoolkit-web` gate (approved 2026-09-27) |
 | Playwright | e2e tests with screenshots | `datatoolkit-web` (approved 2026-09-27) |
+| rapidfuzz | approximate string matching (spelling variants / aliases, approximate duplicates); ~3 MB wheel, no dependency | engine (approved 2026-09-28) |
 
 Planned, not yet approved: polars, duckdb
-(fast readers). Not approved: rapidfuzz (approximate duplicates) — ask first.
+(fast readers).
