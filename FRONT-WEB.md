@@ -97,8 +97,8 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `POST /workspaces/{name}/export` `{out_dir, overwrite}` | `export_workspace` |
 | `POST /source/columns` `{spec}` | `source_columns` |
 | `POST /workspace/preview` `{workspace, role, head_rows}` | `preview_workspace` |
-| `POST /workspace/rows` `{workspace, role, version, offset, limit}` | `workspace_rows` (MAT-127) |
-| `POST /workspace/profiles` `{workspace, role, version}` | `column_profiles` |
+| `POST /workspace/rows` `{workspace, role, version, offset, limit, columns?}` | `workspace_rows` (MAT-127; optional `columns` filter MAT-152) |
+| `POST /workspace/profiles` `{workspace, role, version, columns?}` | `column_profiles` (optional `columns` filter MAT-152) |
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
 | `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` |

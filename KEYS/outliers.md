@@ -9,6 +9,7 @@
 | Name | Type | Default | Meaning |
 |---|---|---|---|
 | `source` | SourceSpec | demo train.csv | table to check |
+| `columns` | list[str] (column selector, numeric) | `[]` | empty = every numeric column; otherwise restrict IQR / z / IsolationForest to this pick |
 | `method` | `all` \| `iqr` \| `zscore` \| `isolation_forest` | `all` | restrict which detector(s) run (MAT-174) |
 | `iqr_k` | float | 1.5 | IQR fence multiplier (Tukey) |
 | `z_threshold` | float | 3.0 | flag values with \|z\| above this |

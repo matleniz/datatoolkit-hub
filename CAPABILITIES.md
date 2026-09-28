@@ -27,7 +27,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | done |
 | train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | done |
 | `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | planned |
-| `column_distribution` | analysis | histogram / value counts of picked columns, train vs test overlay, split by label | done — MAT-95 |
+| `column_distribution` | analysis | histogram / value counts of picked columns, train vs test overlay, split by label or by any other column | done — MAT-95, MAT-159 |
 | `target_analysis` | analysis | each feature vs the label: ranking, per-class stats, class rate per category, binned mean target | done — MAT-96 |
 | `correlations` | analysis | pearson / spearman heatmap over picked numeric columns + pairs above a threshold (drop_correlated rule, suggested step) | done — MAT-97 |
 | source `upload` | input | file uploaded in the front (saved under `$DTK_HOME/uploads`, then a normal file source) | done — MAT-102 |

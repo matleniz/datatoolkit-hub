@@ -13,6 +13,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | ruff | lint + import barrier (TID251) | gate |
 | pytest | tests | gate |
 | hatchling | build backend of both repos (invisible) | `pyproject.toml` |
+| numpy | numeric arrays (ops, transforms, sklearn interop) | engine (declared direct 2026-09-28, MAT-187) |
 | scikit-learn | fitted transforms (imputers, encoders, scalers), IsolationForest, `DtkTransformer` / `Pipeline` | engine (approved 2026-09-25) |
 | pyarrow | parquet read / write (source + export) | engine (approved 2026-09-25) |
 | openpyxl | Excel source | engine (approved 2026-09-25) |

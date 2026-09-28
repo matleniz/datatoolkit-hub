@@ -82,6 +82,8 @@ def run_key(key_id: str, params: dict) -> dict
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
 def list_workspace_summaries() -> list[dict]
     # [{name, mtime, step_count, target, train:{kind,path,file,shape}, test:{...}|null}], lighter than list_workspaces
+    # shape is always null here (cheap sidebar list, no frame load / step replay, MAT-200); get real shape from
+    # preview_workspace / workspace_rows when needed
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
@@ -123,10 +125,12 @@ web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
 `dtk_engine/workspace/inspect.py`:
 
 ```python
-def workspace_rows(ws, role, version=None, offset=0, limit=500) -> dict
+def workspace_rows(ws, role, version=None, offset=0, limit=500, columns=None) -> dict
     # {columns[{name,dtype,kind}], rows[... + _rid], total, version}; version = steps replayed (time travel);
     # _rid = row position in the raw (post-label, post-merge) frame, kept through row-dropping steps
-def column_profiles(ws, role, version=None) -> dict   # {columns[profile], version}
+    # columns: non-empty list restricts column meta + row cells to those names, in order; unknown -> KeyParamsError (MAT-152)
+def column_profiles(ws, role, version=None, columns=None) -> dict   # {columns[profile], version}
+    # columns: non-empty list profiles only those names, in order; unknown -> KeyParamsError; None/empty = all (MAT-152)
     # profile: kind, count, missing, sentinel_candidates, distinct, histogram | top_values,
     # iqr_bounds, outliers, variants, looks_like_dates, numbers_as_text (',' or '.'), skewed
 def preview_step(ws, step, role) -> dict

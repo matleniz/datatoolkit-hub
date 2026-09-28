@@ -9,6 +9,7 @@
 | Name | Type | Default | Meaning |
 |---|---|---|---|
 | `source` | SourceSpec | demo train.csv | table to check |
+| `columns` | list[str] (column selector) | `[]` | empty = every column; rates, sentinels, co-occurrence and per-row counts restricted to this pick |
 | `test` | SourceSpec \| null | null | optional test source: enables the test imputation-spike check |
 | `target` | str \| null | null | target column: counts rows missing it (drop them first) |
 | `sort` | `pct_missing` \| `n_missing` \| `column` | `pct_missing` | `missing_rates` sort order (MAT-174) |

@@ -88,7 +88,7 @@ name for fit only.
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables` and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1). | `name`, `expr`, `variables` |
+| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables`, the constant `pi`, and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1). | `name`, `expr`, `variables` |
 
 The only free-form expression in the toolkit (approved 2026-09-27): parsed with
 Python `ast` against a node whitelist, never `eval`. `variables` =

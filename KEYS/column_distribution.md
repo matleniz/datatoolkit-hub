@@ -2,7 +2,7 @@
 
 - **Category:** analysis
 - **Code:** `src/dtk_engine/keys/column_distribution.py` (ops `ops/distribution.py`, `ops/columns.py`) · test `tests/keys/test_column_distribution.py`
-- **Notebook:** `api.distribution(train, test=None, columns=…, target=…, by_label=…)`
+- **Notebook:** `api.distribution(train, test=None, columns=…, target=…, by_label=…, by=…, target_bins=…)`
 - **What it answers:** What do the values of these columns look like, and do they differ between train and test or between label classes?
 
 ## Params
@@ -13,6 +13,7 @@
 | `compare` | `none` \| `train_vs_test` | `none` | overlay `test` on `source` |
 | `test` | SourceSpec | demo test.csv | read only when `compare = train_vs_test` |
 | `by_label` | bool | false | split by the classes of `target` (quantile bins for a numeric target) |
+| `by` | str \| null (column selector) | null | split by any other frame column (top-k + `(other)` or quantile bins); exclusive with `by_label`. Numeric column vs numeric `by`: sampled scatter (≤ 2000 points), `vs_by` table, `pearson` / `spearman` |
 | `target` | str \| null (column selector) | null | label column, needed by `by_label` |
 | `bins` | `auto` \| int 2–200 | `auto` | histogram bins; `auto` = smart per-column default (MAT-174, see Notes) |
 | `bin_edges` | list[float] \| null | null | explicit bin edges, overrides `bins` |
@@ -25,8 +26,8 @@
 
 ## Result
 - metrics: `n_columns`, `n_numeric`, `n_categorical`, `n_columns_capped`, `n_groups`, `compare`, `by_label`, `n_missing_in_test`
-- tables: `columns` (column, kind), `groups` (group, n_rows), `numeric_summary` + `histograms` (group `numeric`; long format column / group / bin_left / bin_right / count / share, plus `density`, `cumulative_count`, `cumulative_share` when requested), `value_counts` (group `categorical`; column / group / value / count / pct)
-- figures: one per column (overlaid share histogram or grouped bar)
+- tables: `columns` (column, kind), `groups` (group, n_rows), `numeric_summary` + `histograms` (group `numeric`; long format column / group / bin_left / bin_right / count / share, plus `density`, `cumulative_count`, `cumulative_share` when requested), `value_counts` (group `categorical`; column / group / value / count / pct), `vs_by` (numeric column split by a numeric `by`)
+- figures: one per column (overlaid share histogram or grouped bar); a scatter figure `{col} vs {by}` when both are numeric
 
 ## Notes
 Bins are shared across groups so shares compare. Groups are `train / <class>`, `test`…; a frame without the target (typical test) stays one group. Numeric vs categorical follows the semantic type (a 1–3 int class is categorical); `(missing)` is its own value.
