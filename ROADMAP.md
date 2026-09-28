@@ -110,6 +110,14 @@ Approved: React + TS + Vite, FastAPI + uvicorn, Vitest, Playwright; new repo
 `datatoolkit-web`; engine gains grid contract (MAT-127), `formula` op
 (MAT-128), merges + variables (MAT-129), HTTP API (MAT-130). Spec: `FRONT-WEB.md`.
 
+## 2026-09-28 — Studio built and e2e-validated
+Web repo merged #1–#9 (scaffold, sources + alignment, workbench, panels +
+dock, e2e suite), three screenshot-review rounds (MAT-139, MAT-142) and a
+real-data dogfood (MAT-144: duplicate API calls cut, workbench open 21 s →
+1.5 s on Parkinson). Engine #34: no sentinel alerts on identifier columns,
+concise validation errors with `details`. Fleet gap found overnight (a worker
+blocked 8 h on a foreground dev server) → MAT-140 (Agent Fleet).
+
 ## Next (see Linear)
 - Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`), MAT-5 (FastAPI).
 - Fleet bug MAT-53 (Agent Fleet) still forces `env -u FLEET_CONF -u FLEET_PROJECT`

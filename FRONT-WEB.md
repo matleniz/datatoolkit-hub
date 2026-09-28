@@ -70,8 +70,20 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` |
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
-`WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. CORS allows
-the Vite dev origin. `dtk-api --port 8765` runs uvicorn.
+`WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. A params
+validation failure gives a concise `message` (`<loc>: <msg>; …`, never the
+pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). CORS allows the
+Vite dev origin. `dtk-api --port 8765` runs uvicorn.
+
+The front builds each key's params from `GET /keys/{id}/schema` (only the
+properties the key declares, e.g. `test` / `target`), and dedupes identical
+in-flight requests; one rows page + one profiles call per (steps, role,
+version), workspace `PUT` only when its JSON changed (MAT-144).
+
+## Run it
+`cd ~/datatoolkit && uv run --extra api dtk-api --port 8765`, then in
+`~/datatoolkit-web`: `npm run dev` (proxies `/api`). Default export directory:
+`$DTK_HOME/exports/<workspace>`.
 
 ## Tests
 Unit (Vitest) for pure logic: selection, diff colouring, window layout
@@ -79,4 +91,12 @@ reducer, schema → editor fields. E2E (Playwright, `npm run e2e`): starts
 `dtk-api` + Vite, drives the six flows (sources, alignment, workbench edit,
 variables + formula, compare + windows, export) on the prototype's dirty churn
 fixtures and on a real dataset, one screenshot per key state in
-`e2e/screenshots/<flow>/`.
+`e2e/screenshots/<flow>/`. Flow 7 (real Parkinson files, skipped if absent)
+also asserts the workbench grid is ready in < 8 s with no duplicate
+`POST /workspace/*` request. Captures wait for real content
+(`waitForGridReady`), never a loading state.
+
+## State (2026-09-28)
+Built and merged: engine datatoolkit #30–#34, web datatoolkit-web #1–#9;
+7/7 e2e flows green. Workbench open on 55 603 rows: ~1.5 s. Known gap: the
+export outputs list scrolls rather than showing all lines at once.
