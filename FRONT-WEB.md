@@ -97,6 +97,6 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-09-28)
-Built and merged: engine datatoolkit #30–#34, web datatoolkit-web #1–#9;
+Built and merged: engine datatoolkit #30–#34, web datatoolkit-web #1–#10;
 7/7 e2e flows green. Workbench open on 55 603 rows: ~1.5 s. Known gap: the
 export outputs list scrolls rather than showing all lines at once.

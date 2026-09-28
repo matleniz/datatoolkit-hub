@@ -111,7 +111,7 @@ Approved: React + TS + Vite, FastAPI + uvicorn, Vitest, Playwright; new repo
 (MAT-128), merges + variables (MAT-129), HTTP API (MAT-130). Spec: `FRONT-WEB.md`.
 
 ## 2026-09-28 — Studio built and e2e-validated
-Web repo merged #1–#9 (scaffold, sources + alignment, workbench, panels +
+Web repo merged #1–#10 (scaffold, sources + alignment, workbench, panels +
 dock, e2e suite), three screenshot-review rounds (MAT-139, MAT-142) and a
 real-data dogfood (MAT-144: duplicate API calls cut, workbench open 21 s →
 1.5 s on Parkinson). Engine #34: no sentinel alerts on identifier columns,
