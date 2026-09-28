@@ -6,12 +6,17 @@ pure-Python analysis engine behind a JSON contract, with swappable visual fronts
 (Streamlit first). Source of truth for the architecture. Navigate via `INDEX.md`.
 
 ## Where the code lives (not here)
-Two repos (split decided 2026-09-25, MAT-38):
 - `~/datatoolkit` (github matleniz/datatoolkit) — the **engine** `dtk_engine`,
   a standalone Python package (notebook, scripts, any front). No front code.
-- `~/datatoolkit-streamlit` (github matleniz/datatoolkit-streamlit) — the
-  Streamlit front, depends on the engine via git.
-All code changes happen there.
+- `~/datatoolkit-web` (github matleniz/datatoolkit-web, fleet project
+  `datatoolkit-web`) — the **active** front, "Studio" (React + TypeScript,
+  see `FRONT-WEB.md`), talks only to the engine's HTTP API. All current front
+  work happens here.
+- `~/datatoolkit-streamlit` (github matleniz/datatoolkit-streamlit) —
+  **abandoned** first front attempt (Matteo: "felt like a form catalog",
+  superseded by Studio, see `ROADMAP.md` 2026-09-27). Do not dispatch there
+  unless Matteo explicitly asks to revive it.
+All code changes happen in the engine or web repo.
 
 ## Architecture in brief
 `dtk_engine` (keys = typed params → JSON `Result`) → contract (`list_keys`,
