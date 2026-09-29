@@ -119,6 +119,13 @@ concise validation errors with `details`. Fleet gap found overnight (a worker
 blocked 8 h on a foreground dev server) → MAT-140 (Agent Fleet).
 
 ## Next (see Linear)
+- Studio UX review 2026-09-29 → umbrella MAT-230 (sub-issues MAT-231..241):
+  left panel = Suggestions only (Variables / Recipe tabs removed),
+  collapsible side panels, Transform in the tool rail, free resize / move of
+  dock windows (with MAT-206), more freedom in every analysis window,
+  visual-first Correlation / Outliers / Target / Missing / Chart windows,
+  Python-style formulas. MAT-234 (layout lib), MAT-235 and MAT-241 need
+  Matteo's validation before building.
 - Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`), MAT-5 (FastAPI).
 - Fleet bug MAT-53 (Agent Fleet) still forces `env -u FLEET_CONF -u FLEET_PROJECT`
   for front dispatches.
