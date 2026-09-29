@@ -79,7 +79,22 @@ below); never imports the engine.
      maximize; Plotly figures re-lay out once a resize ends. Open windows,
      position, size and layouts persist per workspace in browser storage
      (`dtk.dock.<workspace>`) and survive a reload. No keyboard move (the old
-     reorder arrows and "wide" toggle are gone). **Parameters** panel (per window,
+     reorder arrows and "wide" toggle are gone).
+     **Analysis window shell** (MAT-235, generic, driven by the `Result`; all
+     windows except Compare's native matrix and Chart): one compact chrome
+     line (role · source, scope chip, Split by for Distribution, Parameters
+     chip, "bound to…" truncated with tooltip — MAT-246) → `Result.headline`
+     (1 line in short windows, 2 otherwise) → the selected figure filling the
+     window (min 180 px; the default dock height fits 3 windows with full
+     axes, no scroll) → view tabs (one per figure + Table; default = the
+     `main: true` figure, else the first; choice kept per window in
+     `toolViews`, in memory) + front-only display controls (sort / top-N,
+     count vs %, log — rewrite the Plotly JSON, never recompute) + **Open in
+     Chart** (prefills Chart via `chartPrefill.ts`) → collapsed **Details**
+     drawer (metric tiles, sortable paginated tables). Clicking a bar or
+     heatmap cell named after a column selects it in the grid. Plotly mode
+     bar (PNG/SVG) on every figure, hover only; figure colours follow
+     `tokens.css`. **Parameters** panel (per window,
      MAT-174): schema-driven knobs for the bound key, generated from
      `GET /keys/{id}/schema` (same `schemaToFields` mapping as the step
      editor); changing a param re-runs the key (debounced); **Reset to
@@ -145,16 +160,16 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
 
-## State (2026-09-29)
-Built and merged: engine datatoolkit #30–#50, web datatoolkit-web #1–#42
-(#40–#42 = first batch of the 2026-09-29 UX review, MAT-230: Suggestions-only
-left panel, collapsible panels, Transform in the rail, grid dock).
-56/56 e2e specs green on main (10 flows + per-ticket specs: MAT-149, 152, 154,
-155, 160, 167, 169, 171, 173, 174, 177, 231/232, 233, 234; flow2 / flow3 can
-flake on a cold start, MAT-222). Workbench open on 55 603 rows: ~1.5 s.
+## State (2026-09-30)
+Built and merged: engine datatoolkit #30–#57, web datatoolkit-web #1–#44
+(#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
+collapsible panels, Transform in the rail, grid dock, figure-first window
+shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
+58 e2e specs on main (10 flows + per-ticket specs: MAT-149, 152, 154, 155,
+160, 167, 169, 171, 173, 174, 177, 231/232, 233, 234, 235); flow2 / flow3
+(alignment report not ready within 5 s) and flow7 / mat171 (order / cold
+cache) can flake, MAT-222 / MAT-245 — they pass on re-run. Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
 once; saved chart specs live in browser storage until the engine gains
-`Workspace.charts` (MAT-185); concurrent Plotly figure builds in the engine
-can fail with `ValueError: Invalid value` when several dock windows restore
-at once (MAT-243); `GET /workspaces/summaries` always returns
+`Workspace.charts` (MAT-185); `GET /workspaces/summaries` always returns
 `shape: null` (perf fix MAT-200, lazy/cached shape tracked as MAT-204).
