@@ -18,8 +18,9 @@
 
 ## Result
 - metrics: `n_rows`, `n_numeric_columns`, `n_columns_with_iqr_outliers`, `n_columns_with_z_outliers`, `n_rows_flagged`, `contamination`
-- tables: `outliers_per_column` (fences, n / % IQR, n / % z), `flagged_rows` (20 most anomalous)
-- figures: % outside fences per column, anomaly score histogram
+- tables: `outliers_per_column` (fences, n / % IQR, n / % z), `flagged_rows` (20 most anomalous), `box_stats` (per column: q1, median, q3, lower / upper fence and whisker, n_below, n_above; when the method includes IQR, MAT-237)
+- figures: **main** = one column selected → box plot of that column with both IQR fences drawn and outlier points highlighted (always the box, even with 0 outliers); several columns → horizontal bars of % outside fences, sorted, only columns with outliers. Other views: box plots of the 6 most affected columns, IsolationForest score histogram (MAT-237)
+- headline: "5 outliers in Fare (12.2 %), above 80.97" (one column), "No outliers outside the IQR fences in Age (fences …)", "3 columns with outliers; most: Fare (12.2 %)" (several)
 - text: the course's remove / clip / keep / transform decision table
 
 ## Notes
