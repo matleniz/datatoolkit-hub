@@ -24,6 +24,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | ESLint | lint of the web front | `datatoolkit-web` gate |
 | Vitest | unit tests of the web front | `datatoolkit-web` gate (approved 2026-09-27) |
 | Playwright | e2e tests with screenshots | `datatoolkit-web` (approved 2026-09-27) |
+| react-grid-layout | Studio dock windows: drag to move + resize handles, snap-to-grid, serialisable layout | `datatoolkit-web` (approved 2026-09-29, MAT-234) |
 | rapidfuzz | approximate string matching (spelling variants / aliases, approximate duplicates); ~3 MB wheel, no dependency | engine (approved 2026-09-28) |
 
 Planned, not yet approved: polars, duckdb
