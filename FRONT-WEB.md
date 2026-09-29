@@ -37,18 +37,21 @@ below); never imports the engine.
      fitted dot, stage colour = course stage); click = time travel (read-only);
      × = remove step and replay; failing step shown red with the engine message;
      `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
-     `quantile_transform`, `spline` under Encode & transform).
+     `quantile_transform`, `spline` under Encode & transform). The same picker
+     opens from the tool rail's **Transform** entry (MAT-233).
    - **Grid**: header = name, kind chip, mini histogram / top values, missing bar,
      up to 2 alerts; cells coloured missing / sentinel / outlier; preview colours
      changed / new / removed. Click header (shift or multi toggle = add), row
      number, cell. **Right-click header** = column menu (inspect, add to
      selection, compare, distribution, type-relevant transforms, rename, cast,
-     new variable, use in formula, set / unset target, drop, Chart…).
+     use in formula, set / unset target, drop, Chart…).
    - **Inspector** (right): column profile + Analyse / Transform buttons; row
      inspector; cell → rule (replace as missing, map value); multi-selection →
      compare, correlation, derive, **New feature…** (formula editor: selected
      columns as chips, function palette with one-line help, autocomplete on
-     columns/`@variables`, live preview, inline engine errors, output name),
+     columns/`@variables` — stored workspace variables still load and replay,
+     but Studio no longer creates them, MAT-231 — live preview, inline engine
+     errors, output name),
      **Polynomial features…** / **Power transform…** / **Quantile
      transform…** (open the step editor prefilled with the numeric selection;
      blocked with an "Impute missing values first" hint when the selection has
@@ -58,13 +61,25 @@ below); never imports the engine.
      Apply to train / train+test / test, **Learned on train** (fitted state
      from `preview_step`), effect (diff counts), live preview on the grid,
      Apply / Discard. Nothing changes without Apply.
-   - **Left tabs**: Variables (named train statistics `@name`, create / delete /
-     insert), Suggestions (analysis keys' findings, each only *opens the
-     editor*), Recipe (steps list, click = time travel).
-   - **Tool rail + dock**: Compare, Correlation, Distribution, Missing,
-     Outliers, Target, Train vs test, **Chart** — windows bound to the grid
-     selection, reorder by drag or arrows, wide (2 columns), maximize, dock
-     bottom / right, sizes S / M / L. **Parameters** panel (per window,
+   - **Left panel = Suggestions** only (MAT-231; the Variables and Recipe tabs
+     were removed — the pipeline bar already does time travel): analysis
+     keys' findings, each only *opens the editor*.
+   - **Collapsible side panels** (MAT-232): left panel and inspector each
+     collapse to a 32 px strip (chevron); state in `AppState.panels`, mirrored
+     to `localStorage["dtk.panels"]` (per browser). Collapsing the right panel
+     is blocked while the step editor is open (no unapplied edit is hidden).
+   - **Tool rail + dock**: **Transform** (opens the step picker, prefilled from
+     the grid selection; never a dock window, MAT-233), Compare, Correlation,
+     Distribution, Missing, Outliers, Target, Train vs test, **Chart** —
+     windows bound to the grid selection, on a snap-to-grid layout
+     (react-grid-layout, MAT-234): drag the title bar to move, the corner or
+     right / bottom edge to resize, no overlap (windows float up); bottom (12
+     columns) and right (2 columns) docks keep separate layouts; S / M / L set
+     the dock's height (bottom) or width (right) and the grid scales with it;
+     maximize; Plotly figures re-lay out once a resize ends. Open windows,
+     position, size and layouts persist per workspace in browser storage
+     (`dtk.dock.<workspace>`) and survive a reload. No keyboard move (the old
+     reorder arrows and "wide" toggle are gone). **Parameters** panel (per window,
      MAT-174): schema-driven knobs for the bound key, generated from
      `GET /keys/{id}/schema` (same `schemaToFields` mapping as the step
      editor); changing a param re-runs the key (debounced); **Reset to
@@ -121,20 +136,25 @@ version), workspace `PUT` only when its JSON changed (MAT-144).
 
 ## Tests
 Unit (Vitest) for pure logic: selection, diff colouring, window layout
-reducer, schema → editor fields. E2E (Playwright, `npm run e2e`): starts
+reducer (dock grid: `dockLayout.ts`, MAT-234), schema → editor fields. E2E (Playwright, `npm run e2e`): starts
 `dtk-api` + Vite, drives the six flows (sources, alignment, workbench edit,
-variables + formula, compare + windows, export) on the prototype's dirty churn
+formula (stored `@variables` replay), compare + windows, export) on the prototype's dirty churn
 fixtures and on a real dataset, one screenshot per key state in
-`e2e/screenshots/<flow>/`. Flow 7 (real Parkinson files, skipped if absent)
+`docs/screenshots/t1-e2e/<flow>/`. Flow 7 (real Parkinson files, skipped if absent)
 also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
 
-## State (2026-09-28)
-Built and merged: engine datatoolkit #30–#50, web datatoolkit-web #1–#32.
-51/51 e2e specs green on main (10 flows + per-ticket specs: MAT-149, 152, 154,
-155, 160, 167, 169, 171, 173, 174, 177). Workbench open on 55 603 rows: ~1.5 s.
+## State (2026-09-29)
+Built and merged: engine datatoolkit #30–#50, web datatoolkit-web #1–#42
+(#40–#42 = first batch of the 2026-09-29 UX review, MAT-230: Suggestions-only
+left panel, collapsible panels, Transform in the rail, grid dock).
+56/56 e2e specs green on main (10 flows + per-ticket specs: MAT-149, 152, 154,
+155, 160, 167, 169, 171, 173, 174, 177, 231/232, 233, 234; flow2 / flow3 can
+flake on a cold start, MAT-222). Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
 once; saved chart specs live in browser storage until the engine gains
-`Workspace.charts` (MAT-185); `GET /workspaces/summaries` always returns
+`Workspace.charts` (MAT-185); concurrent Plotly figure builds in the engine
+can fail with `ValueError: Invalid value` when several dock windows restore
+at once (MAT-243); `GET /workspaces/summaries` always returns
 `shape: null` (perf fix MAT-200, lazy/cached shape tracked as MAT-204).
