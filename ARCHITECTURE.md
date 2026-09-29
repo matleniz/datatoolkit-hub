@@ -179,12 +179,16 @@ that fails. Used by every key with a target or column-list param
 
 | Field | Type | Meaning |
 |---|---|---|
+| `headline` | `str` | one plain English sentence summarising the finding (e.g. "2 columns have missing values; 1 above 30 %"); `""` when nothing to say or for `chart` (MAT-244) |
 | `metrics` | `dict[str, float \| int \| str]` | headline numbers |
 | `tables` | `list[Table]` — `{"title": str, "records": list[dict], "group": str \| null, "kind": "steps" \| null}` | tabular output; `kind: "steps"` = each record is a workspace step (`op`, `target`, `params`) — advisor recommendations, feature_selection / correlations suggested steps |
-| `figures` | `list[Figure]` — `{"title": str, "plotly": dict, "group": str \| null}` | Plotly figure JSON (`json.loads(fig.to_json())`) |
+| `figures` | `list[Figure]` — `{"title": str, "plotly": dict, "group": str \| null, "main": bool}` | Plotly figure JSON (`json.loads(fig.to_json())`); at most one `main: true` = the figure a front opens by default (none → the first) (MAT-244) |
 | `text` | `str` | markdown commentary, may be empty |
 
-Helpers: `Result.add_figure(title, fig, group=None)`,
+Helpers: `Result.add_figure(title, fig, group=None, main=False)` (a later
+`main=True` clears the previous one; figure construction and serialization run
+under the process-wide `plotly_lock`, since Plotly is not thread-safe and the
+HTTP API runs keys in a threadpool — MAT-243),
 `Result.add_table(title, df, group=None, kind=None)` (convert to JSON-safe records).
 `group` is optional: a front renders one tab per group in first-appearance
 order, ungrouped items in a leading "Overview" tab; nothing grouped → flat
