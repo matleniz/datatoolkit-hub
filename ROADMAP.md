@@ -118,6 +118,14 @@ real-data dogfood (MAT-144: duplicate API calls cut, workbench open 21 s →
 concise validation errors with `details`. Fleet gap found overnight (a worker
 blocked 8 h on a foreground dev server) → MAT-140 (Agent Fleet).
 
+## 2026-09-30 — Docker, one-command install (MAT-255, MAT-256)
+Matteo asked for a Docker setup runnable anywhere in one line; chose GHCR images
+published by GitHub Actions (Docker, Actions, GHCR added to `STACK.md`). Engine
+datatoolkit #64 (image, entrypoint fixing root-owned bind mounts, PR smoke job);
+web datatoolkit-web #49 (nginx image, `compose.yml`, full-stack smoke) and #50
+(wait for nginx: #49's smoke raced on main). No local Docker daemon, so all
+checks run in CI. See `HOWTO/run-with-docker.md`.
+
 ## Next (see Linear)
 - Studio UX review 2026-09-29 → umbrella MAT-230 (sub-issues MAT-231..241).
   Done same day (web #40–#42): Suggestions-only left panel (MAT-231),

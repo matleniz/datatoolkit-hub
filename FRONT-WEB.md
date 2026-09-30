@@ -156,7 +156,8 @@ version), workspace `PUT` only when its JSON changed (MAT-144).
 ## Run it
 `cd ~/datatoolkit && uv run --extra api dtk-api --port 8765`, then in
 `~/datatoolkit-web`: `npm run dev` (proxies `/api`). Default export directory:
-`$DTK_HOME/exports/<workspace>`.
+`$DTK_HOME/exports/<workspace>`. Docker (no dev tools; nginx replaces the
+Vite proxy, Studio on :8080): `HOWTO/run-with-docker.md`.
 
 ## Tests
 Unit (Vitest) for pure logic: selection, diff colouring, window layout
