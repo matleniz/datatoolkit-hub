@@ -49,7 +49,11 @@ below); never imports the engine.
      inspector; cell → rule (replace as missing, map value); multi-selection →
      compare, correlation, derive, **New feature…** (formula editor: selected
      columns as chips, function palette with one-line help, autocomplete on
-     columns/`@variables` — stored workspace variables still load and replay,
+     columns/`@variables` and `np.` / `numpy.` functions, non-identifier
+     column names inserted as `df["…"]`, a **Python** section of insertable
+     examples (`1 if Age < 18 else 0`, `np.where(…)`, `18 <= Age < 65`) and
+     each function's numpy form in its help (MAT-241) — stored workspace
+     variables still load and replay,
      but Studio no longer creates them, MAT-231 — live preview, inline engine
      errors, output name),
      **Polynomial features…** / **Power transform…** / **Quantile
@@ -103,11 +107,16 @@ below); never imports the engine.
      per column for Distribution / Outliers / Target). Distribution always
      runs the `column_distribution` key (not the profile mini-histogram) so
      bins/log/norm apply; Correlation runs `correlations` (method/threshold).
-     **Chart** (MAT-172): type (histogram, box, violin, bar/count, scatter,
-     line, heatmap/density_heatmap, pie, scatter_matrix), x/y/color/facets/
-     size/agg/trendline/log axes/bins/sample_size, prefilled from the grid
-     selection; runs the engine `chart` key and reuses the figure renderer
-     (Plotly mode bar for PNG/SVG export). Saved chart specs (name + params)
+     **Chart** (MAT-172, redesigned MAT-240): a grid of icon tiles
+     (histogram, box, violin, bar/count, scatter, line, heatmap/density, pie,
+     scatter matrix) — tiles that do not fit the selection are greyed with
+     the reason on hover, the recommended one is marked; one compact X / Y /
+     Color row with a **by target** pill; facets / size / agg / bins /
+     sample / trendline / log folded under **More**; the figure fills the
+     window. Prefilled from the grid selection; runs the engine `chart` key
+     (Plotly mode bar for PNG/SVG export). Opens larger than other windows by
+     default (MAT-252); any newly opened window is placed where it is visible,
+     shrinking to the free width (min 4 columns) rather than below the fold. Saved chart specs (name + params)
      reopen and re-render on the current pipeline version (persisted in
      browser storage until the engine grows `Workspace.charts`, MAT-185).
    - **Export**: workspace JSON + `export_workspace` outputs, leak line
@@ -161,7 +170,7 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-09-30)
-Built and merged: engine datatoolkit #30–#57, web datatoolkit-web #1–#44
+Built and merged: engine datatoolkit #30–#63, web datatoolkit-web #1–#48
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).

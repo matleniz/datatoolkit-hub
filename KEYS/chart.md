@@ -20,7 +20,7 @@
 
 ## Result
 - metrics: `chart`, `n_rows`, `n_rows_source`, `n_sampled_out`, `trendline`
-- figures: one Plotly figure JSON (`Result.add_figure`)
+- figures: one Plotly figure JSON (`Result.add_figure`). A numeric / bool `color` with ≤ 10 distinct values (e.g. a binary target) is treated as categorical: discrete legend, one colour per value, consistent with trendline groups (MAT-251); high-cardinality numeric colours keep a continuous scale.
 - text: a sampling note when rows were dropped
 
 ## Notes

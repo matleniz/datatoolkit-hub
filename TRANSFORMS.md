@@ -98,6 +98,20 @@ Python `ast` against a node whitelist, never `eval`. `variables` =
 added in MAT-173 alongside `clip`/`floor`/`ceil`/`sign`/`square`/`tanh`/
 `log2`/`log10`/`isnull`, still no `eval`.
 
+**Python-style one-liners** (MAT-241, validated 2026-09-30): each construct is
+rewritten onto the same whitelist, nothing is exec'd. Accepted: `np.<f>` /
+`numpy.<f>` for the whitelisted functions (+ `np.pi`, `np.isnan` → isnull,
+`np.minimum` / `np.maximum`); `a if cond else b` (→ where, nestable); `and` /
+`or` / `not` and `&` / `|` / `~` element-wise; chained comparisons
+(`18 <= Age < 65`); `**`, `%`, `//`; builtins `abs`, `round`, `min(a, b)`,
+`max(a, b)`; `df["Col name"]` / `df.col` for column names that are not
+identifiers. Refused with a message naming the construct: lambda, imports,
+comprehensions, method calls (`.apply`), calling a call's result, any dunder,
+attribute access other than `np.<f>` / `df.<col>`, subscript other than
+`df["col"]`, unlisted functions (`eval`, `open`, `getattr`, `np.random`,
+`np.load`, `torch.*`). No torch / arbitrary Python: formulas are replayed and
+exported as sklearn pipelines, so they stay a safe, deterministic subset.
+
 ## Design notes
 
 - `impute_knn` / `impute_iterative`: a fitted KNN / iterative imputer is not
