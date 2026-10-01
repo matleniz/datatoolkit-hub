@@ -221,3 +221,13 @@ unit, knip clean.
   a new hub file (e.g. `AGENT-BRIDGE.md`) covering goals, architecture,
   security (contract-scoped tools, no shell), auth and cost, candidate
   dependencies; then sub-issues of #9, each `needs:matteo` until approved.
+
+## 2026-10-02 — share it: one-line launcher, Docker or uv
+Docker launchers `scripts/datatoolkit.sh` / `.ps1` (web #78, #53), then the
+no-Docker uv mode (web #79, #55: `dtk-studio` serves Studio + engine in one
+process, Studio build as release asset `studio-latest`); it surfaced that the
+engine did not import on Windows (`fcntl`), fixed with `msvcrt` locking
+(engine #83, #57). CI green on ubuntu / macOS / Windows; the published uv
+one-liner checked by hand on a fresh data home. Recipe:
+`HOWTO/share-and-run.md`. Queue: only the paused #9.
+

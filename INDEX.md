@@ -16,7 +16,8 @@
 | Adding a transform op (workspace step / sklearn) | `HOWTO/add-a-transform.md` |
 | Which transform ops exist, what they fit, their params | `TRANSFORMS.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |
-| Running engine + Studio with Docker (one command, GHCR images, CI smoke) | `HOWTO/run-with-docker.md` |
+| Sharing / running anywhere: one-line launcher, Docker or uv (no Docker) | `HOWTO/share-and-run.md` |
+| Docker internals (GHCR images, compose, nginx, CI smoke) | `HOWTO/run-with-docker.md` |
 | Web front "Studio" (screens, HTTP API routes, tests) | `FRONT-WEB.md` |
 | What was done when, what's next | `ROADMAP.md` |
 | Course section → capability → Linear issue | `COURSE-MAP.md` |

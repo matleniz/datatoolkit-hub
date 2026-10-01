@@ -229,7 +229,11 @@ A front renders the contract generically: forms from `key_schema` /
 results from `Result` (metrics, tables, figures, text). The front is Studio —
 screens, routes and tests in `FRONT-WEB.md`; it has no key catalog (its tool
 rail and Suggestions call a fixed list of keys). Switching front = implement
-`HOWTO/add-a-front.md`, touch nothing in the engine.
+`HOWTO/add-a-front.md`, touch nothing in the engine. Deployment: nginx + engine
+containers (`HOWTO/run-with-docker.md`), or `dtk-studio` (datatoolkit-web
+`launcher/`), which mounts the engine's `create_app()` and Studio's static build
+in one ASGI app (`HOWTO/share-and-run.md`); either way Studio talks to the
+engine over HTTP only.
 
 ## Engine internals: sources → ops → keys
 

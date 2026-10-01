@@ -211,7 +211,9 @@ sources. Acceptance: `e2e/mat175-refresh-matrix.spec.ts`.
 :8765). Default export directory: `$DTK_HOME/exports/<workspace>` when train X
 is an upload (`$DTK_HOME/uploads/…`), else `/tmp/exports/<workspace>`
 (`src/bench/export/exportPaths.ts`). Docker (no dev tools; nginx replaces the
-Vite proxy, Studio on :8080): `HOWTO/run-with-docker.md`.
+Vite proxy, Studio on :8080): `HOWTO/run-with-docker.md`. Share / no Docker:
+`HOWTO/share-and-run.md` (`dtk-studio` serves the build + engine on :8080, same
+origin `/api`).
 
 ## Tests
 Unit (Vitest, `tests/**/*.test.ts`) for pure logic: selection, diff

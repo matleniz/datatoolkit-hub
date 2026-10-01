@@ -1,7 +1,9 @@
 # How to run datatoolkit with Docker (engine + Studio, one command)
 
-Any machine with Docker (Docker Engine on Linux, Docker Desktop on macOS /
-Windows), no clone, no Python or Node:
+To share it, use the launcher (`HOWTO/share-and-run.md`): one line, Docker when
+usable, else uv, and it opens the browser. Raw compose, by hand: any machine
+with Docker (Docker Engine on Linux, Docker Desktop on macOS / Windows), no
+clone, no Python or Node:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/matleniz/datatoolkit-web/main/compose.yml -o datatoolkit.yml && docker compose -f datatoolkit.yml up -d

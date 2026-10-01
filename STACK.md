@@ -26,6 +26,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | Playwright | e2e tests with screenshots | `datatoolkit-web` (approved 2026-09-27) |
 | react-grid-layout | Studio dock windows: drag to move + resize handles, snap-to-grid, serialisable layout | `datatoolkit-web` (approved 2026-09-29, MAT-234) |
 | rapidfuzz | approximate string matching (spelling variants / aliases, approximate duplicates); ~3 MB wheel, no dependency | engine (approved 2026-09-28) |
+| uv launcher + GitHub Release asset `studio-latest` | no-Docker share path: `dtk-studio` (datatoolkit-web `launcher/`) run with `uv tool run --from git+…`; Studio build published as `studio-dist.zip` + sha256 on every push to `main` | datatoolkit-web `launcher/`, `studio-release.yml`, `uv-launcher.yml` (approved 2026-10-02, datatoolkit-issues#55; no PyPI, no runtime dep beyond `dtk-engine[api]`) |
 | Docker + Docker Compose | engine + Studio images, one-command install (`compose.yml`) | both repos (approved 2026-09-30, MAT-255/256) |
 | Base images python:3.12-slim, node:22-alpine, nginx:alpine | engine runtime; web build stage; web static server + `/api` proxy | Dockerfiles (approved 2026-09-30) |
 | GitHub Actions + GHCR | PR smoke tests of the images, multi-arch publish of `ghcr.io/matleniz/datatoolkit-{engine,web}` | `.github/workflows/docker.yml` of both repos (approved 2026-09-30) |
