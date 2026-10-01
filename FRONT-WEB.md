@@ -233,15 +233,20 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-10-01)
-Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#73
+Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#77
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
-61 e2e tests in 35 spec files on main (flows 1–10, formats-sources and
+65 e2e tests in 39 spec files on main (flows 1–10, formats-sources and
 per-ticket specs: MAT-149, 152, 154, 155, 160, 167, 169, 171, 173, 174, 175,
-177, 205, 231/232, 233, 234, 235, 240, 241, 252); flow2 / flow3
-(alignment report not ready within 5 s) and flow7 / mat171 (order / cold
-cache) can flake, MAT-222 / MAT-245 — they pass on re-run. Workbench open on 55 603 rows: ~1.5 s.
+177, 205, 231/232, 233, 234, 235, 240, 241, 252, datatoolkit-issues #10, #15,
+#16, #48); 308 unit tests. Specs wait on readiness signals (alignment report,
+suggestions, grid identity, applied step) rather than fixed timeouts and pass
+alone and in the full run (datatoolkit-issues#13); the e2e Vite config
+pre-bundles every dependency so a cold cache does not reload the page
+(datatoolkit-issues#14). Full run on a cold cache, 2026-10-01: 65/65, 5.4 min.
+Deleting a workspace waits for the save already on the wire, then undoes it
+(`src/state/workspaceSaveGate.ts`). Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
 once.
 `GET /workspaces/summaries` returns cached `train` / `test` `shape`

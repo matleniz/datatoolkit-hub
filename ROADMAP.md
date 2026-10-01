@@ -201,8 +201,15 @@ unit, knip clean.
 - Done after Matteo's second go (#37, #10, #14): web #71 (jsdom dropped),
   #72 (#48: `x-dtk-when` / `x-dtk-semantic` / group functions in Studio; fixes
   the flow3 regression from the new impute params), #73 (#10: edit an applied
-  step, undoable). #14 (cold-start e2e flakes) in progress.
-- Ready, not dispatched: #11, #12, #13.
+  step, undoable), #74 (#14: e2e Vite pre-bundles deps). Then #12 (web #75:
+  formula error under Expr), #11 (web #76: saved charts on
+  `Workspace.charts`), #13 (web #77: delete waits out the in-flight save,
+  e2e readiness signals). Final check on main (engine 4dcca8b, web 2a31aea):
+  e2e 65/65 on a cold cache (5.4 min), 308 unit, engine 979 tests.
+- agent-fleet issues filed: #8 (`fleet wait` / `ls` report busy e2e workers as
+  stalled / blocked on vite), #9 (`test-server-detect.sh` leaks http.server
+  processes).
+- Queue empty except the paused #9.
 - **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it
   resumes: design only, no code. An agent-agnostic base (MCP server over the
   engine contract `list_keys` / `key_schema` / `run_key` and the workspace
