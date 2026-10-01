@@ -27,7 +27,7 @@ Details: `ARCHITECTURE.md`.
 ## Hard project rules
 - **Only known tools.** New dependency → `STACK.md` + Matteo's approval first.
 - Built key by key, on demand. Do not add keys or features nobody asked for.
-- Linear (team MAT, project datatoolkit) is English-only.
+- Everything shared is in English: issues, comments, PRs, commits, reviews.
 
 ## Your fleet — dispatching workers
 You are the COORDINATOR: you write the docs and dispatch code work; you do not
@@ -37,11 +37,27 @@ HARD RULE — every agent launch goes through `fleet` (`fleet w`, `fleet
 dispatch`, bare `fleet`), never an agent CLI by hand: the launch carries the
 posture (permission mode, read-only-hub barrier, MCP profile, resource guard).
 
-- `fleet-queue` — where issues go (Linear here).
-- `fleet dispatch [--model M] <name> "<task>"` — headless worker. One coherent
-  change = one worker; mechanical work → `--model sonnet` with a precise brief.
+- `fleet-queue` — where issues go: **`matleniz/datatoolkit-issues`** (private,
+  board = GitHub Project #1). Conventions (roles, lifecycle, labels, issue
+  body) live in that repo's README; read it before filing.
+- `fleet -a claude dispatch --model opus <name> "<task>"` — a lead worker (one
+  per repo / stream): it audits or designs, files sub-issues and drives
+  sub-workers; sub-workers run `--model sonnet` (haiku cannot run headless).
+  Trivial, easily checked tasks may go to `-a antigravity`. Always pass `-a`.
+- You do not audit, profile or read code in depth yourself: brief a lead.
 - `fleet ls` / `fleet status` / `fleet prune` / `fleet chats [<worker>]`.
 - Several disjoint streams → `dispatch-work` skill (partition by file ownership).
+
+## Issue queue (since 2026-10-01; Linear before, ids `MAT-<n>`, read-only)
+- One issue = one deliverable; epics are `type:epic` with GitHub sub-issues.
+- Labels: one `type:*`, one `priority:*`, `area:engine|web|hub`; `status:*`
+  and the board column move together; `needs:matteo` = a decision only Matteo
+  can take (body has a `### Decision needed` section with a recommendation).
+- A worker starts an issue (status:in-progress + "Started by <name>"), opens
+  one PR whose body says `Closes matleniz/datatoolkit-issues#<n>`, and never
+  merges. The coordinator reviews, merges, updates the hub at merge time.
+- Doc drift found by a worker → `type:doc-proposal` issue (skill
+  `propose-doc-change`), never a hub edit.
 
 ## Conventions
 - Verify facts against the code before asserting. Do not guess names/flags.

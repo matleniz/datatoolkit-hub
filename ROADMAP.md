@@ -160,10 +160,29 @@ reducer, Sources state object, Inspector / AnalysisResultView split, dead
 tests, 245 web unit tests, build, full e2e 61/61. Blockers found: the Linear
 workspace hit its free-issue limit; haiku cannot run headless.
 
-## Next (see Linear)
-- Wave 2: engine MAT-276..279 (+ two groups drafted in
-  `~/.datatoolkit/parity/wave2-pending-issues.md`), web MAT-272..275; then a
-  light gate proposal (STACK.md approval). Pending doc proposals MAT-214, 215,
-  220, 223.
-- Then MAT-260, MAT-261, MAT-262 (spike to discuss with Matteo first).
-- Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`).
+## 2026-10-01 — code quality wave 2; queue moved from Linear to GitHub
+Wave 2 merged and verified on both mains (engine 922 tests, web 253 unit,
+build, full e2e 61/61). Engine #69–#74 (MAT-258): `create_app` split into
+APIRouters, `find_issues` / advisor / key results / column scans / chart and
+csv dispatch as rule tables; ruff complexity hits 33 → 0, no radon block worse
+than C except `file_inspect._text_facts`; contract and OpenAPI byte-identical.
+Web #57–#62 (MAT-259): e2e writes `docs/screenshots` only with
+`DTK_E2E_SCREENSHOTS=1`, `useDebounced`, DockWindowBody run state, op knowledge
+read from the transform schema, WorkbenchData split into hooks; functions above
+cognitive complexity 15: 36 → 22.
+
+Linear hit its free-plan issue limit. Both queues moved to **private GitHub
+issue repos** with a board each: `matleniz/datatoolkit-issues` (Project #1) and
+`matleniz/agent-fleet-issues` (Project #2); the README of each repo is the
+contract (roles, lifecycle, labels). `fleet issue new|start|review|block|done|
+bootstrap` drives them (agent-fleet #22); fleet also routes Claude models to the
+claude pack and stops false out-of-scope reports (#21, #23). The 16 open
+datatoolkit issues were migrated (#7–#22; Linear copies canceled with a link);
+new epics: #1 code-quality follow-ups (gate decision #3 for Matteo), #2
+imputation beyond fixed strategies (#7, #8). Everything shared is in English.
+
+## Next (see matleniz/datatoolkit-issues)
+- Matteo's decisions: light gate (#3), and the `needs:matteo` items (#8, #9,
+  #15–#18).
+- Code-quality leftovers (#4 layer edge, #5 `_text_facts`, #6 web complexity),
+  then the impute epic (#2), doc proposals #19–#22 (coordinator).
