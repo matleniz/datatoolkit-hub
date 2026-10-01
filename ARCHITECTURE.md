@@ -11,7 +11,9 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 2. **Notebook** — `dtk_engine/api.py`: `load(path | spec dict | spec model)`
    (suffix → source kind via `api.SUFFIX_KINDS`), `overview(df)`,
    `check(train, test, id_columns=None)`, `duplicates`, `inconsistencies`,
-   `missing`, `outliers`, `select_features(df, target, ...)`, `preview_workspace`, `advise(df, test=None, model_family=None,
+   `missing`, `outliers`, `select_features(df, target, ...)`, `distribution`,
+   `target_analysis(df, target, ...)`, `correlations`, `chart(df, chart="histogram",
+   **params)`, `preview_workspace`, `advise(df, test=None, model_family=None,
    target=None)`, `transform(df, op, **params)`, `list_transforms()`,
    `export_workspace(name, out_dir, overwrite=False, store=None)`. DataFrame in → `Result` (displayed in Jupyter via
    `_repr_html_`) or DataFrame out. Keys and api share the same builders
@@ -49,7 +51,7 @@ dtk_engine  ──  contract (JSON)  ──  HTTP API (dtk-api)  ──  front (
 
 | Layer | Repo · path | May import |
 |---|---|---|
-| Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
+| Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, numpy, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, rapidfuzz, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
 | HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, FastAPI |
 | Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`FRONT-WEB.md`). **Never** the engine. |
 
@@ -80,15 +82,15 @@ def run_key(key_id: str, params: dict) -> dict
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
 def list_workspace_summaries() -> list[dict]
     # [{name, mtime, step_count, target, train:{kind,path,file,shape}, test:{...}|null}], lighter than list_workspaces
-    # shape is always null here (cheap sidebar list, no frame load / step replay, MAT-200); get real shape from
-    # preview_workspace / workspace_rows when needed
+    # shape = [rows, cols] after steps, memoized content-addressed (first call may replay, later ones hit the
+    # cache, MAT-200 / MAT-204); null when the role is absent or its frame cannot be loaded
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
 def delete_workspace(name: str) -> None
 def rename_workspace(name: str, new_name: str) -> dict
 def duplicate_workspace(name: str, new_name: str) -> dict
-    # copy (steps, variables, target); content-addressed source refs stay shared, not copied
+    # full copy under new_name (datasets, label, merges, variables, charts, steps); content-addressed source refs stay shared, not copied
 
 def source_columns(spec: dict) -> list[dict]
     # columns of a source, file order: [{"name", "dtype", "numeric"}] (numeric = numeric and not bool);
@@ -200,8 +202,9 @@ layout. In a notebook a `Result` displays itself
 table, figures with plotly.js loaded once from the CDN, escaped text), so the
 idiom is `api.overview(df)`; `Result(**run_key(id, {})).show()` still works.
 
-Keys use absolute imports (`from dtk_engine.registry import key`): ruff TID252
-forbids relative parent imports.
+Keys use absolute imports (`from dtk_engine.registry import key`); no module
+uses a relative parent import (not a lint rule; check with
+`uv run ruff check --select TID252 .`).
 
 ## A key
 
@@ -217,13 +220,14 @@ def run(params: Params) -> Result: ...  # load(source) -> ops -> Result
 imports every key module so registration happens on `import dtk_engine`.
 Recipe: `HOWTO/add-a-key.md`.
 
-## Front (generic, zero per-key code)
+## Front (generic forms and results)
 
-A front renders the contract generically: catalog from `list_keys()`, forms
-from `key_schema` / `transform_schema` (JSON Schema → widgets, `x-dtk-widget`
-column selectors), results from `Result` (metrics, tables, figures, text). The
-front is Studio — screens, routes and tests in `FRONT-WEB.md`. Switching front
-= implement `HOWTO/add-a-front.md`, touch nothing in the engine.
+A front renders the contract generically: forms from `key_schema` /
+`transform_schema` (JSON Schema → widgets, `x-dtk-widget` column selectors),
+results from `Result` (metrics, tables, figures, text). The front is Studio —
+screens, routes and tests in `FRONT-WEB.md`; it has no key catalog (its tool
+rail and Suggestions call a fixed list of keys). Switching front = implement
+`HOWTO/add-a-front.md`, touch nothing in the engine.
 
 ## Engine internals: sources → ops → keys
 
@@ -234,7 +238,7 @@ the engine splits into three internal layers:
 dtk_engine/
   sources/   SourceSpec (JSON) ──load()──▶ pd.DataFrame        generalized input
   ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
-  ops/transforms/{cleaning,align,impute,encode,scale,features,selection}.py   fit/apply ops (steps)
+  ops/transforms/{cleaning,align,impute,encode,scale,features,selection,formula}.py   fit/apply ops (steps)
   ops/advisor/, ops/compare/   packages (stage / concern modules); shared helpers in ops/_util.py
   keys/      thin: Params(sources…) → load → ops → Result      one output
 ```
@@ -243,8 +247,9 @@ Import order inside `dtk_engine` (a module only imports the layers below it):
 `http` → `contract` → `api` | `pipeline` (siblings) → `workspace` → `keys` → `ops`
 → `sources`. `contract` (JSON door) and `api` (notebook door) both build on
 `workspace` / `keys` / `transform_registry`; neither imports the other (datatoolkit-issues#4).
-Checked with `uv run --with import-linter lint-imports --config
-~/.datatoolkit/audit/importlinter.ini`.
+Enforced by `tests/test_layers.py` (dependency-free `ast` test, part of the
+gate; datatoolkit-issues#3). Ruff also caps complexity (`C90` max 10,
+`PLR0911/0912/0915`) and selects `I`, `SIM`, `PERF`, `B`, `RUF100`.
 
 - `sources/` never knows about keys; analysis `ops/` never know about
   `Result` or pydantic (testable alone); transform ops declare pydantic params
@@ -279,10 +284,11 @@ Files: `sources/spec.py` (`CsvSource`, `ParquetSource`, `ExcelSource`,
 — **add every new reader's spec to this union, and file readers also to
 `FileSourceSpec`**, the file-only union a workspace uses for X / y so it cannot
 reference a `dataset` source), `sources/registry.py` (`@reader`, `load`),
-`sources/csv_pandas.py`, `parquet.py`, `excel.py`, `json_reader.py`, `sql.py`,
-`dataset.py`. Spec models are strict (`extra="forbid"`). `api.load(path)` maps
+`sources/csv_pandas.py`, `parquet.py`, `excel.py`, `json_reader.py`, `sql.py`;
+the `dataset` reader is `workspace/dataset.py::read_dataset`. Spec models are strict (`extra="forbid"`). `api.load(path)` maps
 `.csv` / `.tsv` / `.parquet` / `.xlsx` / `.json` / `.jsonl` / `.ndjson` through
-`api.SUFFIX_KINDS`.
+`api.SUFFIX_KINDS`; legacy `.xls` maps to `excel` only to raise a clear
+`SourceError` (only `.xlsx` is supported, no extra dependency; datatoolkit-issues#18).
 
 | `kind` | Reader | Status |
 |---|---|---|
@@ -293,7 +299,7 @@ reference a `dataset` source), `sources/registry.py` (`@reader`, `load`),
 | `json` | `path`, `lines` (jsonl), `encoding` (`utf-8-sig` default, BOM-safe), `record_path` (dotted; `file_inspect` suggests one); nested objects flattened `a_b`, lists kept as-is | done (MAT-40) |
 | `sql` | SQLAlchemy: `url_env` = NAME of an env var holding the URL (never the URL: it would land in workspaces / logs), `query` run on the server; errors never echo the URL. Not a file source (not usable as workspace X / y) | done (MAT-40) |
 | `csv_robust` | bad lines are covered by `csv` `on_bad_lines`; mixed separators, junk headers | later |
-| `upload` | file dropped by the front into a staging dir | later |
+| (upload) | not a kind: `PUT /api/uploads/{filename}` stores the bytes as `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`)`/<content hash>/<name>`; the returned path is read with its file kind (`csv`, …) | done (MAT-102) |
 
 Step 1 input = a local path. Default paths point to the demo CSVs shipped in
 `dtk_engine/demo_data/` (`TRAIN_CSV`, `TEST_CSV`) so `run_key(id, {})` stays
@@ -335,8 +341,9 @@ workspace "parkinson"
 - **Transform ops** are workspace steps applied to `train`, `test` or `both`,
   following the fit/apply protocol below (stat-based ops fit on train and apply
   to test). Catalog: `TRANSFORMS.md`.
-- **Front**: a top bar shows the active workspace (train / test / y, number of
-  steps); key forms are pre-filled with the workspace datasets.
+- **Front**: Studio's header shows the active workspace name and, on the
+  Workbench, a Train / Test toggle; analysis keys get a `{kind: "dataset"}`
+  source for the workspace (`FRONT-WEB.md`, Refresh identity).
 
 Implementation:
 - Package `dtk_engine/workspace/`: `models.py` (strict pydantic `Workspace`:
@@ -382,8 +389,4 @@ Implementation:
   also exists in X it must be equal row by row (real data: `Index` checked).
   `key` = one-to-one, no NaN keys, no unmatched row on either side. Both refuse
   row loss; the error lists the counts. X's row order and index are kept.
-- Front: forms prefilled by the pure `schema.workspace_defaults` (first source
-  param → train, a param named `test` → test, others keep their default); the
-  widget key prefix includes the active workspace so forms reset on switch.
-  Headless `AppTest` smoke tests in `tests/front/test_app.py` (front repo).
 - `tests/test_real_data.py` runs on Matteo's real CSVs, skipped when absent.

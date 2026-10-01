@@ -17,15 +17,15 @@
 | `target` | str \| null (column selector) | null | label column, needed by `by_label` |
 | `bins` | `auto` \| int 2–200 | `auto` | histogram bins; `auto` = smart per-column default (MAT-174, see Notes) |
 | `bin_edges` | list[float] \| null | null | explicit bin edges, overrides `bins` |
-| `range_min_pct`, `range_max_pct` | float 0–100 \| null | null | clip the histogram range to these percentiles of the column |
-| `log_x`, `log_y` | bool | false | log-scale the value axis / the count axis |
-| `norm` | `count` \| `density` \| `share` | `count` | histogram normalization |
+| `range_min_pct`, `range_max_pct` | float 0–100 | 0 / 100 | clip the histogram range to these percentiles of the column (`range_min_pct` must be ≤ `range_max_pct`) |
+| `log_x`, `log_y` | bool | false | `log_x`: bin `log1p(x)` (negative values dropped from the histogram); `log_y`: log scale on the count axis of the figure |
+| `norm` | `count` \| `density` \| `share` | `share` | histogram height: share of rows, raw count, or density |
 | `cumulative` | bool | false | also compute the running total / share |
 | `top_k` | int 1–100 | 10 | categories kept per column, rest `(other)` |
 | `target_bins` | int 2–20 | 4 | quantile bins of a numeric target |
 
 ## Result
-- metrics: `n_columns`, `n_numeric`, `n_categorical`, `n_columns_capped`, `n_groups`, `compare`, `by_label`, `n_missing_in_test`
+- metrics: `n_columns`, `n_numeric`, `n_categorical`, `n_columns_capped`, `n_groups`, `compare`, `by_label` (target name or `none`), `by` (column or `none`), `n_missing_in_test`, plus the echoed options `bins`, `norm`, `cumulative`, `log_x`, `log_y`; `pearson` / `spearman` when a numeric column is split by a numeric `by`
 - tables: `columns` (column, kind), `groups` (group, n_rows), `numeric_summary` + `histograms` (group `numeric`; long format column / group / bin_left / bin_right / count / share, plus `density`, `cumulative_count`, `cumulative_share` when requested), `value_counts` (group `categorical`; column / group / value / count / pct), `vs_by` (numeric column split by a numeric `by`)
 - figures: one per column (overlaid share histogram or grouped bar); a scatter figure `{col} vs {by}` when both are numeric
 

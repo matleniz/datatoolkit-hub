@@ -13,10 +13,10 @@
 | `test` | SourceSpec \| null | null | optional test source: enables the test imputation-spike check |
 | `target` | str \| null | null | target column: counts rows missing it (drop them first) |
 | `sort` | `pct_missing` \| `n_missing` \| `column` | `pct_missing` | `missing_rates` sort order (MAT-174) |
-| `threshold` | float 0–1 \| null | null | only list columns at or above this missing fraction in `missing_rates` |
+| `threshold` | float 0–100 | 0 | only list columns whose `pct_missing` is at or above this percentage in `missing_rates` (0 = all columns) |
 
 ## Result
-- metrics: `n_rows`, `n_columns`, `n_columns_with_missing`, `n_columns_drop_candidates`, `n_rows_with_missing`, `n_spike_bins`, `n_sentinel_columns`, `n_cooccurring_pairs`, `n_missing_cells`, `pct_missing_cells` (overall, over every cell of the scoped frame — MAT-160 item 3), optional `n_rows_missing_target`, `n_test_spikes`
+- metrics: `n_rows`, `n_columns`, `n_columns_with_missing`, `n_columns_drop_candidates`, `n_rows_with_missing`, `n_spike_bins`, `n_sentinel_columns`, `n_cooccurring_pairs`, `n_missing_cells`, `pct_missing_cells` (overall, over every cell of the scoped frame — MAT-160 item 3), the echoed options `threshold` and `sort`, optional `n_rows_missing_target`, `n_test_spikes`
 - tables: `missing_rates` (with advice: drop ≥ 60 %, indicator ≥ 20 %), `missing_per_row` (histogram + `spike` flag), `sentinels`, `cooccurrence_pairs` (Jaccard ≥ 0.5), `test_value_spikes`, `suggested_steps` (`kind="steps"`, a `drop_high_missing` step with `threshold` = `DROP_PCT`/100 (+ `target` when given) whenever `missing_rates` has drop candidates)
 - figures: **main** = "% missing per column": horizontal bars, sorted, only columns with missing values, coloured by severity (< 20 % / indicator 20–60 % / drop ≥ 60 %), value label on each bar; "Missingness matrix" (sampled rows × columns with missing values); "Missing fields per row"; "Missingness co-occurrence (Jaccard)" (MAT-239)
 - headline: "2 columns have missing values; 1 above 30 % (Cabin 88 %)" — names the worst column; "No missing values"

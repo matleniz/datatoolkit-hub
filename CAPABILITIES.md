@@ -8,7 +8,7 @@ it is implemented. Architecture of the layers: `ARCHITECTURE.md`.
 | Family | Shape | Examples | Status |
 |---|---|---|---|
 | **Analysis / check** | table(s) → `Result`, no table produced | overview, train/test consistency, distribution, duplicates, correlations | built |
-| **Transform** | table(s) + params → table | join X_train + y_train (index / id), concat, derived feature (column combination), cast, drop, filter | step catalog built (label join, cleaning, impute / encode / scale, features, selection — `TRANSFORMS.md`) |
+| **Transform** | table(s) + params → table | join X_train + y_train (index / id), concat, derived feature (column combination), cast, drop, filter | step catalog built (label join, cleaning, align, impute / encode / scale, features, selection, formula — `TRANSFORMS.md`) |
 | **Pipeline** | JSON list of steps over a catalog of named tables | replay a preprocessing exactly (hash inputs + manifest) | later |
 
 ## Backlog

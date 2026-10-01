@@ -186,15 +186,16 @@ Decisions recorded on the issues: light gate #3 adopted as recommended
 (eslint-plugin-sonarjs added to STACK.md); #8 group-aware impute go; #15
 dismiss suggestions go; #16 undo / redo only, low priority; #18 `.xlsx` only,
 clear error, no new dependency; #17 closed (not planned). #9 (in-Studio agent)
-is **paused** (see Next). Docs refresh verified against the code (#28): web
-README merged (web #67), hub doc proposals #29–#40 pending. Workers: engine-gate
-(#3 engine, #18), engine-impute (#7, #8), web-gate (#3 web), web-studio (#15,
-#16).
+is **paused** (see Next). Docs refresh verified against the code (#28):
+engine #78 and web #67 READMEs merged, hub proposals #29–#36 and #38–#43
+applied. Merged: light gate #3 (engine #77: ruff C90 / PLR / SIM / PERF / B +
+`tests/test_layers.py`; web #68: knip, sonarjs ≤ 25, `ci.yml`; knip added to
+the web `GATE_CMDS`), #18 (engine #79). Engine main: ruff clean, 925 tests.
+In progress: engine-impute (#7, #8), web-studio (#15, #16).
 
 ## Next (see matleniz/datatoolkit-issues)
-- Apply the doc proposals #29–#40 (coordinator); #37 needs Matteo (drop or
-  list the unused `jsdom` devDependency).
-- Merge the wave above; then the Studio side of #8 (prefill `by=` from the
+- #37 needs Matteo (drop or list the unused `jsdom` devDependency).
+- Merge engine-impute and web-studio; then the Studio side of #8 (prefill `by=` from the
   `group_id` semantic type).
 - Ready, not dispatched: #10, #11, #12, #13, #14.
 - **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it

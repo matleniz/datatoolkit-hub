@@ -3,8 +3,9 @@
 Validated 2026-09-27 (MAT-126). Behaviour spec = the interactive prototype:
 https://claude.ai/artifact/642ZsyQkeLDfNsifJAXdHQ (source kept locally in
 `documents/studio-prototype.dc.html`, and in the web repo as
-`docs/prototype.dc.html`). When this page and the prototype disagree, the
-prototype wins for UX, this page wins for the contract.
+`docs/prototype.dc.html`). The prototype predates the 2026-09-29 UX review
+(MAT-230: Suggestions-only left panel, grid dock, window shell); when it
+disagrees with this page, this page wins.
 
 ## Stack
 React + TypeScript (strict) + Vite, ESLint, Vitest (unit), Playwright (e2e with
@@ -74,7 +75,8 @@ below); never imports the engine.
      is blocked while the step editor is open (no unapplied edit is hidden).
    - **Tool rail + dock**: **Transform** (opens the step picker, prefilled from
      the grid selection; never a dock window, MAT-233), Compare, Correlation,
-     Distribution, Missing, Outliers, Target, Train vs test, **Chart** —
+     Distribution, Missing, Outliers, Target, Train vs test, Feature
+     selection, **Chart** —
      windows bound to the grid selection, on a snap-to-grid layout
      (react-grid-layout, MAT-234): drag the title bar to move, the corner or
      right / bottom edge to resize, no overlap (windows float up); bottom (12
@@ -121,7 +123,9 @@ below); never imports the engine.
      default (MAT-252); any newly opened window is placed where it is visible,
      shrinking to the free width (min 4 columns) rather than below the fold. Saved chart specs (name + params)
      reopen and re-render on the current pipeline version (persisted in
-     browser storage until the engine grows `Workspace.charts`, MAT-185).
+     browser storage, `dtk.charts.<workspace>`; the engine's
+     `Workspace.charts` exists (MAT-185) but Studio does not use it yet,
+     datatoolkit-issues#11).
    - **Export**: workspace JSON + `export_workspace` outputs, leak line
      ("n fitted steps learned on train, nothing refitted on test").
 
@@ -143,13 +147,14 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `POST /workspace/profiles` `{workspace, role, version, columns?}` | `column_profiles` (optional `columns` filter MAT-152) |
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
-| `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` |
+| `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`) |
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. A params
 validation failure gives a concise `message` (`<loc>: <msg>; …`, never the
 pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). CORS allows the
-Vite dev origin. `dtk-api --port 8765` runs uvicorn.
+Vite dev origin (localhost / 127.0.0.1 :5173) plus `DTK_CORS_ORIGINS`
+(comma-separated). `dtk-api --port 8765` runs uvicorn.
 
 The front builds each key's params from `GET /keys/{id}/schema` (only the
 properties the key declares, e.g. `test` / `target`), and dedupes identical
@@ -157,7 +162,7 @@ in-flight requests; one rows page + one profiles call per (steps, role,
 version), workspace `PUT` only when its JSON changed (MAT-144).
 
 **Refresh identity (MAT-175).** Every consumer that shows data — grid,
-profiles, inspector, dock windows, Chart, Suggestions, Variables — keys on one
+profiles, inspector, dock windows, Chart, Suggestions — keys on one
 *data identity* (`src/bench/dataIdentity.ts`): workspace name + role +
 effective version + a hash of the sources, label join, merges and
 `steps[0:version]` (params included). Nothing keys on `steps.length`: editing
@@ -165,8 +170,8 @@ a step's params refreshes everything, changing a step after the viewed
 version refreshes nothing. Analysis keys get a `{kind: "dataset", workspace,
 role, labeled, version}` source with the explicit effective version
 (`DatasetSource.version`), so time travel and Train / Test apply to every
-window. Suggestions analyse train (+ test) at the viewed version; Variables
-are computed on train at the latest version. Keys read the named workspace
+window. Suggestions analyse train (+ test) at the viewed version. Keys read
+the named workspace
 from the engine store, so consumers await a chained, non-debounced `PUT` of
 the current workspace before `run_key` (`ensureWorkspaceSaved`,
 `src/state/workspaceSaveGate.ts`). Train vs test (`train_test_check`) takes
@@ -175,28 +180,39 @@ sources. Acceptance: `e2e/mat175-refresh-matrix.spec.ts`.
 
 ## Run it
 `cd ~/datatoolkit && uv run --extra api dtk-api --port 8765`, then in
-`~/datatoolkit-web`: `npm run dev` (proxies `/api`). Default export directory:
-`$DTK_HOME/exports/<workspace>`. Docker (no dev tools; nginx replaces the
+`~/datatoolkit-web`: `npm run dev` (http://localhost:5173, proxies `/api` to
+:8765). Default export directory: `$DTK_HOME/exports/<workspace>` when train X
+is an upload (`$DTK_HOME/uploads/…`), else `/tmp/exports/<workspace>`
+(`src/bench/export/exportPaths.ts`). Docker (no dev tools; nginx replaces the
 Vite proxy, Studio on :8080): `HOWTO/run-with-docker.md`.
 
 ## Tests
-Unit (Vitest) for pure logic: selection, diff colouring, window layout
-reducer (dock grid: `dockLayout.ts`, MAT-234), schema → editor fields. E2E (Playwright, `npm run e2e`): starts
-`dtk-api` + Vite, drives the six flows (sources, alignment, workbench edit,
-formula (stored `@variables` replay), compare + windows, export) on the prototype's dirty churn
-fixtures and on a real dataset, one screenshot per key state in
-`docs/screenshots/t1-e2e/<flow>/`. Flow 7 (real Parkinson files, skipped if absent)
+Unit (Vitest, `tests/**/*.test.ts`) for pure logic: selection, diff
+colouring, dock grid layout (`src/state/dockLayout.ts`, MAT-234), schema →
+editor fields, sources / alignment / workspace-manager logic, chart picker and
+prefill, save gate. Gate (`fleet gate`): lint (ESLint, with
+`sonarjs/cognitive-complexity` ≤ 25), typecheck, unit, `npx knip@6 --exclude
+types`; the same checks run in `.github/workflows/ci.yml` (datatoolkit-issues#3).
+E2E (Playwright, `npm run e2e`, chromium only, run separately): starts its
+own `dtk-api` (:8766) + Vite (:5175) on a temp `DTK_HOME`, then runs flows
+1–10 (sources, alignment, workbench edit, formula with stored `@variables`
+replay, compare + windows, export, real data, column scope, distribution by,
+chart) plus per-ticket specs on the prototype's dirty churn fixtures and real
+datasets. Screenshots go to `e2e/screenshots/<flow>/` (gitignored); the
+committed copies in `docs/screenshots/t1-e2e/<flow>/` are refreshed only with
+`DTK_E2E_SCREENSHOTS=1`. Flow 7 (real Parkinson files, skipped if absent)
 also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
 
-## State (2026-09-30)
-Built and merged: engine datatoolkit #30–#63, web datatoolkit-web #1–#48
+## State (2026-10-01)
+Built and merged: engine datatoolkit #30–#79, web datatoolkit-web #1–#68
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
-58 e2e specs on main (10 flows + per-ticket specs: MAT-149, 152, 154, 155,
-160, 167, 169, 171, 173, 174, 177, 231/232, 233, 234, 235); flow2 / flow3
+61 e2e tests in 35 spec files on main (flows 1–10, formats-sources and
+per-ticket specs: MAT-149, 152, 154, 155, 160, 167, 169, 171, 173, 174, 175,
+177, 205, 231/232, 233, 234, 235, 240, 241, 252); flow2 / flow3
 (alignment report not ready within 5 s) and flow7 / mat171 (order / cold
 cache) can flake, MAT-222 / MAT-245 — they pass on re-run. Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at

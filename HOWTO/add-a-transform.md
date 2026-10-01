@@ -5,7 +5,8 @@ A transform is a workspace step (and an sklearn `DtkTransformer`). Protocol:
 `src/dtk_engine/ops/transforms/cleaning.py::drop_columns`.
 
 1. **Pick the family module** in `src/dtk_engine/ops/transforms/`
-   (`cleaning`, `impute`, `encode`, `scale`, `features`, `selection`). Never
+   (`cleaning`, `align`, `impute`, `encode`, `scale`, `features`, `selection`,
+   `formula`). Never
    edit `__init__.py` for an op in an existing module (it imports them all).
    A supervised op (fit reads the target) passes `needs_target=True` and has a
    `target` param.

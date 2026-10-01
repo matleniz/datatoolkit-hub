@@ -12,7 +12,6 @@ test, never refitted on test).
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `align_to_train` | yes | Realign a shifted / broken numeric column onto train's distribution. | `columns`, `mode`, `group`, `min_rows`, `on_small`, `n_quantiles` |
 | `cast` | — | Cast columns to the given dtypes; a failing conversion raises. | `dtypes` |
 | `clip` | yes | Clip columns to percentile bounds learned on train (state: bounds). | `columns`, `lower`, `upper` |
 | `drop_columns` | — | Remove the listed columns. | `columns`, `missing_ok` |
@@ -26,6 +25,12 @@ test, never refitted on test).
 | `replace_sentinels` | — | Turn sentinel values (-999, 'N/A', ...) into NaN, per column. | `sentinels` |
 | `standardize_text` | — | Strip / lowercase text columns, collapse separators (`-`/`_`/`.`/repeated whitespace) into a single space, and map variants to canonical values. | `columns`, `strip`, `lower`, `unify_separators`, `mapping` |
 | `to_numeric` | — | Parse text numbers (currency symbols/codes, thousands / decimal separators, percent signs) to float. | `columns`, `decimal`, `thousands`, `percent`, `errors` |
+
+## `ops/transforms/align.py`
+
+| Op | Fitted | What it does | Params |
+|---|---|---|---|
+| `align_to_train` | yes | Realign a shifted / broken numeric column onto train's distribution. | `columns`, `mode`, `group`, `min_rows`, `on_small`, `n_quantiles` |
 
 ## `ops/transforms/impute.py`
 

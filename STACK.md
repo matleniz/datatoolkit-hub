@@ -9,9 +9,9 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | pydantic v2 | key params + Result, JSON Schema export | engine |
 | pandas | tabular data in keys | engine |
 | plotly | figures (JSON contract) | engine, fronts |
-| ruff | lint + import barrier (TID251) | gate |
+| ruff | lint: import sorting, complexity ≤ 10 (`C90`, `PLR09xx`), `SIM`, `PERF`, `B` (layer contract = `tests/test_layers.py`) | engine gate |
 | pytest | tests | gate |
-| hatchling | build backend of both repos (invisible) | `pyproject.toml` |
+| hatchling | build backend of the engine (invisible) | `pyproject.toml` |
 | numpy | numeric arrays (ops, transforms, sklearn interop) | engine (declared direct 2026-09-28, MAT-187) |
 | scikit-learn | fitted transforms (imputers, encoders, scalers), IsolationForest, `DtkTransformer` / `Pipeline` | engine (approved 2026-09-25) |
 | pyarrow | parquet read / write (source + export) | engine (approved 2026-09-25) |

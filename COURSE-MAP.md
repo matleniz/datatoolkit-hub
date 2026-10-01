@@ -18,6 +18,6 @@ preprocessing), raw pages kept locally in `documents/` (gitignored). Planned
 | 10 Scaling and Normalization | who needs scaling; standard / minmax / robust; skew → log1p; target scaling | `scale`, `log1p` ops; advisor per model family | MAT-44, MAT-47 |
 | 11 Feature Selection | curse of dimensionality; filter / wrapper / embedded families (SelectKBest + mutual info, RFECV, Lasso); PCA fitted on scaled train, explained variance | `feature_selection` key; `drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca` ops | MAT-56 |
 
-Not planned (ask first): approximate duplicates (rapidfuzz approved 2026-09-28, not built yet),
+Not planned (ask first): approximate duplicate rows (rapidfuzz is used only for spelling variants in `inconsistencies`, `ops/consistency.py`),
 NoSQL / MongoDB source, APIs / scraping, images / text manifests, target
 transform (`TransformedTargetRegressor` belongs to modelling, out of scope).

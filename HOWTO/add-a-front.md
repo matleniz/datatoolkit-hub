@@ -12,6 +12,12 @@ about individual keys.
    - **form** from `key_schema(id)` (JSON Schema → widgets)
    - **result** from `run_key(id, params)`: metrics, tables (`records`),
      figures (Plotly JSON — every Plotly binding renders it as-is), text (markdown)
+
+   Studio (the current front) implements the form and result views
+   generically (`schemaToFields`, `ResultView`) but has no catalog: its tool
+   rail and Suggestions call a fixed list of keys (`src/bench/toolrail/tools.ts`,
+   `src/bench/left/suggestions.ts`). A new key therefore shows up in Studio
+   only once it is wired there (or once Studio grows a catalog).
 3. Never import `dtk_engine` outside the client. A new front lives in its own
    repo (like `datatoolkit-web`). A Python front enforces the barrier with a
    ruff `TID251` ban on `dtk_engine` outside the client plus an isolation test
