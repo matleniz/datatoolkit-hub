@@ -239,6 +239,13 @@ dtk_engine/
   keys/      thin: Params(sources…) → load → ops → Result      one output
 ```
 
+Import order inside `dtk_engine` (a module only imports the layers below it):
+`http` → `contract` → `api` | `pipeline` (siblings) → `workspace` → `keys` → `ops`
+→ `sources`. `contract` (JSON door) and `api` (notebook door) both build on
+`workspace` / `keys` / `transform_registry`; neither imports the other (datatoolkit-issues#4).
+Checked with `uv run --with import-linter lint-imports --config
+~/.datatoolkit/audit/importlinter.ini`.
+
 - `sources/` never knows about keys; analysis `ops/` never know about
   `Result` or pydantic (testable alone); transform ops declare pydantic params
   (`TransformParams`) so fronts build their forms; `keys/` only glue.
@@ -363,8 +370,12 @@ Implementation:
   already replayed through the first `index` steps: `preview_step` uses it on
   the cached post-log frames, so a preview fits only the pending step
   (MAT-212). The `dataset` source lives in `workspace/dataset.py`
-  (MAT-263): `raw_workspace_frame` (labels + merges, no steps) and
-  `workspace_frame` (steps replayed, cached).
+  (MAT-263): `raw_workspace_frame` (labels + merges, no steps),
+  `workspace_frame` (steps replayed, cached), `parse_workspace` (workspace dict
+  → model + step validation, used by every contract call taking an unsaved
+  workspace) and `preview` (behind `contract.preview_workspace` /
+  `api.preview_workspace`). `list_transforms` serves
+  `transform_registry.transform_catalog()`.
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
   value column plus an optional index-like column (named index / idx /
   `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column
