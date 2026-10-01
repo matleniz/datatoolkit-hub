@@ -181,8 +181,30 @@ datatoolkit issues were migrated (#7–#22; Linear copies canceled with a link);
 new epics: #1 code-quality follow-ups (gate decision #3 for Matteo), #2
 imputation beyond fixed strategies (#7, #8). Everything shared is in English.
 
+## 2026-10-01 — Matteo's decisions, docs refresh, next wave
+Decisions recorded on the issues: light gate #3 adopted as recommended
+(eslint-plugin-sonarjs added to STACK.md); #8 group-aware impute go; #15
+dismiss suggestions go; #16 undo / redo only, low priority; #18 `.xlsx` only,
+clear error, no new dependency; #17 closed (not planned). #9 (in-Studio agent)
+is **paused** (see Next). Docs refresh verified against the code (#28): web
+README merged (web #67), hub doc proposals #29–#40 pending. Workers: engine-gate
+(#3 engine, #18), engine-impute (#7, #8), web-gate (#3 web), web-studio (#15,
+#16).
+
 ## Next (see matleniz/datatoolkit-issues)
-- Matteo's decisions: light gate (#3), and the `needs:matteo` items (#8, #9,
-  #15–#18).
-- Code-quality leftovers (#4 layer edge, #5 `_text_facts`, #6 web complexity),
-  then the impute epic (#2), doc proposals #19–#22 (coordinator).
+- Apply the doc proposals #29–#40 (coordinator); #37 needs Matteo (drop or
+  list the unused `jsdom` devDependency).
+- Merge the wave above; then the Studio side of #8 (prefill `by=` from the
+  `group_id` semantic type).
+- Ready, not dispatched: #10, #11, #12, #13, #14.
+- **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it
+  resumes: design only, no code. An agent-agnostic base (MCP server over the
+  engine contract `list_keys` / `key_schema` / `run_key` and the workspace
+  steps; a UI-context protocol for selection, open windows and viewed
+  version; live refresh through the existing refresh-identity contract) with
+  the agent plugged per pack (Claude Code / Agent SDK, a plain chat backend,
+  opencode, gemini...), modelled on agent-fleet packs; the panel form (chat or
+  terminal) follows from the adapter. Deliverables: a design note proposed as
+  a new hub file (e.g. `AGENT-BRIDGE.md`) covering goals, architecture,
+  security (contract-scoped tools, no shell), auth and cost, candidate
+  dependencies; then sub-issues of #9, each `needs:matteo` until approved.
