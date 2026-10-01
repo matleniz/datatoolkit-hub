@@ -147,9 +147,15 @@ kinds: `number | binary | bool | text | date | identifier` (semantic_type + an
 many-to-one of an extra file on a key, `apply_to` train | both, refuses
 duplicated keys / clashes / row loss, applied after the label join and before
 steps, `ops/join.py::merge_table`) and `variables` (`[{name, stat, column}]`,
-stored for the front; formula steps carry their own snapshot). The HTTP API
+stored for the front; formula steps carry their own snapshot) and `charts`
+(`[{name, params}]`: chart-key params minus `source`, unique names, saved by
+the Studio chart builder for reload — MAT-185). The HTTP API
 `dtk_engine/http.py` (extra `api`, `dtk-api --port 8765`) exposes the whole
-contract 1:1 — routes and error mapping in `FRONT-WEB.md`.
+contract 1:1 — routes and error mapping in `FRONT-WEB.md`. Read-only compute
+routes (`keys/{id}/run`, `source/columns`, workspace preview / rows /
+profiles / preview-step / align) run the engine through `run_in_threadpool`,
+so a slow key does not stall previews; store writes stay on the event loop
+(MAT-212).
 
 ## Column-selector params (MAT-95)
 
@@ -306,6 +312,7 @@ workspace "parkinson"
     test  : X = SourceSpec   y = null
   label   : mode "order" (y has one column, same row count) | "key" (common column)
   steps   : [ {op, target: train|test|both, params}, ... ]   ← full trace
+  charts  : [ {name, params}, ... ]   # saved chart-key params (minus source); unique names
 ```
 
 - **Current state = sources + steps replayed in order.** Undo = drop the last
@@ -351,7 +358,11 @@ Implementation:
   `replay.replay_fitted(steps, train, test) -> (train, test, fitted)` is the
   single-pass variant that keeps each step's fitted state (`fitted_on` train |
   test), used by the export; `replay` and `replay_fitted` share one loop
-  (`_run`, MAT-79). The `dataset` source lives in `workspace/dataset.py`
+  (`_run`, MAT-79), as does `replay.replay_step(step, index, train, test) ->
+  (train, test, fitted)`, which fits and applies one more step on frames
+  already replayed through the first `index` steps: `preview_step` uses it on
+  the cached post-log frames, so a preview fits only the pending step
+  (MAT-212). The `dataset` source lives in `workspace/dataset.py`
   (MAT-263): `raw_workspace_frame` (labels + merges, no steps) and
   `workspace_frame` (steps replayed, cached).
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one

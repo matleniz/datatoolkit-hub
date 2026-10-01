@@ -83,7 +83,10 @@ below); never imports the engine.
      maximize; Plotly figures re-lay out once a resize ends. Open windows,
      position, size and layouts persist per workspace in browser storage
      (`dtk.dock.<workspace>`) and survive a reload. No keyboard move (the old
-     reorder arrows and "wide" toggle are gone).
+     reorder arrows and "wide" toggle are gone). Each window (and the
+     Suggestions tab) shows the frame its numbers come from (`train · v2`,
+     `test · sources`, `IdentityStrip`); while a step is being edited it shows
+     the last applied version (the live preview is grid-only).
      **Analysis window shell** (MAT-235, generic, driven by the `Result`; all
      windows except Compare's native matrix and Chart): one compact chrome
      line (role · source, scope chip, Split by for Distribution, Parameters
@@ -153,6 +156,23 @@ properties the key declares, e.g. `test` / `target`), and dedupes identical
 in-flight requests; one rows page + one profiles call per (steps, role,
 version), workspace `PUT` only when its JSON changed (MAT-144).
 
+**Refresh identity (MAT-175).** Every consumer that shows data — grid,
+profiles, inspector, dock windows, Chart, Suggestions, Variables — keys on one
+*data identity* (`src/bench/dataIdentity.ts`): workspace name + role +
+effective version + a hash of the sources, label join, merges and
+`steps[0:version]` (params included). Nothing keys on `steps.length`: editing
+a step's params refreshes everything, changing a step after the viewed
+version refreshes nothing. Analysis keys get a `{kind: "dataset", workspace,
+role, labeled, version}` source with the explicit effective version
+(`DatasetSource.version`), so time travel and Train / Test apply to every
+window. Suggestions analyse train (+ test) at the viewed version; Variables
+are computed on train at the latest version. Keys read the named workspace
+from the engine store, so consumers await a chained, non-debounced `PUT` of
+the current workspace before `run_key` (`ensureWorkspaceSaved`,
+`src/state/workspaceSaveGate.ts`). Train vs test (`train_test_check`) takes
+`train` + `test` (no `source`); the target is only sent on labeled (train)
+sources. Acceptance: `e2e/mat175-refresh-matrix.spec.ts`.
+
 ## Run it
 `cd ~/datatoolkit && uv run --extra api dtk-api --port 8765`, then in
 `~/datatoolkit-web`: `npm run dev` (proxies `/api`). Default export directory:
@@ -180,6 +200,7 @@ shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
 (alignment report not ready within 5 s) and flow7 / mat171 (order / cold
 cache) can flake, MAT-222 / MAT-245 — they pass on re-run. Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
-once; saved chart specs live in browser storage until the engine gains
-`Workspace.charts` (MAT-185); `GET /workspaces/summaries` always returns
-`shape: null` (perf fix MAT-200, lazy/cached shape tracked as MAT-204).
+once; saved chart specs still live in browser storage although the engine
+stores `Workspace.charts` (MAT-185; front side: datatoolkit-issues #11).
+`GET /workspaces/summaries` returns cached `train` / `test` `shape`
+(MAT-204; content-addressed, no frame load when fresh).
