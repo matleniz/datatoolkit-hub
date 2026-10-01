@@ -21,6 +21,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | httpx | FastAPI `TestClient` (tests only; transitive requirement) | engine dev |
 | React + TypeScript + Vite | web front "Studio" (npm, one lockfile) | repo `datatoolkit-web` (approved 2026-09-27) |
 | ESLint | lint of the web front | `datatoolkit-web` gate |
+| eslint-plugin-sonarjs | cognitive-complexity ceiling (25) only | `datatoolkit-web` gate (devDependency, approved 2026-10-01, datatoolkit-issues#3) |
 | Vitest | unit tests of the web front | `datatoolkit-web` gate (approved 2026-09-27) |
 | Playwright | e2e tests with screenshots | `datatoolkit-web` (approved 2026-09-27) |
 | react-grid-layout | Studio dock windows: drag to move + resize handles, snap-to-grid, serialisable layout | `datatoolkit-web` (approved 2026-09-29, MAT-234) |
