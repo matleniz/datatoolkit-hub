@@ -36,7 +36,12 @@ below); never imports the engine.
 3. **Workbench**
    - **Pipeline bar**: one node per version (op, sub-label, shape, delta, target,
      fitted dot, stage colour = course stage); click = time travel (read-only);
-     × = remove step and replay; failing step shown red with the engine message;
+     × = remove step and replay; ↶ / ↷ (and Ctrl/Cmd+Z, Shift+Ctrl/Cmd+Z or
+     Ctrl+Y outside text fields) undo / redo changes to the steps (add, remove,
+     alignment steps), replayed at the latest version; in-memory history (100
+     levels), reset on loading another workspace, disabled while a step is
+     being edited (datatoolkit-issues#16; revert-to-version and disable-a-step
+     not built); failing step shown red with the engine message;
      `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
      `quantile_transform`, `spline` under Encode & transform). The same picker
      opens from the tool rail's **Transform** entry (MAT-233).
@@ -68,7 +73,13 @@ below); never imports the engine.
      Apply / Discard. Nothing changes without Apply.
    - **Left panel = Suggestions** only (MAT-231; the Variables and Recipe tabs
      were removed — the pipeline bar already does time travel): analysis
-     keys' findings, each only *opens the editor*.
+     keys' findings, each only *opens the editor*. Each card can be
+     **dismissed** (datatoolkit-issues#15): browser-local, per workspace
+     (`localStorage["dtk.dismissedSuggestions.<workspace>"]`); the id hashes the
+     key, the suggested step (op / target / params) and the finding (column,
+     title, detail), so the same finding stays hidden after an unrelated step
+     and shows again once its content changes. "Show dismissed (N)" lists hidden
+     cards with **Restore**; the badge counts non-dismissed cards.
    - **Collapsible side panels** (MAT-232): left panel and inspector each
      collapse to a 32 px strip (chevron); state in `AppState.panels`, mirrored
      to `localStorage["dtk.panels"]` (per browser). Collapsing the right panel
@@ -206,7 +217,7 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-10-01)
-Built and merged: engine datatoolkit #30–#79, web datatoolkit-web #1–#68
+Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#70
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).

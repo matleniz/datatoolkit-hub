@@ -36,8 +36,8 @@ test, never refitted on test).
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `ffill` | — | Carry the last seen value forward in sort_by order (never backward). | `sort_by`, `columns`, `limit` |
-| `impute` | yes | Fill missing values with a statistic learned on train (median, mean, mode, constant). | `columns`, `strategy`, `fill_value`, `add_indicator` |
+| `ffill` | — | Carry the last seen value forward in sort_by order (never backward); with `by`, only within each entity. | `sort_by`, `columns`, `by`, `limit` |
+| `impute` | yes | Fill missing values with a statistic learned on train (median, mean, mode, constant), a formula of other columns (`formula`), or within-entity fills (`group_mean`, `group_prev`, `group_interp`). | `columns`, `strategy`, `fill_value`, `expr`, `by`, `order`, `fallback`, `add_indicator` |
 | `impute_iterative` | yes | Fill numeric columns by regressing each one on the others (MICE-style). | `columns`, `max_iter`, `random_state` |
 | `impute_knn` | yes | Fill numeric columns from the k nearest train rows (scale features first). | `columns`, `n_neighbors`, `weights` |
 
@@ -93,7 +93,7 @@ name for fit only.
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables`, the constant `pi`, and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1). | `name`, `expr`, `variables` |
+| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables`, the constant `pi`, and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1), and the within-entity `group_mean(x, by=col)`, `group_prev(x, by=col, order=expr)`, `group_interp(x, by=col, order=expr)` (computed per frame; the only keyword arguments; `by=` names a column). | `name`, `expr`, `variables` |
 
 The only free-form expression in the toolkit (approved 2026-09-27): parsed with
 Python `ast` against a node whitelist, never `eval`. `variables` =
@@ -126,6 +126,18 @@ exported as sklearn pipelines, so they stay a safe, deterministic subset.
   export writes any state whose JSON exceeds 64 KiB (`INLINE_STATE_BYTES`) to
   `states/step_<i>_<op>.json`, referenced from the manifest with its sha256
   (`workspace.export.load_state` reads either form).
+- `impute(strategy=formula)` (datatoolkit-issues#7): one numeric column, `expr`
+  in the `formula` language without `@variables`; stateless (the expression is
+  the state), evaluated on each frame and written only into its missing cells;
+  a row whose expression is NaN stays missing.
+- Group fills (datatoolkit-issues#8, `ops/groups.py`): each frame (train, test)
+  is filled from the same entity's rows in that frame, so the rule carries over
+  to test without leaking train rows; `impute`'s optional `fallback` (median /
+  mean / most_frequent) is fitted on train for cells the entity cannot fill.
+  `group_prev` never fills backward; `group_interp` is linear in `order`
+  between the entity's neighbours, no extrapolation. Rows with a missing entity
+  or order key are neither filled nor used. Vectorised (bincount / groupby
+  ffill). "Past rows only" mode: later.
 - `impute(add_indicator=true)` always emits `<col>_was_missing`, so train and
   test get the same columns. Constant fill defaults to `"MISSING"` for text, 0
   for numbers.

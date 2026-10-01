@@ -190,13 +190,17 @@ is **paused** (see Next). Docs refresh verified against the code (#28):
 engine #78 and web #67 READMEs merged, hub proposals #29–#36 and #38–#43
 applied. Merged: light gate #3 (engine #77: ruff C90 / PLR / SIM / PERF / B +
 `tests/test_layers.py`; web #68: knip, sonarjs ≤ 25, `ci.yml`; knip added to
-the web `GATE_CMDS`), #18 (engine #79). Engine main: ruff clean, 925 tests.
-In progress: engine-impute (#7, #8), web-studio (#15, #16).
+the web `GATE_CMDS`), #18 (engine #79). Then #7 impute formula (engine #80),
+#8 group-aware fills (engine #82, re-opened from #81 after its stacked base
+merged), #15 dismiss suggestions (web #69), #16 undo / redo (web #70); doc
+proposals #44–#47 applied. Engine main: ruff clean, 979 tests; web main: 284
+unit, knip clean.
 
 ## Next (see matleniz/datatoolkit-issues)
 - #37 needs Matteo (drop or list the unused `jsdom` devDependency).
-- Merge engine-impute and web-studio; then the Studio side of #8 (prefill `by=` from the
-  `group_id` semantic type).
+- Studio side of #7 / #8: honour `x-dtk-when` (show `expr`, `by`, `order`,
+  `fallback` per strategy), prefill `x-dtk-semantic` params from the
+  `semantic` column meta, group functions in the formula autocomplete.
 - Ready, not dispatched: #10, #11, #12, #13, #14.
 - **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it
   resumes: design only, no code. An agent-agnostic base (MCP server over the

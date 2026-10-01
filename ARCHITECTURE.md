@@ -125,7 +125,7 @@ web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
 
 ```python
 def workspace_rows(ws, role, version=None, offset=0, limit=500, columns=None) -> dict
-    # {columns[{name,dtype,kind}], rows[... + _rid], total, version}; version = steps replayed (time travel);
+    # {columns[{name,dtype,kind,semantic}], rows[... + _rid], total, version}; version = steps replayed (time travel);
     # _rid = row position in the raw (post-label, post-merge) frame, kept through row-dropping steps
     # columns: non-empty list restricts column meta + row cells to those names, in order; unknown -> KeyParamsError (MAT-152)
 def column_profiles(ws, role, version=None, columns=None) -> dict   # {columns[profile], version}
@@ -171,6 +171,8 @@ JSON Schema:
 | `x-dtk-widget` | `columns` / `column` | multiselect / single choice |
 | `x-dtk-source` | name of a sibling param, or `"step"` | the `SourceSpec` param whose columns are the options; `"step"` (transform ops, MAT-119) = the frame the step applies to (workspace `dataset` source of the step's role, state before the step) |
 | `x-dtk-dtype` | `any` / `numeric` | offer every column / only numeric ones |
+| `x-dtk-when` | `{sibling param: value or list of values}` | any param: it only applies (the front shows it) when every listed sibling has that value, e.g. `impute.expr` → `{"strategy": "formula"}`, `impute.by` → `{"strategy": ["group_mean", "group_prev", "group_interp"]}` |
+| `x-dtk-semantic` | a `semantic_type`, e.g. `group_id` | single-column param a front may prefill with the column of that semantic type (`workspace_rows` column meta `semantic`); `impute.by`, `ffill.by` |
 
 The front calls `source_columns(<value of the x-dtk-source param>)` (a
 workspace `dataset` source works too) and falls back to a free-text field if
@@ -240,6 +242,7 @@ dtk_engine/
   ops/       pure functions: DataFrame(s) ─▶ DataFrame / dict   reused by keys and pipelines
   ops/transforms/{cleaning,align,impute,encode,scale,features,selection,formula}.py   fit/apply ops (steps)
   ops/advisor/, ops/compare/   packages (stage / concern modules); shared helpers in ops/_util.py
+  ops/groups.py   within-entity fills (group_mean / group_prev / group_interp), shared by formula and impute
   keys/      thin: Params(sources…) → load → ops → Result      one output
 ```
 
