@@ -242,6 +242,18 @@ dtk_engine/
 - Params are strict: every key's `Params` derives from a `KeyParams` base with
   `extra="forbid"` (unknown/misspelled params raise `KeyParamsError`).
 
+### Caches (MAT-263, 2026-10-01)
+
+All caching lives in `dtk_engine/cache.py`: a bounded thread-safe `LRU`, a
+content-addressed `digest` (JSON of the request + `os.stat` of every file
+read, or a value hash of the frame), `memoize` and `memo_frame`. It covers raw
+sources, replayed workspace frames and shapes, seeded model fits (MAT-210),
+per-column facts (`semantic_type`, `numeric_text_format`, column profiles) and
+`advise`. There are no invalidation hooks: a key is the content, so a changed
+step, dataset or file yields a new key and old entries age out of the LRU.
+Effect on the Parkinson workspace (warm): `column_profiles` 1.6 s → 0.04 s,
+`preprocessing_advisor` 1.05 s → 0.03 s, `workspace_rows` 0.37 s → 0.04 s.
+
 ## Inputs: SourceSpec
 
 A pydantic union discriminated on `kind`; a key declares e.g.
@@ -339,7 +351,9 @@ Implementation:
   `replay.replay_fitted(steps, train, test) -> (train, test, fitted)` is the
   single-pass variant that keeps each step's fitted state (`fitted_on` train |
   test), used by the export; `replay` and `replay_fitted` share one loop
-  (`_run`, MAT-79); `sources/dataset.py::labeled_frame` is public.
+  (`_run`, MAT-79). The `dataset` source lives in `workspace/dataset.py`
+  (MAT-263): `raw_workspace_frame` (labels + merges, no steps) and
+  `workspace_frame` (steps replayed, cached).
 - **Label join** `ops/join.py::join_labels(x, y, mode, key)`: `order` = y has one
   value column plus an optional index-like column (named index / idx /
   `Unnamed: 0`, or integers 0..n-1 / 1..n) or the `key` column; if that column

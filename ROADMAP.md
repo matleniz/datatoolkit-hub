@@ -143,8 +143,27 @@ sub-workers; MAT-218 / MAT-219 folded in), then impute by formula (MAT-260),
 per-entity regression / interpolation imputation (MAT-261, Parkinson case) and
 the in-Studio agent spike (MAT-262).
 
+## 2026-10-01 — code quality, wave 1 (MAT-258, MAT-259)
+Coordinator lesson: audits are delegated. One opus lead per repo audits with
+recognized tools (engine: ruff extended, radon, vulture, jscpd, import-linter,
+deptry, pyinstrument; web: knip, dependency-cruiser, jscpd, sonarjs, bundle
+stats), files sub-issues and drives sonnet sub-workers (`--scope`
++ `--checks scope:blocking`); the coordinator reviews and merges.
+Engine #65–#68: one cache module `dtk_engine/cache.py` with memoized column
+facts (warm Parkinson `column_profiles` 1.6 s → 0.04 s, `preprocessing_advisor`
+1.05 s → 0.03 s; MAT-218 closed), `dataset` source moved to `workspace/`,
+formula engine = one function registry + one AST pass (MI B → A), shared
+`SourceParams`, dead code removed; 98/98 contract outputs identical. Web
+#52–#56: shared field controls + keyed async hook (MAT-219 closed), pure
+reducer, Sources state object, Inspector / AnalysisResultView split, dead
+`mockClient` (−1.3k lines net). Verified on both merged mains: 921 engine
+tests, 245 web unit tests, build, full e2e 61/61. Blockers found: the Linear
+workspace hit its free-issue limit; haiku cannot run headless.
+
 ## Next (see Linear)
-- MAT-258 engine audit → MAT-259 web audit → doc refresh at merge (with the
-  pending doc proposals MAT-214, 215, 220, 223).
+- Wave 2: engine MAT-276..279 (+ two groups drafted in
+  `~/.datatoolkit/parity/wave2-pending-issues.md`), web MAT-272..275; then a
+  light gate proposal (STACK.md approval). Pending doc proposals MAT-214, 215,
+  220, 223.
 - Then MAT-260, MAT-261, MAT-262 (spike to discuss with Matteo first).
 - Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`).

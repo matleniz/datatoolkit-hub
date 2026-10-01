@@ -145,7 +145,7 @@ exported as sklearn pipelines, so they stay a safe, deterministic subset.
   alignment inside an sklearn `Pipeline` — use them as `train` / `test` steps.
 - `to_numeric`'s currency detection (advisor + workspace profile
   `currency_as_text`) is a best-effort heuristic in
-  `ops/profile.py::currency_format`: guesses `decimal`/`thousands` from the
+  `ops/profile.py::numeric_text_format`: guesses `decimal`/`thousands` from the
   separators seen once the currency symbol/code and `%` are stripped (comma
   decimal wins when both `.` and `,` are absent from a value with a space
   group).
