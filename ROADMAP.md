@@ -198,10 +198,11 @@ unit, knip clean.
 
 ## Next (see matleniz/datatoolkit-issues)
 - #37 needs Matteo (drop or list the unused `jsdom` devDependency).
-- Studio side of #7 / #8: honour `x-dtk-when` (show `expr`, `by`, `order`,
-  `fallback` per strategy), prefill `x-dtk-semantic` params from the
-  `semantic` column meta, group functions in the formula autocomplete.
-- Ready, not dispatched: #10, #11, #12, #13, #14.
+- Done after Matteo's second go (#37, #10, #14): web #71 (jsdom dropped),
+  #72 (#48: `x-dtk-when` / `x-dtk-semantic` / group functions in Studio; fixes
+  the flow3 regression from the new impute params), #73 (#10: edit an applied
+  step, undoable). #14 (cold-start e2e flakes) in progress.
+- Ready, not dispatched: #11, #12, #13.
 - **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it
   resumes: design only, no code. An agent-agnostic base (MCP server over the
   engine contract `list_keys` / `key_schema` / `run_key` and the workspace

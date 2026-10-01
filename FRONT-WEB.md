@@ -36,8 +36,14 @@ below); never imports the engine.
 3. **Workbench**
    - **Pipeline bar**: one node per version (op, sub-label, shape, delta, target,
      fitted dot, stage colour = course stage); click = time travel (read-only);
-     × = remove step and replay; ↶ / ↷ (and Ctrl/Cmd+Z, Shift+Ctrl/Cmd+Z or
-     Ctrl+Y outside text fields) undo / redo changes to the steps (add, remove,
+     × = remove step and replay; ✎ (or right-click → **Edit step**) reopens
+     the step editor pre-filled with the step's op, target and params, the
+     view pinned to the step's input version and the live preview on the
+     steps before it; Apply (enabled once something changed) replaces the
+     step at its index, keeps the later steps and replays at the latest
+     version; Discard returns to the latest version (datatoolkit-issues#10);
+     ↶ / ↷ (and Ctrl/Cmd+Z, Shift+Ctrl/Cmd+Z or
+     Ctrl+Y outside text fields) undo / redo changes to the steps (add, edit, remove,
      alignment steps), replayed at the latest version; in-memory history (100
      levels), reset on loading another workspace, disabled while a step is
      being edited (datatoolkit-issues#16; revert-to-version and disable-a-step
@@ -55,7 +61,9 @@ below); never imports the engine.
      inspector; cell → rule (replace as missing, map value); multi-selection →
      compare, correlation, derive, **New feature…** (formula editor: selected
      columns as chips, function palette with one-line help, autocomplete on
-     columns/`@variables` and `np.` / `numpy.` functions, non-identifier
+     columns / `@variables`, function names (incl. `group_mean` /
+     `group_prev` / `group_interp`, also in the palette) and `np.` / `numpy.`
+     functions, non-identifier
      column names inserted as `df["…"]`, a **Python** section of insertable
      examples (`1 if Age < 18 else 0`, `np.where(…)`, `18 <= Age < 65`) and
      each function's numpy form in its help (MAT-241) — stored workspace
@@ -67,7 +75,11 @@ below); never imports the engine.
      blocked with an "Impute missing values first" hint when the selection has
      missing values, MAT-191), scale, drop, Chart.
    - **Step editor** (replaces the inspector): what the op does + course ref,
-     every param editable (generated from `transform_schema` + column hints),
+     every param editable (generated from `transform_schema` + column hints;
+     a param carrying `x-dtk-when` is shown, validated and sent only while
+     every listed sibling has one of its values; an empty `x-dtk-semantic`
+     param such as `impute.by` / `ffill.by` is prefilled with the frame's only
+     column of that `semantic`, datatoolkit-issues#48),
      Apply to train / train+test / test, **Learned on train** (fitted state
      from `preview_step`), effect (diff counts), live preview on the grid,
      Apply / Discard. Nothing changes without Apply.
@@ -217,7 +229,7 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-10-01)
-Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#70
+Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#73
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
