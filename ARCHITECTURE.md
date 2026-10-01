@@ -44,23 +44,21 @@ refused).
 ## Layers
 
 ```
-dtk_engine  ──  contract (JSON)  ──  EngineClient  ──  front (dtk_streamlit today, web tomorrow)
+dtk_engine  ──  contract (JSON)  ──  HTTP API (dtk-api)  ──  front (Studio)
 ```
 
 | Layer | Repo · path | May import |
 |---|---|---|
 | Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
-| Client | `datatoolkit-streamlit` · `src/dtk_streamlit/client.py` | `dtk_engine.contract` only |
-| Front | `datatoolkit-streamlit` · `src/dtk_streamlit/` (all other modules) | `dtk_streamlit.client`, streamlit, plotly. **Never** `dtk_engine`. |
+| HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, FastAPI |
+| Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`FRONT-WEB.md`). **Never** the engine. |
 
 Two repos since MAT-38 (2026-09-25): the engine is a standalone package
-(`uv add git+https://github.com/matleniz/datatoolkit`, no streamlit); the front
-depends on it via git (`dtk-engine @ git+…/datatoolkit`, locked in its
-`uv.lock` — re-run `uv lock` there to pick up a new engine commit).
-
-Enforced mechanically in the front repo: ruff `TID251` bans `dtk_engine`
-except `client.py`; `tests/test_front_isolation.py` asserts the same. Both run
-in its `fleet gate`.
+(`uv add git+https://github.com/matleniz/datatoolkit`), usable from a notebook
+or scripts without any front; the front talks to it over HTTP only. The first
+front (Streamlit, in-process client, MAT-38 → MAT-121) was replaced by Studio
+on 2026-09-27 and its repo archived on 2026-10-01; its sections of this file
+are in git history (before 2026-10-01).
 
 ## The contract (the only engine ↔ front boundary)
 
@@ -78,7 +76,7 @@ def run_key(key_id: str, params: dict) -> dict
     # Result.model_dump(mode="json"); invalid params (incl. unknown target) -> raises KeyParamsError
     # omitted source / test default to the shipped demo_data CSVs (run_key(id, {}) is not a no-op)
 
-# workspace state (see "Workspace" below), mirrored in EngineClient / LocalClient
+# workspace state (see "Workspace" below), exposed by the HTTP API
 def list_workspaces() -> list[dict]          # full workspace dicts, sorted by name
 def list_workspace_summaries() -> list[dict]
     # [{name, mtime, step_count, target, train:{kind,path,file,shape}, test:{...}|null}], lighter than list_workspaces
@@ -117,8 +115,7 @@ unknown source `kind`, or invalid workspace step params), `SourceError` (a
 source cannot be loaded — missing / empty / unreadable file — or a workspace
 step fails on the data; raised unchanged by `run_key`). An unknown step op is
 `UnknownTransformError` everywhere (save, preview, replay, export), never
-`SourceError` (MAT-84). The Streamlit front
-shows any engine error via `st.error`.
+`SourceError` (MAT-84).
 
 **Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
 web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
@@ -192,9 +189,7 @@ HTTP API runs keys in a threadpool — MAT-243),
 `Result.add_table(title, df, group=None, kind=None)` (convert to JSON-safe records).
 `group` is optional: a front renders one tab per group in first-appearance
 order, ungrouped items in a leading "Overview" tab; nothing grouped → flat
-layout. Streamlit also gives any table with a `column` field a multiselect
-filter on it (generic; pure helpers `group_items`, `filter_options`,
-`filter_records` in `render.py`). In a notebook a `Result` displays itself
+layout. In a notebook a `Result` displays itself
 (`_repr_html_`: metrics table, first `HTML_TABLE_ROWS` = 10 rows of each
 table, figures with plotly.js loaded once from the CDN, escaped text), so the
 idiom is `api.overview(df)`; `Result(**run_key(id, {})).show()` still works.
@@ -218,58 +213,11 @@ Recipe: `HOWTO/add-a-key.md`.
 
 ## Front (generic, zero per-key code)
 
-`dtk_streamlit/app.py`: sidebar radio over `client.list_keys()`, labelled
-`category / title`, sorted by category → `render.form_from_schema(schema)` builds widgets from JSON Schema
-(integer, number, string, boolean, enum; objects/unions → recursive sub-forms, see
-"Inputs: SourceSpec"; unknown types → JSON text input) →
-`client.run_key` → `render.result(result_dict)` shows metrics, tables
-(`st.dataframe`), figures (`st.plotly_chart(plotly.io.from_json(...))`), text.
-
-**Transforms panel** (MAT-46, `app.py::transforms_panel` + pure
-`steps.py`): under the workspace bar, lists `client.list_transforms()`, builds
-the op form from `client.transform_schema(op)` (same `schema.py` machinery),
-target train / test / both, "Add step" / "Undo last step" via `save_workspace`,
-step log. "Preview step" shows shape + head before / after through the
-`dataset` source replayed in memory by `client.preview_workspace` for the
-workspace and for workspace + pending step (MAT-55: nothing written to the
-store).
-
-**Front panels** (MAT-91/92/93, datatoolkit-streamlit#3): "Export workspace"
-expander (`client.export_workspace`, shows outputs + manifest); **Apply
-steps** under any result whose table rows are all steps (`op`, `target`,
-`params` — advisor recommendations, feature_selection / correlations suggested
-steps): pick rows, preview in memory, append in order; `needs_target` read from
-the schema (non-nullable `target` string param) disables Run / Add step with a
-warning when the workspace has no y; engine errors shown as
-`<Type>: <message>` (`render.error`), never a traceback. Optional unions offer
-"(none)".
-
-**Dataset input** (MAT-102, datatoolkit-streamlit#4): the workspace form takes
-a path or an upload (`st.file_uploader`, saved content-addressed under
-`$DTK_UPLOAD_DIR`, default `$DTK_HOME/uploads`); the source kind comes from the
-suffix (front table kept equal to `api.SUFFIX_KINDS` by a test); per-kind
-options (csv sep / decimal / encoding / header, excel sheet + header, json
-lines / record_path) prefilled from `file_inspect` (`load_spec`,
-`suggested_header`, `suggested_record_path`); each source is loaded at save
-(`source_columns`), an unreadable one shows `st.error` and nothing is saved.
-**Column selectors** (MAT-98): params with `x-dtk-widget` render as
-multiselect / selectbox fed by `source_columns` of the resolved sibling source.
-**Workspace prefill** (MAT-118): a string param named `target` defaults to the
-workspace label (`target_column`, or the column the y join adds), `path` to the
-train X file; a required column selector whose default is not among the source
-columns is left empty, reported as missing, and Run / Add step are disabled.
-The front reads the contract `needs_target` flags and `Table.kind == "steps"`
-first, with the schema / row-shape inference as fallback.
-**Presentation** (MAT-121): sidebar grouped by category; params pointing at
-the workspace datasets collapse into a "Data source" expander with a one-line
-summary; numeric metrics as tiles with humanized labels, string metrics in a
-small table; humanized table titles, "Nothing to report." for empty tables;
-workspace summary shows basenames.
-
-`EngineClient` is a `typing.Protocol` mirroring the contract (keys,
-workspaces, `list_transforms`, `transform_schema`).
-`LocalClient` calls `dtk_engine.contract` in-process. Non-Python fronts use the HTTP API (`dtk-api`, `FRONT-WEB.md`).
-Switching front = implement `HOWTO/add-a-front.md`, touch nothing in the engine.
+A front renders the contract generically: catalog from `list_keys()`, forms
+from `key_schema` / `transform_schema` (JSON Schema → widgets, `x-dtk-widget`
+column selectors), results from `Result` (metrics, tables, figures, text). The
+front is Studio — screens, routes and tests in `FRONT-WEB.md`. Switching front
+= implement `HOWTO/add-a-front.md`, touch nothing in the engine.
 
 ## Engine internals: sources → ops → keys
 
@@ -328,12 +276,6 @@ runnable. They are synthetic Titanic-like with deliberate train/test
 inconsistencies (`Survived` only in train, `Embarked="Q"` only in test, `Age`
 numeric in train / text in test, one duplicated train row).
 
-The Streamlit front renders object params recursively (sub-form per object,
-`const` fields fixed, selectbox on `kind` when a union has several members,
-parent defaults flow into the sub-form) — still zero per-key code. The logic is
-the pure module `dtk_streamlit/schema.py` (`build_params(schema, widgets)`, a
-`Widgets` protocol injected by `render.py`), unit-tested without Streamlit in
-`tests/front/test_schema_form.py` (front repo).
 
 ## Workspace: loaded datasets + transform log (built 2026-09-25)
 
@@ -343,7 +285,7 @@ A **workspace** is the engine-side state of one project: which files make train
 and test, how the labels join, and the ordered log of transforms. It lives as
 JSON in `~/.datatoolkit/workspaces/<name>.json` behind a `WorkspaceStore`
 interface (JSON file today; materialized tables, e.g. parquet, later and only
-with approval). Any front (Streamlit, notebook, future web) sees the same state.
+with approval). Any front (Studio, notebook, scripts) sees the same state.
 
 ```
 workspace "parkinson"

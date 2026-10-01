@@ -2,8 +2,7 @@
 
 > **Protocol (context economy).** Read THIS index, open the ONE file relevant to
 > your task, `grep '^#'` on large files. Do NOT load the whole hub. Code lives in
-> `~/datatoolkit` (engine) and `~/datatoolkit-web` (active front; `~/datatoolkit-streamlit`
-> is an abandoned earlier front, see `AGENTS.md`); verify facts there (`grep`/`ls`)
+> `~/datatoolkit` (engine) and `~/datatoolkit-web` (the front, Studio); verify facts there (`grep`/`ls`)
 > before asserting.
 
 ## Topic → file
@@ -21,6 +20,7 @@
 | Web front "Studio" (screens, HTTP API routes, tests) | `FRONT-WEB.md` |
 | What was done when, what's next | `ROADMAP.md` |
 | Course section → capability → Linear issue | `COURSE-MAP.md` |
+| Past QA runs (historical, findings already filed) | `reports/` |
 
 ## Keys (one card each — open only the one you need)
 

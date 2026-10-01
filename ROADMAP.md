@@ -126,15 +126,25 @@ web datatoolkit-web #49 (nginx image, `compose.yml`, full-stack smoke) and #50
 (wait for nginx: #49's smoke raced on main). No local Docker daemon, so all
 checks run in CI. See `HOWTO/run-with-docker.md`.
 
+## 2026-10-01 — cleanup, Streamlit archived, code-quality priority
+Matteo set code quality as the priority before any new feature. Cleanup: web
+#50 merged (MAT-256 done); 27 merged remote branches deleted and
+`delete_branch_on_merge` enabled on both repos; orphan worktree and 552 e2e
+temp dirs (~420 MB) removed (cause filed as MAT-257). The unmerged
+`qa-exercises` QA report (2026-09-28, findings closed as MAT-160) moved to
+`reports/qa-exercises.md`. The Streamlit front is archived (GitHub read-only,
+clone in `~/Archives`, fleet project retired); the hub now describes Studio as
+the only front. MAT-53 (inherited `FLEET_CONF`) was fixed on 2026-09-26: a
+plain `fleet --project datatoolkit-web …` is enough.
+
+Filed: engine and web code-quality audits (MAT-258, MAT-259 — tool-driven,
+coordinator audits, then one lead worker per repo with scoped sonnet
+sub-workers; MAT-218 / MAT-219 folded in), then impute by formula (MAT-260),
+per-entity regression / interpolation imputation (MAT-261, Parkinson case) and
+the in-Studio agent spike (MAT-262).
+
 ## Next (see Linear)
-- Studio UX review 2026-09-29 → umbrella MAT-230 (sub-issues MAT-231..241).
-  Done same day (web #40–#42): Suggestions-only left panel (MAT-231),
-  collapsible side panels (MAT-232), Transform in the tool rail (MAT-233),
-  grid dock with free move / resize via react-grid-layout (MAT-234, closes
-  MAT-206). Still open: more freedom in every analysis window (MAT-235, needs
-  a proposal validated by Matteo), visual-first Correlation / Outliers /
-  Target / Missing / Chart windows (MAT-236..240), Python-style formulas
-  (MAT-241, needs a syntax decision). Engine bug found on the way: MAT-243.
-- Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`), MAT-5 (FastAPI).
-- Fleet bug MAT-53 (Agent Fleet) still forces `env -u FLEET_CONF -u FLEET_PROJECT`
-  for front dispatches.
+- MAT-258 engine audit → MAT-259 web audit → doc refresh at merge (with the
+  pending doc proposals MAT-214, 215, 220, 223).
+- Then MAT-260, MAT-261, MAT-262 (spike to discuss with Matteo first).
+- Waiting for Matteo's approval: MAT-74 (`.xls` needs `xlrd`).

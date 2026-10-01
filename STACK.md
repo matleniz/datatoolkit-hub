@@ -9,7 +9,6 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | pydantic v2 | key params + Result, JSON Schema export | engine |
 | pandas | tabular data in keys | engine |
 | plotly | figures (JSON contract) | engine, fronts |
-| streamlit | first front | repo `datatoolkit-streamlit` |
 | ruff | lint + import barrier (TID251) | gate |
 | pytest | tests | gate |
 | hatchling | build backend of both repos (invisible) | `pyproject.toml` |
@@ -29,6 +28,8 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | Docker + Docker Compose | engine + Studio images, one-command install (`compose.yml`) | both repos (approved 2026-09-30, MAT-255/256) |
 | Base images python:3.12-slim, node:22-alpine, nginx:alpine | engine runtime; web build stage; web static server + `/api` proxy | Dockerfiles (approved 2026-09-30) |
 | GitHub Actions + GHCR | PR smoke tests of the images, multi-arch publish of `ghcr.io/matleniz/datatoolkit-{engine,web}` | `.github/workflows/docker.yml` of both repos (approved 2026-09-30) |
+
+Retired: streamlit (first front, repo `datatoolkit-streamlit` archived 2026-10-01).
 
 Planned, not yet approved: polars, duckdb
 (fast readers).

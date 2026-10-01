@@ -3,7 +3,7 @@
 ## What this is
 Documentation hub for **datatoolkit**, Matteo's personal DS/ML keyring: a
 pure-Python analysis engine behind a JSON contract, with swappable visual fronts
-(Streamlit first). Source of truth for the architecture. Navigate via `INDEX.md`.
+(Studio, a React web app, today). Source of truth for the architecture. Navigate via `INDEX.md`.
 
 ## Where the code lives (not here)
 - `~/datatoolkit` (github matleniz/datatoolkit) — the **engine** `dtk_engine`,
@@ -12,15 +12,14 @@ pure-Python analysis engine behind a JSON contract, with swappable visual fronts
   `datatoolkit-web`) — the **active** front, "Studio" (React + TypeScript,
   see `FRONT-WEB.md`), talks only to the engine's HTTP API. All current front
   work happens here.
-- `~/datatoolkit-streamlit` (github matleniz/datatoolkit-streamlit) —
-  **abandoned** first front attempt (Matteo: "felt like a form catalog",
-  superseded by Studio, see `ROADMAP.md` 2026-09-27). Do not dispatch there
-  unless Matteo explicitly asks to revive it.
+- The first front (Streamlit) was dropped for Studio on 2026-09-27 and its
+  repo archived on 2026-10-01 (`~/Archives/datatoolkit-streamlit`, GitHub
+  read-only). Not a dispatch target.
 All code changes happen in the engine or web repo.
 
 ## Architecture in brief
 `dtk_engine` (keys = typed params → JSON `Result`) → contract (`list_keys`,
-`key_schema`, `run_key`) → `EngineClient` → generic front. Fronts never import
+`key_schema`, `run_key`) → HTTP API (`dtk-api`) → generic front. Fronts never import
 the engine; adding a key needs zero front code. One implementation in `ops/`,
 three doors: JSON contract, notebook `dtk_engine.api`, sklearn `DtkTransformer`.
 Details: `ARCHITECTURE.md`.

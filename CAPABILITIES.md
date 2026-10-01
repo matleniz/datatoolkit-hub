@@ -32,7 +32,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | `correlations` | analysis | pearson / spearman heatmap over picked numeric columns + pairs above a threshold (drop_correlated rule, suggested step) | done — MAT-97 |
 | source `upload` | input | file uploaded in the front (saved under `$DTK_HOME/uploads`, then a normal file source) | done — MAT-102 |
 | source `csv_robust` | input | malformed CSVs | partial — bad lines strict / recover (MAT-68/69); mixed separators, junk headers later |
-| repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 |
+| repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 (front repo archived 2026-10-01) |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | done — MAT-39 |
 | sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | done — MAT-40 |
 | `duplicates` + `inconsistencies` | analysis | exact / partial duplicates, key conflicts; casing / whitespace variants, mixed types, ambiguous dates, suggested mapping | done — MAT-41 |
@@ -40,7 +40,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | cleaning ops (`drop_columns`, `rename`, `cast`, `drop_duplicates`, `standardize_text`, `parse_dates`, `replace_sentinels`, `drop_missing_target`, `filter_rows`, `clip`, `align_to_train`) | transform | fix the defects found by the analyses; `align_to_train` options to confirm with Matteo | done — MAT-43 |
 | imputation / encoding / scaling ops (`impute` + indicator, `impute_knn`, `impute_iterative`, `ffill`, `onehot`, `ordinal`, `scale`, `log1p`) | transform | model-ready matrix, fitted on train | done — MAT-44 |
 | feature ops (`derive`, `datetime_parts`, `cyclical`, `bin`, `group_agg`, `interactions`) | transform | domain features without leak | done — MAT-45 |
-| Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46, MAT-55 |
+| Streamlit Transforms panel | front | add / undo steps generically, before/after preview | done — MAT-46, MAT-55; Streamlit archived 2026-10-01, Studio has its own |
 | front: export button, apply result steps, needs_target, clean errors | front | finish the loop analyse → apply → export from the UI | done — MAT-91/92/93 |
 | front: column selectors, dataset input (any format, upload, options), workspace target prefill | front | analyse a personal dataset end to end without typing column names or JSON | done — MAT-98, MAT-102, MAT-118 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
