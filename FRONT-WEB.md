@@ -63,7 +63,9 @@ below); never imports the engine.
      columns as chips, function palette with one-line help, autocomplete on
      columns / `@variables`, function names (incl. `group_mean` /
      `group_prev` / `group_interp`, also in the palette) and `np.` / `numpy.`
-     functions, non-identifier
+     functions, the engine error shown right under the Expr field (red
+     outline; also for `impute(strategy=formula)`, datatoolkit-issues#12),
+     non-identifier
      column names inserted as `df["…"]`, a **Python** section of insertable
      examples (`1 if Age < 18 else 0`, `np.where(…)`, `18 <= Age < 65`) and
      each function's numpy form in its help (MAT-241) — stored workspace
@@ -145,10 +147,12 @@ below); never imports the engine.
      (Plotly mode bar for PNG/SVG export). Opens larger than other windows by
      default (MAT-252); any newly opened window is placed where it is visible,
      shrinking to the free width (min 4 columns) rather than below the fold. Saved chart specs (name + params)
-     reopen and re-render on the current pipeline version (persisted in
-     browser storage, `dtk.charts.<workspace>`; the engine's
-     `Workspace.charts` exists (MAT-185) but Studio does not use it yet,
-     datatoolkit-issues#11).
+     reopen and re-render on the current pipeline version (stored on the
+     engine workspace, `Workspace.charts`, MAT-185, datatoolkit-issues#11:
+     Save chart PUTs the workspace and shows the engine's 422 `duplicate
+     chart name` with a **Replace** action; charts are left out of frame /
+     analysis requests and of the data identity; charts saved in browser
+     storage by older builds are migrated once).
    - **Export**: workspace JSON + `export_workspace` outputs, leak line
      ("n fitted steps learned on train, nothing refitted on test").
 
@@ -239,7 +243,6 @@ per-ticket specs: MAT-149, 152, 154, 155, 160, 167, 169, 171, 173, 174, 175,
 (alignment report not ready within 5 s) and flow7 / mat171 (order / cold
 cache) can flake, MAT-222 / MAT-245 — they pass on re-run. Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
-once; saved chart specs still live in browser storage although the engine
-stores `Workspace.charts` (MAT-185; front side: datatoolkit-issues #11).
+once.
 `GET /workspaces/summaries` returns cached `train` / `test` `shape`
 (MAT-204; content-addressed, no frame load when fresh).

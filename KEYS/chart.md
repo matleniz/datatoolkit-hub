@@ -27,7 +27,7 @@
 - The Studio Chart tool window (MAT-172 front, `FRONT-WEB.md` → Workbench →
   Tool rail + dock) is the UI on top of this key; it prefills type/x/y from
   the grid selection and renders the returned figure via the same renderer
-  used elsewhere for `Result.figures`. Saved chart specs are a front concern
-  (currently browser storage, see MAT-185 for engine-side persistence).
+  used elsewhere for `Result.figures`. Saved chart specs are stored on the
+  workspace (`Workspace.charts`, MAT-185) and Studio uses them (datatoolkit-issues#11).
 - OLS trendline uses `numpy.polyfit`, not `statsmodels` (not on `STACK.md`).
 - Notebook door: `api.chart(df, chart=..., **params)`.
