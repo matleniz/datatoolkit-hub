@@ -21,6 +21,7 @@
 - figures: feature scores, PCA cumulative explained variance
 
 ## Notes
+- Scores (mutual information, RF importance, L1, RFECV) use at most 10 000 labeled rows (`SCORE_SAMPLE_SIZE`, `ops/selection.py`): a seeded sample, stratified on a classification target (plain draw for regression or a class under 2 rows); metric `n_scored_rows` and a text note when sampled; variance and `pct_missing` still use every row. Parkinson train (55 603 rows): ~67 s → ~4.5 s (datatoolkit-issues#77).
 - Scoring median-fills missing feature values (said in the text); the selection **ops** refuse missing values — impute first.
 - PCA here is on standardized numeric features. L1 uses `l1_ratio=1.0` (sklearn 1.9 deprecates `penalty=`).
 - Errors → `KeyParamsError`: target not in the frame or all missing, `task=regression` with a non-numeric target, explicit `columns` absent / non-numeric / the target.
