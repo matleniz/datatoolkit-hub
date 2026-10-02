@@ -210,17 +210,8 @@ unit, knip clean.
   stalled / blocked on vite), #9 (`test-server-detect.sh` leaks http.server
   processes).
 - Queue empty except the paused #9.
-- **Paused: #9 in-Studio agent spike** (Matteo, 2026-10-01). Brief for when it
-  resumes: design only, no code. An agent-agnostic base (MCP server over the
-  engine contract `list_keys` / `key_schema` / `run_key` and the workspace
-  steps; a UI-context protocol for selection, open windows and viewed
-  version; live refresh through the existing refresh-identity contract) with
-  the agent plugged per pack (Claude Code / Agent SDK, a plain chat backend,
-  opencode, gemini...), modelled on agent-fleet packs; the panel form (chat or
-  terminal) follows from the adapter. Deliverables: a design note proposed as
-  a new hub file (e.g. `AGENT-BRIDGE.md`) covering goals, architecture,
-  security (contract-scoped tools, no shell), auth and cost, candidate
-  dependencies; then sub-issues of #9, each `needs:matteo` until approved.
+- #9 in-Studio agent: paused 2026-10-01, resumed 2026-10-02 for design; see
+  the 2026-10-02 entry below and `AGENT-BRIDGE.md`.
 
 ## 2026-10-02 — share it: one-line launcher, Docker or uv
 Docker launchers `scripts/datatoolkit.sh` / `.ps1` (web #78, #53), then the
@@ -231,3 +222,14 @@ engine did not import on Windows (`fcntl`), fixed with `msvcrt` locking
 one-liner checked by hand on a fresh data home. Recipe:
 `HOWTO/share-and-run.md`. Queue: only the paused #9.
 
+## 2026-10-02 — next wave: join preview, csv_robust, dogfood, agent bridge design
+Matteo picked `label_join_preview` (#58, engine key only, generic rendering),
+the rest of `csv_robust` (#59: junk header lines, mixed separators), a Studio
+dogfood on the real Parkinson data (#60, find only) and the #9 design. The
+design spike produced `AGENT-BRIDGE.md` (doc proposal #61, approved with every
+recommendation): an MCP server over the contract in an engine extra, a UI
+bridge (UI context + SSE commands + ack, per-run token), Studio as the single
+writer of agent edits (undoable), a path guard confined to `$DTK_HOME`, packs
+(Claude Code / gemini / opencode external first, then an in-Studio chat panel
+on the Claude Agent SDK). `mcp` and `claude-agent-sdk` approved in
+`STACK.md`. Sub-issues: phase 1 #62 / #63, phase 2 #64–#66, phase 3 #67.

@@ -17,6 +17,7 @@
 | Which transform ops exist, what they fit, their params | `TRANSFORMS.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |
 | Sharing / running anywhere: one-line launcher, Docker or uv (no Docker) | `HOWTO/share-and-run.md` |
+| In-Studio agent: MCP server over the contract, UI-context protocol, packs, security | `AGENT-BRIDGE.md` |
 | Docker internals (GHCR images, compose, nginx, CI smoke) | `HOWTO/run-with-docker.md` |
 | Web front "Studio" (screens, HTTP API routes, tests) | `FRONT-WEB.md` |
 | What was done when, what's next | `ROADMAP.md` |
