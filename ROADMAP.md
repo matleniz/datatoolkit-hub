@@ -233,3 +233,6 @@ writer of agent edits (undoable), a path guard confined to `$DTK_HOME`, packs
 (Claude Code / gemini / opencode external first, then an in-Studio chat panel
 on the Claude Agent SDK). `mcp` and `claude-agent-sdk` approved in
 `STACK.md`. Sub-issues: phase 1 #62 / #63, phase 2 #64–#66, phase 3 #67.
+Merged: engine #85 (#59, csv `skiprows` / `mixed_sep`, `file_inspect` facts) and
+#84 (#58, key `label_join_preview`, diagnostics shared with the join). Engine
+main 5015c2c: ruff clean, 1018 tests. Doc proposals #68 / #69 applied.

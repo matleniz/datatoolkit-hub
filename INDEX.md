@@ -30,6 +30,7 @@
 |---|---|---|
 | `dataset_overview` | analysis | `KEYS/dataset_overview.md` |
 | `train_test_check` | analysis | `KEYS/train_test_check.md` |
+| `label_join_preview` | analysis | `KEYS/label_join_preview.md` |
 | `file_inspect` | analysis | `KEYS/file_inspect.md` |
 | `duplicates` | analysis | `KEYS/duplicates.md` |
 | `inconsistencies` | analysis | `KEYS/inconsistencies.md` |

@@ -26,12 +26,12 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | workspace + source `dataset` + front top bar | input / state | keep X_train / y_train / X_test in memory across pages (JSON workspace), y separate or already in X, label join by order or key | done |
 | richer `dataset_overview` | analysis | numeric stats (mean, std, quantiles, skew, kurtosis, zeros, negatives, IQR / z outliers), browsable category values, results in one tab per semantic type | done |
 | train/test drift in `train_test_check` | analysis | per numeric column train vs test stats side by side, standardized mean diff, KS, PSI, % test outside train p1–p99, overlaid histograms; category frequencies | done |
-| `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | planned |
+| `label_join_preview` | analysis | X and Y columns side by side, join candidates (uniqueness, match rate, row count, same order) before joining | done — datatoolkit-issues#58 (engine #84) |
 | `column_distribution` | analysis | histogram / value counts of picked columns, train vs test overlay, split by label or by any other column | done — MAT-95, MAT-159 |
 | `target_analysis` | analysis | each feature vs the label: ranking, per-class stats, class rate per category, binned mean target | done — MAT-96 |
 | `correlations` | analysis | pearson / spearman heatmap over picked numeric columns + pairs above a threshold (drop_correlated rule, suggested step) | done — MAT-97 |
 | source `upload` | input | file uploaded in the front (saved under `$DTK_HOME/uploads`, then a normal file source) | done — MAT-102 |
-| source `csv_robust` | input | malformed CSVs | partial — bad lines strict / recover (MAT-68/69); mixed separators, junk headers later |
+| source `csv_robust` | input | malformed CSVs | done — bad lines strict / recover (MAT-68/69); junk header lines (`skiprows`) and mixed separators (`mixed_sep`) (datatoolkit-issues#59, engine #85). Not covered: junk lines with the body's exact field count, mixed separators on quoted lines |
 | repo split: engine-only `datatoolkit` + `datatoolkit-streamlit` | architecture | engine installable alone (notebook, scripts) | done — MAT-38 (front repo archived 2026-10-01) |
 | fit/apply transform protocol, `list_transforms` / `transform_schema`, notebook `api`, `DtkTransformer`, `workspace_pipeline` | architecture | same ops from front, notebook and sklearn `Pipeline`, no leak | done — MAT-39 |
 | sources: csv `na_values` / `dtype` / `parse_dates`, `parquet`, `excel`, `json` / `jsonl`, `sql` (URL via env var) + `file_inspect` key | input | read every course format; look at raw bytes before loading | done — MAT-40 |
