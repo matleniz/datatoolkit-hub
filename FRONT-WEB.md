@@ -114,6 +114,12 @@ below); never imports the engine.
      Suggestions tab) shows the frame its numbers come from (`train · v2`,
      `test · sources`, `IdentityStrip`); while a step is being edited it shows
      the last applied version (the live preview is grid-only).
+     Compare's stats come from the engine on the full frame
+     (`column_distribution` for mean / median / std / min / max, `correlations`
+     for r with the target; #75), never from the grid's loaded rows; the
+     Correlation window sends no `columns` without a selection, so the engine's
+     50-column cap and its "N more" note apply (#74). Chart sends nothing until
+     its required fields are picked (X, plus Y for scatter / heatmaps; #80).
      **Analysis window shell** (MAT-235, generic, driven by the `Result`; all
      windows except Compare's native matrix and Chart): one compact chrome
      line (role · source, scope chip, Split by for Distribution, Parameters
@@ -122,7 +128,8 @@ below); never imports the engine.
      window (min 180 px; the default dock height fits 3 windows with full
      axes, no scroll) → view tabs (one per figure + Table; default = the
      `main: true` figure, else the first; choice kept per window in
-     `toolViews`, in memory) + front-only display controls (sort / top-N,
+     `toolViews`, in memory; the tabs fold into a select when they actually
+     overflow, measured, datatoolkit-issues#73) + front-only display controls (sort / top-N,
      count vs %, log — rewrite the Plotly JSON, never recompute) + **Open in
      Chart** (prefills Chart via `chartPrefill.ts`) → collapsed **Details**
      drawer (metric tiles, sortable paginated tables). Clicking a bar or
@@ -250,7 +257,7 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
 
-## State (2026-10-01)
+## State (2026-10-02)
 Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#77
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window

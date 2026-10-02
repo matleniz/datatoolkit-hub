@@ -241,3 +241,13 @@ Agent bridge phase 1 merged: engine #86 (#62, `ui_bridge.py` + guarded
 commands as one undoable `APPLY_STEP_BATCH`, review banner for destructive
 ops). #81 broke the Docker web build (a unit test imports `e2e/`, excluded by
 `.dockerignore`): hotfix dispatched. Doc proposals #70, #71, #84, #85 applied.
+Dogfood fixes merged: engine #87 (#78 the engine's own `MISSING` fill is no
+sentinel; #79 numeric codes need context), #88 (#77 feature_selection scores on
+a stratified 10k-row sample, Parkinson ~67 s → ~4.5 s); web #83 (Docker build
+hotfix), #80 (#72 missing %, #80 Chart guard), #82 (#73 view tabs overflow),
+#84 (#75 Compare on the full frame, #74 correlation keeps every numeric
+column), #85 (e2e expectation after #72). Final check on main (engine b562738,
+web 7024d47): engine 1045 tests, ruff clean; web lint / typecheck / knip /
+build, 360 unit, e2e 72/73 then the one stale expectation fixed and re-run
+green. Open: improvements #76, #81, #82, #83 and agent phases 2–3 (#64–#67),
+each on Matteo's go.
