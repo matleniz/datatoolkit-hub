@@ -258,7 +258,7 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 (`waitForGridReady`), never a loading state.
 
 ## State (2026-10-02)
-Built and merged: engine datatoolkit #30–#82, web datatoolkit-web #1–#77
+Built and merged: engine datatoolkit #30–#88, web datatoolkit-web #1–#85
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,
 collapsible panels, Transform in the rail, grid dock, figure-first window
 shell + compact chrome; engine #56 `plotly_lock`, #57 `headline` / `main`).
@@ -270,6 +270,9 @@ suggestions, grid identity, applied step) rather than fixed timeouts and pass
 alone and in the full run (datatoolkit-issues#13); the e2e Vite config
 pre-bundles every dependency so a cold cache does not reload the page
 (datatoolkit-issues#14). Full run on a cold cache, 2026-10-01: 65/65, 5.4 min.
+2026-10-02 (web 7024d47): 73 e2e tests, 360 unit; full run 72/73 under load,
+the one failure a stale expectation fixed in #85 and re-run green (agent
+bridge spec `issue63-agent-bridge`, dogfood specs for #73, #75, #80 added).
 Deleting a workspace waits for the save already on the wire, then undoes it
 (`src/state/workspaceSaveGate.ts`). Workbench open on 55 603 rows: ~1.5 s.
 Known gaps: the export outputs list scrolls rather than showing all lines at
