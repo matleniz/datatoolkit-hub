@@ -284,6 +284,46 @@ Panel follows from the pack:
 5. **Hardening** — usage cap, review-first mode for destructive ops, engine
    revisions if a headless writer is ever needed, Docker image story.
 
+## As built — phase 1 (engine #86, web #81, 2026-10-02)
+
+Engine (`src/dtk_engine/ui_bridge.py`, routes in `http.py`):
+- Routes: `PUT/GET /api/ui/context`, `GET /api/ui/events?session=` (SSE),
+  `POST /api/ui/ack`, and `POST /api/ui/commands {type, …}` (+ `session` /
+  `timeout` query) so curl and the web e2e can post commands without an agent.
+- Guard: per-run token (`DTK_UI_TOKEN`, else random, `app.state.ui_bridge.token`),
+  allowed `Origin`, `Host` loopback or in `DTK_UI_ALLOWED_HOSTS` (comma
+  hostnames; needed behind nginx / Docker, with `DTK_CORS_ORIGINS`).
+- Engine-side acks: unknown id → 404; no live listener → `no_studio`; no ack in
+  time → `timeout`; listener drops → pending commands `no_studio`.
+- SSE streams never end on their own: servers set uvicorn
+  `timeout_graceful_shutdown` (`dtk-api`: 2 s).
+
+Studio (`src/state/agentCommands.ts`, `src/bench/agent/AgentBridge.tsx`):
+- Acks: `{ok: true, identity}` (frame after the command; `propose_steps` acked
+  once the save gate stored the workspace), `{ok: false, error: "stale"}`
+  (workspace or `base_identity` differs, re-checked after a review),
+  `"rejected"` (review dismissed), `"bad_command: <reason>"`,
+  `"save_failed: <msg>"` (applied, PUT failed, still undoable).
+- `propose_steps` ops apply in order (an index refers to the list as earlier
+  ops left it), `orderSteps` once at the end, one undo entry; a step's
+  `target` defaults to `both`, `params` to `{}`.
+- Destructive = a `remove` op, or an add / replace of `drop_columns`,
+  `filter_rows`, `drop_low_variance`, `drop_correlated`: review banner
+  (Apply / Dismiss), nothing applied meanwhile. Others apply at once with a
+  12 s "Agent: <summary>" toast + Undo (no-op while a step editor is open).
+- Commands run one at a time in arrival order (the second sees the first's
+  identity).
+- Published `windows[].params` = persisted `toolParams` + `column` (per-column
+  tools dist / outliers / target) and `by` (dist split); `open_window` accepts
+  the same keys.
+- Token handoff: `<meta name="dtk-ui-token">` (Vite plugin in dev when
+  `DTK_UI_TOKEN` is set; `dtk-studio` serves it, loopback Host only).
+
+Open for phase 2: a review longer than the 30 s command timeout expires the
+command engine-side and blocks the queue meanwhile (`pending_review` ack vs a
+longer timeout); bridge off in a plain `npm run dev` + `dtk-api` until
+`DTK_UI_TOKEN` is set on both sides.
+
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 
 | Topic | Decision | Sub-issue |

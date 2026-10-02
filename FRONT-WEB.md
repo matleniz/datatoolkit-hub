@@ -175,6 +175,7 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
 | `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`) |
+| `PUT/GET /ui/context` · `GET /ui/events?session=&token=` (SSE) · `POST /ui/ack` · `POST /ui/commands` `{type, …}` (`?session=&timeout=`) | UI bridge, not the contract (`dtk_engine/ui_bridge.py`, datatoolkit-issues#62; `AGENT-BRIDGE.md`) |
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. A params
@@ -187,6 +188,21 @@ The front builds each key's params from `GET /keys/{id}/schema` (only the
 properties the key declares, e.g. `test` / `target`), and dedupes identical
 in-flight requests; one rows page + one profiles call per (steps, role,
 version), workspace `PUT` only when its JSON changed (MAT-144).
+
+**Agent UI bridge (datatoolkit-issues#62, #63).** The `/ui/*` routes need the
+per-run token (`Authorization: Bearer`, or `?token=` for `EventSource`; engine
+side `DTK_UI_TOKEN` or a random token at `app.state.ui_bridge.token`), an
+allowed `Origin` when present and a loopback or `DTK_UI_ALLOWED_HOSTS` `Host`;
+the contract routes stay token-free. Studio reads the token from
+`<meta name="dtk-ui-token">` (dev: a Vite plugin when `DTK_UI_TOKEN` is set;
+`dtk-studio` injects it, loopback Host only); no meta = bridge off. These calls
+bypass the request dedupe. Modules: `src/state/uiContext.ts` (AppState →
+published context), `src/state/agentCommands.ts` (parse, stale check, review,
+apply, ack), `src/bench/agent/AgentBridge.tsx` (publisher, SSE listener, Undo
+toast, review banner). Agent step edits go through the reducer action
+`APPLY_STEP_BATCH {ops}` (ordered `add` / `replace` / `remove`, one undo
+entry, no-op on an invalid index; helpers and `orderSteps` in
+`src/state/stepOps.ts`). Semantics: `AGENT-BRIDGE.md` → "As built".
 
 **Refresh identity (MAT-175).** Every consumer that shows data — grid,
 profiles, inspector, dock windows, Chart, Suggestions — keys on one

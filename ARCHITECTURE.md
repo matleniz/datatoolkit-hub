@@ -53,6 +53,7 @@ dtk_engine  ──  contract (JSON)  ──  HTTP API (dtk-api)  ──  front (
 |---|---|---|
 | Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, numpy, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, rapidfuzz, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
 | HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, FastAPI |
+| UI bridge | `datatoolkit` · `src/dtk_engine/ui_bridge.py` (pure asyncio, in-memory UI context + command relay; imported only by `http.py`, enforced in `tests/test_layers.py`) | stdlib |
 | Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`FRONT-WEB.md`). **Never** the engine. |
 
 Two repos since MAT-38 (2026-09-25): the engine is a standalone package

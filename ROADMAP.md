@@ -236,3 +236,8 @@ on the Claude Agent SDK). `mcp` and `claude-agent-sdk` approved in
 Merged: engine #85 (#59, csv `skiprows` / `mixed_sep`, `file_inspect` facts) and
 #84 (#58, key `label_join_preview`, diagnostics shared with the join). Engine
 main 5015c2c: ruff clean, 1018 tests. Doc proposals #68 / #69 applied.
+Agent bridge phase 1 merged: engine #86 (#62, `ui_bridge.py` + guarded
+`/api/ui/*`), web #81 (#63, Studio publishes its context, applies agent
+commands as one undoable `APPLY_STEP_BATCH`, review banner for destructive
+ops). #81 broke the Docker web build (a unit test imports `e2e/`, excluded by
+`.dockerignore`): hotfix dispatched. Doc proposals #70, #71, #84, #85 applied.
