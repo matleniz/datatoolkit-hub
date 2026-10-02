@@ -251,3 +251,16 @@ web 7024d47): engine 1045 tests, ruff clean; web lint / typecheck / knip /
 build, 360 unit, e2e 72/73 then the one stale expectation fixed and re-run
 green. Open: improvements #76, #81, #82, #83 and agent phases 2–3 (#64–#67),
 each on Matteo's go.
+
+## 2026-10-03 — the agent drives Studio like the user
+Pause lifted. Decisions (Matteo): curated typed UI commands (not a generic
+reducer passthrough), external MCP first then the chat panel, tables = workspace
+views plus key windows (no ad hoc table), sources / label / merges never exposed
+to the agent (#86). Merged overnight: engine #89–#95 (runtime file, view-only
+filter / sort, policy layer, `pending_review`, MCP server, packs, chat adapter
++ `agent-sdk` / `stub`), web #86–#100 (key windows, key picker + match report,
+grid filter / sort, UX nits, 16 agent commands, highlight + Undo, chat panel).
+Live smoke of the `agent-sdk` pack on the real local `claude` CLI (claude.ai
+login) answered a `list_keys` question. Open: #100 MCP tools for the new
+commands, dogfood of the whole chain, docs of `HOWTO/plug-an-agent.md`.
+

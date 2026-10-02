@@ -257,6 +257,11 @@ also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
 
+## State (2026-10-03)
+Agent chat panel and 16 bridge commands merged (web #86–#100, see `AGENT-BRIDGE.md`); grid
+view-only filter / sort, report-only analyses as dock windows, "By key column"
+key picker with match report (#76, #81, #82). Earlier state below.
+
 ## State (2026-10-02)
 Built and merged: engine datatoolkit #30–#88, web datatoolkit-web #1–#85
 (#40–#44 = the 2026-09-29 UX review, MAT-230: Suggestions-only left panel,

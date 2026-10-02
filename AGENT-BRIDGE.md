@@ -1,7 +1,8 @@
 # Agent bridge — an agent in Studio, plugged per pack (design, datatoolkit-issues#9)
 
-Status: **approved** by Matteo on 2026-10-02 (design only; built phase by
-phase through the sub-issues of datatoolkit-issues#9, see "Decisions").
+Status: **approved** by Matteo on 2026-10-02; phases 1, 2 and the first part of
+3 built by 2026-10-03 (see "As built"); in-Studio chat on the `agent-sdk` pack,
+external CLIs through `dtk-mcp config`.
 Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
 
 ## Goals
@@ -323,6 +324,43 @@ Open for phase 2: a review longer than the 30 s command timeout expires the
 command engine-side and blocks the queue meanwhile (`pending_review` ack vs a
 longer timeout); bridge off in a plain `npm run dev` + `dtk-api` until
 `DTK_UI_TOKEN` is set on both sides.
+
+## As built — phases 2–3 (2026-10-03)
+
+Engine (`src/dtk_engine/agent/`, extra `agent` / `agent-sdk`; details in the
+engine README and `docs/agent-chat-protocol.md`):
+- `policy.py` (#65, engine #91): path guard under `$DTK_HOME` or workspace-
+  referenced paths, `sql` refused, row caps (50 default, 500 max), data framing,
+  audit ring + optional `$DTK_HOME/agent/log.jsonl`.
+- MCP server (#64, engine #93): `/mcp` on the `dtk-api` app + stdio `dtk-mcp`;
+  the per-run URL and token are published in `$DTK_HOME/agent/runtime.json`
+  (engine #89).
+- Packs (#66, engine #94): `claude-code`, `gemini`, `opencode` (external, only
+  the `dtk` server, built-in tools turned off where the CLI allows), `stub`;
+  `dtk-mcp config <pack> [--write <dir>]` and `dtk-mcp doctor`.
+- Chat (#67, engine #95): hub + adapter per Studio session carried on the SSE /
+  POST pair (`/api/ui/agent*`, events `event: agent`); pack `agent-sdk` runs
+  `claude-agent-sdk` on the local Claude Code CLI (its own login, or
+  `ANTHROPIC_API_KEY`), built-in tools off (`tools=[]`), `setting_sources=[]`,
+  only the in-process `dtk` server, `can_use_tool` denies anything else;
+  `DTK_AGENT_MAX_TOKENS` cap. Launch: `uv run dtk-api --agent`.
+- The 30 s review timeout is solved by an interim `pending_review` ack
+  (engine #92): the queue is not blocked by an open review.
+- `workspace_rows` takes a view-only filter / sort (engine #90).
+
+Studio (`src/state/agentCommands.ts`, `src/bench/agent/`): the bridge now has a
+curated command per user gesture, each undoable (one undo entry) and acked:
+`propose_steps`, `open_window`, `select_columns`, `set_view`, `pick_row`,
+`pick_cell`, `clear_selection`, `add_variable`, `draft_chart`, `add_chart`,
+`edit_step`, `fill_editor`, `set_target`, `set_dist_by`, `set_tool_params`,
+`set_grid_view` (web #86–#99); touched columns / windows / steps are
+highlighted and each command has its Undo toast (#89); the chat panel
+(`src/bench/agent/panel/`, web #100: message list, tool chips, permission /
+review prompts, usage line, Stop, "agent unavailable" state).
+Not exposed on purpose (Matteo, 2026-10-03, datatoolkit-issues#86): sources,
+label join and merges.
+Open: the new commands as MCP tools generated from the command schema (#100),
+the provider-agnostic chat pack and the terminal pack (phase 4).
 
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 
