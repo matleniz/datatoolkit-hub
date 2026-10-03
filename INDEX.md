@@ -18,6 +18,8 @@
 | Adding / switching a front | `HOWTO/add-a-front.md` |
 | Sharing / running anywhere: one-line launcher, Docker or uv (no Docker) | `HOWTO/share-and-run.md` |
 | In-Studio agent: MCP server over the contract, UI-context protocol, packs, security | `AGENT-BRIDGE.md` |
+| Plug your own agent CLI (Claude Code / gemini / opencode) into Studio | `HOWTO/plug-an-agent.md` |
+| Try the Studio agent chat (launch, scenarios, checklist) | `HOWTO/try-the-agent.md` |
 | Docker internals (GHCR images, compose, nginx, CI smoke) | `HOWTO/run-with-docker.md` |
 | Web front "Studio" (screens, HTTP API routes, tests) | `FRONT-WEB.md` |
 | What was done when, what's next | `ROADMAP.md` |
