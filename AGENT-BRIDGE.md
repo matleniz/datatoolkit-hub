@@ -359,8 +359,15 @@ highlighted and each command has its Undo toast (#89); the chat panel
 review prompts, usage line, Stop, "agent unavailable" state).
 Not exposed on purpose (Matteo, 2026-10-03, datatoolkit-issues#86): sources,
 label join and merges.
-Open: the new commands as MCP tools generated from the command schema (#100),
-the provider-agnostic chat pack and the terminal pack (phase 4).
+Phase 4 (2026-10-03, engine #100–#104, web #107–#111): contract v2 in
+`docs/agent-chat-protocol.md`; options route and per-session pack / model
+choice (`GET /api/ui/agent/options`); direct API packs `api-anthropic` and
+`api-openai` (httpx, no vendor SDK; any OpenAI-compatible or local endpoint);
+terminal packs over `WS /api/ui/terminal` (PTY, no shell, same token / Host /
+Origin guard, opt-in `--terminal`); read-only attachments under
+`$DTK_HOME/uploads`; Markdown replies (`marked` + `dompurify`), collapsed tool
+chips, selector and terminal panel, attach button in Studio. The new Studio
+commands are MCP tools generated from the published command schema (#100).
 
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 

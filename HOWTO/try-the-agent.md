@@ -9,7 +9,7 @@ The chat panel runs the agent loop in the engine on your local Claude Code CLI
 # 1
 cd ~/datatoolkit && uv sync --extra agent-sdk
 export DTK_UI_TOKEN=$(openssl rand -hex 24); echo $DTK_UI_TOKEN
-uv run dtk-api --agent
+uv run dtk-api --agent --terminal     # --terminal lists the CLI packs (Linux / macOS / WSL)
 # 2
 cd ~/datatoolkit-web && npm install
 export DTK_UI_TOKEN=<same token>
@@ -25,6 +25,19 @@ The panel is the last rail icon; its header shows the pack and the provider.
 - impute a column with the median: step added at once, Undo works.
 - drop a column: Apply / Dismiss banner in Studio; the chat reports the outcome.
 - long request, then Stop; the next message works; usage line accumulates.
+
+## Chat v2 (2026-10-03)
+- Replies render as Markdown (tables, lists, code, safe links); tool calls are
+  collapsed by default, click a chip to see input / output.
+- Panel header: mode (CLI / direct API), agent (pack) and model, per session.
+  Packs: `agent-sdk` (Claude through the local CLI, models listed by the CLI),
+  `api-anthropic` (`ANTHROPIC_API_KEY`), `api-openai` (`DTK_OPENAI_BASE_URL`,
+  optional key, e.g. a local Ollama), terminal packs (`claude`, `gemini`,
+  `opencode` in an xterm over a PTY, native rendering, no markdown, weaker "no
+  shell" guarantee; opt-in with `--terminal`).
+- Attach files (button or drag and drop): stored under `$DTK_HOME/uploads`, read
+  only for the agent; they never change the workspace sources.
+- Env reference: engine README, "Direct API chat" and "Terminal packs".
 
 ## Degraded states
 - `dtk-api` without `--agent`: "No agent". `CLAUDE_CONFIG_DIR` pointing at an

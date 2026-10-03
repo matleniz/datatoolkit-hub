@@ -264,3 +264,11 @@ Live smoke of the `agent-sdk` pack on the real local `claude` CLI (claude.ai
 login) answered a `list_keys` question. Open: #100 MCP tools for the new
 commands, dogfood of the whole chain, docs of `HOWTO/plug-an-agent.md`.
 
+## 2026-10-03 (afternoon) — chat v2
+After Matteo's first hands-on test: Markdown replies, collapsed tool calls,
+mode / agent / model chosen from the web, direct API packs (Anthropic,
+OpenAI-compatible), an xterm terminal for CLI packs, read-only file attachments
+(engine #100–#104, web #107–#111). Dependencies approved in `STACK.md`
+(`marked`, `dompurify`, `@xterm/xterm`, `websockets`, `httpx` in the extras).
+Open: datatoolkit-issues #98, #99, #101, #103 (small).
+
