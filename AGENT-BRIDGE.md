@@ -184,7 +184,7 @@ A pack is a small descriptor + launcher, modelled on agent-fleet
 
 | Field | Meaning |
 |---|---|
-| `id` | `claude-code`, `agent-sdk`, `chat`, `opencode`, `gemini`, `stub` |
+| `id` | `claude-code`, `agent-sdk`, `api-anthropic`, `api-openai`, `opencode`, `gemini`, `stub` |
 | `panel` | `chat` (structured events) or `terminal` (PTY) or `external` (none) |
 | `detect()` | CLI on PATH / key env var present → shown as available |
 | `mcp_config(url, token)` | the pack's MCP config (Claude Code `--strict-mcp-config --mcp-config <file>`; gemini `settings.json` `mcpServers` + `mcp.allowed`; opencode `opencode.json` `mcp`) with **only** the `dtk` server |
@@ -197,7 +197,7 @@ Panel follows from the pack:
 - **external** (phase 2, every MCP-capable CLI): no panel; `dtk-mcp config
   <pack>` prints the config snippet; the user runs their own CLI. Their CLI's
   other tools are their business, outside our boundary.
-- **chat** (`agent-sdk`, `chat`, opencode via `opencode serve`): Studio panel
+- **chat** (`agent-sdk`, `api-anthropic`, `api-openai`): Studio panel
   speaks one small event protocol over the same SSE / POST pair —
   `user_message`, `assistant_delta`, `tool_call`, `tool_result`,
   `permission_request` / `permission_reply`, `done`, `error`, `usage`. The
@@ -229,11 +229,17 @@ Panel follows from the pack:
   field.
 - **Data egress**: with a cloud model, rows and profiles the agent reads are
   sent to that provider. Row caps by default; the panel states the provider;
-  a local model through the `chat` pack keeps data on the machine.
+  a local model through the `api-openai` pack keeps data on the machine.
 - **Local endpoint hardening**: `/mcp` and `/api/ui/*` require a per-run
   random bearer token (generated at start, handed to the pack / Studio, never
   stored in the workspace) and validate `Origin` (the MCP spec's
-  DNS-rebinding guidance); still bound to 127.0.0.1.
+  DNS-rebinding guidance); still bound to 127.0.0.1. Browsers cannot set
+  headers on `EventSource` / WebSocket: `/api/ui/events` and `/api/ui/terminal`
+  take the token as `?token=`, so uvicorn's logs redact it (`RedactTokenFilter`).
+  Attachment bytes go through the contract route `PUT /api/uploads` (no token,
+  content-addressed); only `POST /api/ui/agent/attachments` (registration) is
+  guarded. The agent path guard refuses `$DTK_HOME/agent` (UI token, audit
+  log, terminal configs) even through symlinks or workspace references.
 - **Audit**: each agent tool call logged (tool, args summary, identity, result
   status) in an in-memory ring + optional `$DTK_HOME/agent/log.jsonl`; no
   credentials, no row values.
@@ -242,27 +248,29 @@ Panel follows from the pack:
 
 - `external` / `terminal` packs: the CLI's own auth (subscription login or its
   own key); DTK never sees a credential; cost on the user's existing plan.
-- `agent-sdk` / `chat` packs: key read from the environment only
+- `agent-sdk` / `api-anthropic` / `api-openai` packs: key read from the environment only
   (`ANTHROPIC_API_KEY`, or an OpenAI-compatible base URL + key for local /
   other models); never written to the workspace, localStorage or logs. Check
   each provider's terms for subscription vs API-key use at implementation.
 - Cost visibility: `usage` events (tokens in / out per turn, cumulative per
   session) shown in the panel; an optional per-session cap
   (`DTK_AGENT_MAX_TOKENS`) that stops the loop. Model choice per pack, default
-  the provider's current mid-tier model, overridable by env.
+  the provider's current mid-tier model, overridable by env: `api-anthropic`
+  takes the first `/v1/models` id containing `sonnet` (`DTK_ANTHROPIC_MODEL`),
+  `api-openai` the first listed (`DTK_OPENAI_MODEL`).
 - Token economy by design: tools return compact JSON (`Result` minus figures
   unless asked, capped rows), the UI context is small, schemas are fetched on
   demand rather than all at once.
 
-### 7. Dependencies (`mcp` and `claude-agent-sdk` approved 2026-10-02; the others still need approval)
+### 7. Dependencies (all approved: `mcp`, `claude-agent-sdk` 2026-10-02; `httpx`, `websockets`, `marked` + `dompurify`, `@xterm/xterm` 2026-10-03, see `STACK.md`)
 
 | Candidate | Role | Where | Needed by |
 |---|---|---|---|
 | `mcp` (official Python MCP SDK) | MCP server, streamable HTTP + stdio | engine, optional extra `agent` | phase 2 (approved 2026-10-02) |
 | `claude-agent-sdk` (Python) | `agent-sdk` pack (agent loop, permissions) | engine extra `agent-sdk` | phase 3 (approved 2026-10-02) |
-| `anthropic` SDK, or `httpx` promoted from dev to the extra | `chat` pack (Messages / OpenAI-compatible loop) | engine extra | phase 4 |
+| `httpx` (promoted from dev to the extras), no vendor SDK | `api-anthropic` / `api-openai` packs (Messages / OpenAI-compatible loop) | engine extras | phase 4 |
 | `@xterm/xterm` (+ `@xterm/addon-fit`) | terminal panel | `datatoolkit-web` | terminal packs only |
-| `websockets` (uvicorn WebSocket support) + `pywinpty` on Windows (stdlib `pty` elsewhere) | PTY bridge | engine extra | terminal packs only |
+| `websockets` (uvicorn WebSocket support); stdlib `pty`, POSIX only (no `pywinpty`) | PTY bridge | engine extras | terminal packs only |
 | none | SSE (`StreamingResponse` + browser `EventSource`) | — | phase 1 |
 | user-installed, not deps | `claude`, `gemini`, `opencode` CLIs | user machine | external / terminal packs |
 
@@ -368,6 +376,25 @@ Origin guard, opt-in `--terminal`); read-only attachments under
 `$DTK_HOME/uploads`; Markdown replies (`marked` + `dompurify`), collapsed tool
 chips, selector and terminal panel, attach button in Studio. The new Studio
 commands are MCP tools generated from the published command schema (#100).
+Studio modules: `src/bench/agent/panel/` (chat, picker, Markdown),
+`src/bench/agent/terminal/` (xterm, socket, 44xx close codes),
+`src/bench/agent/attachments/` (upload, then register).
+
+Audit hardening (2026-10-04, engine #105–#111, web #113–#118): the path guard
+refuses `$DTK_HOME/agent` (#132, supersedes "any file under `$DTK_HOME`" below);
+the `?token=` is redacted in uvicorn logs (#134, #135); terminal I/O
+back-pressure with a bounded output queue (#133); a chat session with no SSE
+listener for 5 min (`IDLE_GRACE`) is reaped: turn cancelled, adapter closed
+(the `claude` CLI exits), conversation, usage and attachments dropped (#136);
+API packs bound the resent history (latest 4 turns whole, older tool results
+elided, oldest turns dropped over a size cap, one retry on "context too long",
+#137); `read_attachment` reads at most the text limit + 1 byte (#138); one
+`dtk_home()` resolver (#139). Studio: an attachment removed while uploading is
+detached (#128), session attachments shown and detachable (#129), the dev
+server reads the token from `runtime.json` when it points at the proxied engine
+(#98), streaming Markdown re-rendered at most every 100 ms (#131), one agent
+HTTP plumbing (#130), a contract test of the command parser against
+`/api/ui/commands/schema` (#103).
 
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 
@@ -378,7 +405,7 @@ commands are MCP tools generated from the published command schema (#100).
 | Write model | Studio is the single writer: agent edits relayed, applied by the reducer, undoable; engine-side revisions parked (phase 5) | #63 |
 | Confirmation UX | apply at once + Undo toast; destructive ops (remove step, drop rows / columns) reviewed first | #63 |
 | MCP library | official `mcp` Python SDK, optional extra `agent`, in the engine repo next to `http.py` | #64 |
-| Agent read scope | workspace datasets + any file under `$DTK_HOME`; `sql` sources refused | #65 |
+| Agent read scope | workspace datasets + any file under `$DTK_HOME` except `$DTK_HOME/agent` (since #132); `sql` sources refused | #65 |
 | Export tool | not exposed in phases 2–4 | #65 |
 | Default row cap | 50 rows | #65 |
 | External packs | Claude Code, gemini and opencode together; generated configs turn the CLI's built-in tools off where possible | #66 |

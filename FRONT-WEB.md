@@ -11,7 +11,10 @@ disagrees with this page, this page wins.
 React + TypeScript (strict) + Vite, ESLint, Vitest (unit), Playwright (e2e with
 screenshots). No state library (React context + reducer), no grid library (the
 grid is ours, like the prototype). Talks only to the engine HTTP API (`dtk-api`,
-below); never imports the engine.
+below); never imports the engine. Runtime libraries: `plotly.js-dist-min`
+(figures), `react-grid-layout` (dock), `marked` + `dompurify` (agent Markdown,
+sanitised), `@xterm/xterm` + `@xterm/addon-fit` (terminal panel); approvals in
+`STACK.md`.
 
 ## Screens
 1. **Sources** — workspaces list; files with a role each (Train X, Train y, Test X,
@@ -177,12 +180,18 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `POST /workspaces/{name}/export` `{out_dir, overwrite}` | `export_workspace` |
 | `POST /source/columns` `{spec}` | `source_columns` |
 | `POST /workspace/preview` `{workspace, role, head_rows}` | `preview_workspace` |
-| `POST /workspace/rows` `{workspace, role, version, offset, limit, columns?}` | `workspace_rows` (MAT-127; optional `columns` filter MAT-152) |
+| `POST /workspace/rows` `{workspace, role, version, offset, limit, columns?, filter?, sort?}` | `workspace_rows` (MAT-127; optional `columns` filter MAT-152; view-only `filter` / `sort`, `total_unfiltered`, datatoolkit-issues#87) |
 | `POST /workspace/profiles` `{workspace, role, version, columns?}` | `column_profiles` (optional `columns` filter MAT-152) |
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
 | `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`) |
 | `PUT/GET /ui/context` · `GET /ui/events?session=&token=` (SSE) · `POST /ui/ack` · `POST /ui/commands` `{type, …}` (`?session=&timeout=`) | UI bridge, not the contract (`dtk_engine/ui_bridge.py`, datatoolkit-issues#62; `AGENT-BRIDGE.md`) |
+| `GET /ui/sessions` · `GET /ui/commands/schema` · `GET /ui/commands/{id}` | live Studio sessions, published Studio command schema (MCP tools are generated from it, #100), command status incl. `pending_review` (#95) |
+| `GET /ui/agent?session=` · `POST /ui/agent/send` `{session, text, attachments?}` · `POST /ui/agent/cancel` · `POST /ui/agent/permission` `{session, id, allow}` | agent chat (events `event: agent` on `/ui/events`; wire format in the engine's `docs/agent-chat-protocol.md`) |
+| `GET /ui/agent/options[?refresh=1]` · `POST /ui/agent/config` `{session, pack, model?}` | packs and models offered, per-session pack and model (#118) |
+| `POST /ui/agent/attachments` `{session, path}` · `GET /ui/agent/attachments?session=` · `DELETE /ui/agent/attachments/{id}?session=` | read-only chat attachments, files under the upload dir only (#121) |
+| `WS /ui/terminal?session=&pack=&model=&cols=&rows=&token=` | terminal packs, a CLI in a PTY (opt-in `dtk-api --terminal`; close codes 4401 / 4403 / 4404 / 4409 / 4422, #120) |
+| `/mcp` (outside `/api`) | MCP streamable HTTP, same token / Origin / Host guard (#64) |
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. A params
@@ -197,7 +206,8 @@ in-flight requests; one rows page + one profiles call per (steps, role,
 version), workspace `PUT` only when its JSON changed (MAT-144).
 
 **Agent UI bridge (datatoolkit-issues#62, #63).** The `/ui/*` routes need the
-per-run token (`Authorization: Bearer`, or `?token=` for `EventSource`; engine
+per-run token (`Authorization: Bearer`, or `?token=` for `EventSource` and the
+terminal WebSocket, as browsers cannot set headers on either; engine
 side `DTK_UI_TOKEN` or a random token at `app.state.ui_bridge.token`), an
 allowed `Origin` when present and a loopback or `DTK_UI_ALLOWED_HOSTS` `Host`;
 the contract routes stay token-free. Studio reads the token from
@@ -209,7 +219,11 @@ apply, ack), `src/bench/agent/AgentBridge.tsx` (publisher, SSE listener, Undo
 toast, review banner). Agent step edits go through the reducer action
 `APPLY_STEP_BATCH {ops}` (ordered `add` / `replace` / `remove`, one undo
 entry, no-op on an invalid index; helpers and `orderSteps` in
-`src/state/stepOps.ts`). Semantics: `AGENT-BRIDGE.md` → "As built".
+`src/state/stepOps.ts`). Chat v2 modules: `src/bench/agent/panel/` (chat: client,
+protocol, transcript reducer, Markdown, pack / model picker),
+`src/bench/agent/terminal/` (xterm panel, socket, protocol),
+`src/bench/agent/attachments/` (upload via `PUT /uploads`, then register).
+Semantics: `AGENT-BRIDGE.md` → "As built".
 
 **Refresh identity (MAT-175).** Every consumer that shows data — grid,
 profiles, inspector, dock windows, Chart, Suggestions — keys on one
@@ -239,7 +253,8 @@ Vite proxy, Studio on :8080): `HOWTO/run-with-docker.md`. Share / no Docker:
 origin `/api`).
 
 ## Tests
-Unit (Vitest, `tests/**/*.test.ts`) for pure logic: selection, diff
+Unit (Vitest, `tests/**/*.test.ts`, plus colocated `src/**/*.test.ts` for the
+agent terminal / attachments modules) for pure logic: selection, diff
 colouring, dock grid layout (`src/state/dockLayout.ts`, MAT-234), schema →
 editor fields, sources / alignment / workspace-manager logic, chart picker and
 prefill, save gate. Gate (`fleet gate`): lint (ESLint, with
@@ -256,6 +271,16 @@ committed copies in `docs/screenshots/t1-e2e/<flow>/` are refreshed only with
 also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
+
+## State (2026-10-04)
+Chat v2 (web #107–#112): sanitised Markdown replies, collapsed tool chips, mode /
+pack / model selector, opt-in terminal panel (xterm over `WS /api/ui/terminal`),
+read-only chat attachments. Audit wave (engine #105–#111, web #113–#118): agent
+path guard refuses `$DTK_HOME/agent`, UI token redacted in uvicorn logs, PTY
+back-pressure, idle chat sessions reaped after 5 min, bounded API-pack history,
+attachment detach (removed-while-uploading, shown and detachable chips), dev
+server reads the token from the engine runtime file, throttled streaming
+Markdown render, one agent HTTP plumbing. Earlier state below.
 
 ## State (2026-10-03)
 Agent chat panel and 16 bridge commands merged (web #86–#100, see `AGENT-BRIDGE.md`); grid

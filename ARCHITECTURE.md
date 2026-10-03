@@ -52,8 +52,9 @@ dtk_engine  ──  contract (JSON)  ──  HTTP API (dtk-api)  ──  front (
 | Layer | Repo · path | May import |
 |---|---|---|
 | Engine | `datatoolkit` · `src/dtk_engine/` | pydantic, pandas, numpy, plotly, scikit-learn, pyarrow, openpyxl, sqlalchemy, rapidfuzz, stdlib. **Never** a front. (`import dtk_engine` imports sklearn, ~1.5 s cold.) |
-| HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, FastAPI |
-| UI bridge | `datatoolkit` · `src/dtk_engine/ui_bridge.py` (pure asyncio, in-memory UI context + command relay; imported only by `http.py`, enforced in `tests/test_layers.py`) | stdlib |
+| HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, `dtk_engine.ui_bridge`, `dtk_engine.agent` (top level: the pure-Python `attachments` / `commands`; the rest lazily, only with the extra `agent`), FastAPI |
+| UI bridge | `datatoolkit` · `src/dtk_engine/ui_bridge.py` (pure asyncio, in-memory UI context + command relay; imported only by `http.py` and `agent/`, enforced in `tests/test_layers.py`) | stdlib |
+| Agent | `datatoolkit` · `src/dtk_engine/agent/` (optional extras `agent` / `agent-sdk`: MCP server, packs, chat hub, terminal, attachments; imported only by `http.py`) | `dtk_engine.contract`, `dtk_engine.ui_bridge`, `dtk_engine.errors` (`_AGENT_ALLOWED` in `tests/test_layers.py`), `mcp`, `httpx`, `claude_agent_sdk` (agent-sdk pack only), stdlib |
 | Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`FRONT-WEB.md`). **Never** the engine. |
 
 Two repos since MAT-38 (2026-09-25): the engine is a standalone package
@@ -125,8 +126,11 @@ web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
 `dtk_engine/workspace/inspect.py`:
 
 ```python
-def workspace_rows(ws, role, version=None, offset=0, limit=500, columns=None) -> dict
-    # {columns[{name,dtype,kind,semantic}], rows[... + _rid], total, version}; version = steps replayed (time travel);
+def workspace_rows(ws, role, version=None, offset=0, limit=500, columns=None, filter=None, sort=None) -> dict
+    # {columns[{name,dtype,kind,semantic}], rows[... + _rid], total, total_unfiltered, version}; version = steps replayed (time travel);
+    # filter = the filter_rows params shape {conditions, combine}; sort = [{column, desc}] (stable, NaN last);
+    # both view-only, applied after the steps and before paging; total = rows after filter, total_unfiltered = before
+    # (datatoolkit-issues#87)
     # _rid = row position in the raw (post-label, post-merge) frame, kept through row-dropping steps
     # columns: non-empty list restricts column meta + row cells to those names, in order; unknown -> KeyParamsError (MAT-152)
 def column_profiles(ws, role, version=None, columns=None) -> dict   # {columns[profile], version}

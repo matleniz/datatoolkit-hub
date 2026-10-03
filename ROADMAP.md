@@ -272,3 +272,15 @@ OpenAI-compatible), an xterm terminal for CLI packs, read-only file attachments
 (`marked`, `dompurify`, `@xterm/xterm`, `websockets`, `httpx` in the extras).
 Open: datatoolkit-issues #98, #99, #101, #103 (small).
 
+## 2026-10-04 — audit wave and hub catch-up
+Two audit leads (engine, web) checked the hub against the code and the chat v2
+code for security and robustness: 20 issues (#124–#143). Fixed and merged
+(engine #105–#111, web #113–#118): agent path guard refuses `$DTK_HOME/agent`
+(#132), UI token redacted in logs (#134, #135), PTY back-pressure (#133), idle
+chat sessions reaped (#136), bounded API-pack history (#137), bounded
+`read_attachment` (#138), one `DTK_HOME` resolver (#139); Studio attachment
+detach and chips (#128, #129), dev token from the runtime file (#98), throttled
+streaming Markdown (#131), one agent HTTP plumbing (#130), command-schema
+contract test (#103). The 9 doc proposals (#99, #124–#127, #140–#143) are
+applied in `ARCHITECTURE.md`, `FRONT-WEB.md`, `AGENT-BRIDGE.md`, `STACK.md`.
+Open: #101 (Dock Bottom width, p4), #9 (agent spike, umbrella).
