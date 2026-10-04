@@ -283,4 +283,10 @@ detach and chips (#128, #129), dev token from the runtime file (#98), throttled
 streaming Markdown (#131), one agent HTTP plumbing (#130), command-schema
 contract test (#103). The 9 doc proposals (#99, #124–#127, #140–#143) are
 applied in `ARCHITECTURE.md`, `FRONT-WEB.md`, `AGENT-BRIDGE.md`, `STACK.md`.
-Open: #101 (Dock Bottom width, p4), #9 (agent spike, umbrella).
+Post-audit check on main: full e2e 98 passed, 1 flake, 1 skipped; dogfood of
+chat v2 on the real Parkinson files with the stub pack found two visual bugs.
+Merged web #119–#122: Bottom dock windows open at half the dock width (#101),
+readable Markdown table headers (#145), agent and terminal panels shrink
+instead of pushing the tool rail off-screen (#146), the issue-88 e2e no longer
+races the 2 s touched mark (#144). Open: #9 (agent spike, umbrella: Matteo
+decides whether to close it). Queue otherwise empty.
