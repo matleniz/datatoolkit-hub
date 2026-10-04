@@ -3,7 +3,7 @@
 Run your own agent CLI (Claude Code, Gemini CLI, opencode) next to Studio. It
 talks to the engine only through the `dtk` MCP server: it sees what Studio
 shows (selection, workspace) and proposes steps that appear live in Studio.
-Local engine only (`uv`); the Docker image has no `agent` extra.
+Local engine only (`uv`): the external CLI packs and the terminal are not available in Docker (no agent CLI in the engine image; the web nginx does not proxy `/mcp` nor `/api/ui/terminal`). The in-Studio chat (`api-anthropic`, `api-openai`, `stub`) does run in Docker: see `HOWTO/run-with-docker.md`, "Agent chat (opt-in)".
 
 ```bash
 uv sync --extra agent

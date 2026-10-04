@@ -290,3 +290,11 @@ readable Markdown table headers (#145), agent and terminal panels shrink
 instead of pushing the tool rail off-screen (#146), the issue-88 e2e no longer
 races the 2 s touched mark (#144). Open: #9 (agent spike, umbrella: Matteo
 decides whether to close it). Queue otherwise empty.
+
+## 2026-10-04 (evening) — agent in Docker, engine CI
+Matteo chose to finish the spike: the in-Studio chat runs in the compose stack,
+opt-in (`DTK_AGENT=1` + `DTK_UI_TOKEN`; engine #112, web #123, issues #147,
+#148). A worker found engine `main` broken since #111 (a removed `_home()`
+still used by #105; each PR was green alone): fixed inside #112, and the
+engine now has a `ci` workflow, ruff + pytest on every PR and on `main`
+(engine #113, #149). #9 closed: phases 0-5 delivered.

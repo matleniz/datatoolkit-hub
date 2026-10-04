@@ -33,7 +33,7 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
 - No multi-user / remote hosting: local, one user, same trust zone as
   `dtk-api` (bound to 127.0.0.1) or `dtk-studio`.
 - No agent memory, RAG or auto-pilot; the user drives, the agent assists.
-- Not in the Docker image in the first phases (the uv / dev paths only).
+- Docker: the in-Studio chat is opt-in in the image since 2026-10-04 (`DTK_AGENT=1`, token required, API packs only); no CLI packs, terminal or `/mcp` there (`HOWTO/run-with-docker.md`).
 - No bundled API key, no billing of our own.
 
 ## Facts this design rests on (verified 2026-10-02)
@@ -291,7 +291,8 @@ Panel follows from the pack:
 4. **More packs** — the other chat adapter (local / OpenAI-compatible) and
    the terminal panel for CLI packs, each opt-in.
 5. **Hardening** — usage cap, review-first mode for destructive ops, engine
-   revisions if a headless writer is ever needed, Docker image story.
+   revisions if a headless writer is ever needed, Docker image story
+   (done 2026-10-04: engine #112, web #123; revisions parked on purpose).
 
 ## As built — phase 1 (engine #86, web #81, 2026-10-02)
 
@@ -395,6 +396,13 @@ server reads the token from `runtime.json` when it points at the proxied engine
 (#98), streaming Markdown re-rendered at most every 100 ms (#131), one agent
 HTTP plumbing (#130), a contract test of the command parser against
 `/api/ui/commands/schema` (#103).
+
+Docker (2026-10-04, datatoolkit-issues#147, #148; engine #112, web #123): the
+engine image installs the extra `agent`; `DTK_AGENT=1` starts `dtk-api --agent
+<pack>` with `api-anthropic` / `api-openai` / `stub` only and refuses to start
+without `DTK_UI_TOKEN` (exit 64). The web container injects the token meta at
+start (`docker/40-dtk-ui-token.sh`); nginx streams the SSE, masks `token=` in
+its log and returns 404 for `/mcp` and the terminal. Loopback port only.
 
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 
