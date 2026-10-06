@@ -38,7 +38,9 @@ is the engine repo, so use `DTK_INSTALL_DIR=~/datatoolkit-app` there.
 
 ## uv mode internals
 - `launcher/` in `datatoolkit-web`: package `dtk-studio` (hatchling), only
-  dependency `dtk-engine[api] @ git+https://github.com/matleniz/datatoolkit`
+  dependency `dtk-engine[api,pdf] @ git+https://github.com/matleniz/datatoolkit`
+  (`pdf` = pypdf: text of PDF workspace documents, #178; the Docker image
+  installs `api`, `agent` and `pdf`)
   (nothing on PyPI). One ASGI app: the engine's `create_app()` for `/api` +
   Starlette `StaticFiles(html=True)` with SPA fallback; unknown `/api/*` stays
   404. Studio still talks to the engine over HTTP only.
