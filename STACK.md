@@ -36,6 +36,8 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | Base images python:3.12-slim, node:22-alpine, nginx:alpine | engine runtime; web build stage; web static server + `/api` proxy | Dockerfiles (approved 2026-09-30) |
 | GitHub Actions + GHCR | PR smoke tests of the images, multi-arch publish of `ghcr.io/matleniz/datatoolkit-{engine,web}` | `.github/workflows/docker.yml` of both repos (approved 2026-09-30) |
 
+| pypdf | text extraction of PDF workspace documents (agent + Studio) | engine, optional extra (approved 2026-10-06, datatoolkit-issues#178) |
+
 Retired: streamlit (first front, repo `datatoolkit-streamlit` archived 2026-10-01).
 
 Planned, not yet approved: polars, duckdb
