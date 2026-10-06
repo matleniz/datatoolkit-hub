@@ -54,6 +54,29 @@ sanitised), `@xterm/xterm` + `@xterm/addon-fit` (terminal panel); approvals in
      `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
      `quantile_transform`, `spline` under Encode & transform). The same picker
      opens from the tool rail's **Transform** entry (MAT-233).
+   - **Epic #160 behaviours (2026-10-06)**:
+     **Reorder columns** (#161): drag a grid header onto another (left / right
+     half = before / after) → one `reorder_columns` step (target `both`); a
+     drag right after folds into that last step, a drag back to the input order
+     removes it; only at the latest version, no editor open, no preview pending;
+     "removed" diff columns are neither draggable nor drop targets
+     (`src/bench/grid/reorderDrag.ts`).
+     **Step ids** (#153): `s` + 8 hex minted on create, kept by replace / editor
+     apply / undo, missing ids filled on load with the engine's `s<position>`
+     rule (`src/state/stepIds.ts`); agent `propose_steps` by id rebases
+     (`staleReason` in `src/state/agentCommands.ts`, see `AGENT-BRIDGE.md`).
+     **Notes** (#152): note button on step cards and the sources card
+     (workspace note), column menu "Add / Edit note…" + header marker; popover
+     textarea (max 4,000), Save / Delete / Cancel, Ctrl+Enter saves; one Undo
+     entry per change (history snapshots steps + notes); column notes shown by
+     the viewed version's names via `POST /workspace/column-notes`, stored
+     under the origin key; notes travel in the PUT only, never in frame
+     bodies; agent `set_note` uses the same path (toast + Undo).
+     **Agent usage** (#151): panel foot shows session totals (uncached in ·
+     cache write / read · out) and the last turn with its context size; a
+     `compacted` event prints "Context compacted".
+     **Export formats** (#156): Export panel checkboxes Parquet (default) /
+     CSV / Notebook (.ipynb) / Python script (.py), sent as `formats`.
    - **Grid**: header = name, kind chip, mini histogram / top values, missing bar,
      up to 2 alerts; cells coloured missing / sentinel / outlier; preview colours
      changed / new / removed. Click header (shift or multi toggle = add), row
@@ -271,6 +294,16 @@ committed copies in `docs/screenshots/t1-e2e/<flow>/` are refreshed only with
 also asserts the workbench grid is ready in < 8 s with no duplicate
 `POST /workspace/*` request. Captures wait for real content
 (`waitForGridReady`), never a loading state.
+
+## State (2026-10-06)
+Epic datatoolkit-issues#160 (parkison agent dogfood, web #124–#128): drag a grid
+header to reorder columns (one `reorder_columns` step, consecutive drags fold
+into it, a drop on a removed diff column is ignored); stable step ids and
+`propose_steps` rebase by id with a `stale: [{id, reason}]` ack
+(`src/state/stepIds.ts`); agent usage counter splits uncached / cache write /
+cache read / out and shows a "context compacted" line; notes on steps,
+columns and the workspace (`src/bench/notes/`, icon + popover, undoable, agent
+`set_note`); Export panel format picker (parquet / csv / ipynb / py).
 
 ## State (2026-10-04)
 Chat v2 (web #107–#112): sanitised Markdown replies, collapsed tool chips, mode /

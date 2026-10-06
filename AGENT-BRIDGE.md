@@ -101,13 +101,16 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
 | `get_rows`, `get_profiles` | `workspace_rows`, `column_profiles` | rows capped (default 50, max 500), columns filter |
 | `preview_step`, `align_report`, `source_columns` | same | dry runs, no write |
 | `preview_steps`, `evaluate` | same | dry run of a LIST of steps; stats of formula expressions at a version or after draft steps (#155) — the agent's scratch space, nothing reaches Studio |
+| `get_notes` | `column_notes` + workspace | workspace / step (by id) / column notes, renames followed (#152) |
+| `set_note` | UI bridge → Studio | write or clear a note, one undo entry (#152) |
+| `export_workspace` | same | formats ipynb (default) / py / csv / parquet, only into `$DTK_HOME/exports/<workspace>`, no path from the agent (#156) |
 | `get_ui_context` | UI bridge | also published as MCP resource `studio://context` |
 | `propose_steps` | UI bridge → Studio | add / replace / remove steps; Studio applies through the reducer (undoable) and acks |
 | `open_window`, `select_columns`, `set_view` | UI bridge → Studio | `ToolId` + params, columns, role / version |
 
   Not exposed: `save_workspace`, `delete_workspace`, `rename_workspace`,
-  `duplicate_workspace`, uploads; `export_workspace` only later and only into
-  `$DTK_HOME/exports/` (decision in the security sub-issue).
+  `duplicate_workspace`, uploads. `export_workspace` is exposed since #156, only
+  into `$DTK_HOME/exports/<workspace>`.
 - Tool descriptions and input schemas come from the contract itself
   (`key_schema`, `transform_schema`), so a new key or op is an agent tool
   argument with no bridge change.
@@ -444,7 +447,7 @@ its log and returns 404 for `/mcp` and the terminal. Loopback port only.
 | Confirmation UX | apply at once + Undo toast; destructive ops (remove step, drop rows / columns) reviewed first | #63 |
 | MCP library | official `mcp` Python SDK, optional extra `agent`, in the engine repo next to `http.py` | #64 |
 | Agent read scope | workspace datasets + any file under `$DTK_HOME` except `$DTK_HOME/agent` (since #132); `sql` sources refused | #65 |
-| Export tool | not exposed in phases 2–4 | #65 |
+| Export tool | not exposed in phases 2–4; exposed since 2026-10-06 into `$DTK_HOME/exports/<workspace>` only (#156) | #65 |
 | Default row cap | 50 rows | #65 |
 | External packs | Claude Code, gemini and opencode together; generated configs turn the CLI's built-in tools off where possible | #66 |
 | First in-Studio pack | chat panel + Claude Agent SDK (`claude-agent-sdk`, extra `agent-sdk`; auth terms checked at implementation); then the provider-agnostic chat backend, terminal pack opt-in last | #67 |

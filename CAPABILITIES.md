@@ -44,6 +44,9 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | front: export button, apply result steps, needs_target, clean errors | front | finish the loop analyse → apply → export from the UI | done — MAT-91/92/93 |
 | front: column selectors, dataset input (any format, upload, options), workspace target prefill | front | analyse a personal dataset end to end without typing column names or JSON | done — MAT-98, MAT-102, MAT-118 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
+| export formats: notebook (`.ipynb`), Python script, CSV; agent export tool | pipeline | replayable notebook with the notes as markdown; agent writes only under `$DTK_HOME/exports/<ws>` | done — datatoolkit-issues#156 |
+| notes on steps, columns (renames followed) and the workspace | workspace | keep findings next to what they justify; agent reads / writes them | done — datatoolkit-issues#152 |
+| `impute_benchmark` key; agent scratch space (`preview_steps`, `evaluate`) | analysis / agent | compare imputations on masked known values; explore without touching the pipeline | done — datatoolkit-issues#159, #155 |
 | `align_to_train` complete (median / robust / quantile modes, per-group, small-frame guard) | transform | realign a shifted test column on train's distribution | done — MAT-58 |
 | `feature_selection` key + selection ops (`drop_low_variance`, `drop_correlated`, `select_k_best`, `select_from_model`, `pca`) | analysis / transform | which columns to keep; reduce width without leak | done — MAT-56 |
 | step preview without store write (`preview_workspace`) | contract / front | before / after of a pending step, no scratch workspace | done — MAT-55 |

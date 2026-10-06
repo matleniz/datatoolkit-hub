@@ -15,7 +15,9 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
    `target_analysis(df, target, ...)`, `correlations`, `chart(df, chart="histogram",
    **params)`, `preview_workspace`, `advise(df, test=None, model_family=None,
    target=None)`, `transform(df, op, **params)`, `list_transforms()`,
-   `export_workspace(name, out_dir, overwrite=False, store=None)`. DataFrame in → `Result` (displayed in Jupyter via
+   `export_workspace(name, out_dir, overwrite=False, store=None, formats=None)`,
+   `workspace_frames(sources)` (raw train / test from a workspace's `{datasets, label,
+   merges}`, what an exported notebook starts from). DataFrame in → `Result` (displayed in Jupyter via
    `_repr_html_`) or DataFrame out. Keys and api share the same builders
    (`overview_result`, `check_result`), no duplication.
 3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, **params)`
@@ -42,6 +44,12 @@ is a source is refused). An existing export needs `overwrite=True`, which
 deletes only the files **our** manifest listed, validated first (relative,
 inside `processed/` or `states/`; a manifest without the `dtk_engine` marker is
 refused).
+`formats` (datatoolkit-issues#156) picks the outputs: `parquet` (default), `csv`
+(`processed/*.csv`), `ipynb` and `py` (`code/pipeline.*`: a replay of the steps
+through the notebook door, `api.workspace_frames` + `DtkTransformer`, step and
+column notes as markdown / comments; `.ipynb` is hand-built nbformat 4.5 JSON,
+no dependency). The manifest adds `formats` and `outputs.{train_csv, test_csv,
+notebook, script}`; `code/` is an owned dir for `overwrite`.
 
 ## Layers
 
@@ -106,8 +114,8 @@ def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
     # {"shape": [rows, cols], "columns": [...], "head": records}; bad role / invalid ws -> KeyParamsError
 
 # export (see "Export" above)
-def export_workspace(name: str, out_dir: str, overwrite: bool = False) -> dict
-    # writes processed parquet + manifest.json, returns the manifest; unknown -> WorkspaceNotFoundError;
+def export_workspace(name: str, out_dir: str, overwrite: bool = False, formats: list[str] | None = None) -> dict
+    # writes the chosen formats (parquet default, csv, ipynb, py) + manifest.json, returns the manifest; unknown -> WorkspaceNotFoundError;
     # existing export without overwrite / output == raw input -> KeyParamsError; source or step failing on the data -> SourceError;
     # unknown step op -> UnknownTransformError, invalid step params -> KeyParamsError
 ```
@@ -336,10 +344,18 @@ workspace "parkinson"
     train : X = SourceSpec   y = SourceSpec | null   (or target column already in X)
     test  : X = SourceSpec   y = null
   label   : mode "order" (y has one column, same row count) | "key" (common column)
-  steps   : [ {op, target: train|test|both, params}, ... ]   ← full trace
+  steps   : [ {id, op, target: train|test|both, params, note?}, ... ]   ← full trace
+  notes   : {workspace: text?, columns: {origin name: text}}   # free text, max 4,000 chars
   charts  : [ {name, params}, ... ]   # saved chart-key params (minus source); unique names
 ```
 
+- **Step ids and notes** (datatoolkit-issues#153, #152): a step `id` (`s` +
+  opaque text) names its pipeline slot, kept on replace; ids missing in an
+  older workspace read `s<position>`. Notes are not data: `id` and `note` stay
+  out of the cache key and the data identity. A column note is keyed by the
+  column's origin name; `contract.column_notes` / `POST
+  /api/workspace/column-notes` resolve names at a version through `rename` /
+  `rename_columns_bulk`.
 - **Current state = sources + steps replayed in order.** Undo = drop the last
   step and replay. The step log *is* the future reproducible pipeline (add input
   hashes + versions → run manifest).
