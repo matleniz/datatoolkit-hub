@@ -14,6 +14,7 @@ test, never refitted on test).
 |---|---|---|---|
 | `cast` | — | Cast columns to the given dtypes; a failing conversion raises. | `dtypes` |
 | `clip` | yes | Clip columns to percentile bounds learned on train (state: bounds). | `columns`, `lower`, `upper` |
+| `copy_column` | — | Duplicate a column under a new name, optionally placed first / last / before / after an anchor (same semantics as `reorder_columns`); refuses an existing name. | `column`, `name`, `position`, `anchor` |
 | `drop_columns` | — | Remove the listed columns. | `columns`, `missing_ok` |
 | `drop_duplicates` | — | Drop duplicate rows, keeping first/last by an explicit sort order. | `subset`, `keep`, `sort_by` |
 | `drop_high_missing` | yes | Drop columns whose train missing fraction exceeds a threshold (state: dropped); same columns dropped on train and test; never drops `target`. | `threshold`, `exclude`, `target` |
@@ -23,7 +24,12 @@ test, never refitted on test).
 | `parse_dates` | — | Parse columns to datetime; unparseable values raise, never become NaT. | `columns`, `format` |
 | `reorder_columns` | — | Move the listed columns (kept in the given order) to the start, the end, or just before / after an anchor column; the other columns keep their relative order. Stateless; never a full explicit order, so it survives columns added upstream. | `columns`, `position`, `anchor`, `missing_ok` |
 | `rename` | — | Rename columns via an old -> new mapping. | `mapping`, `missing_ok` |
+| `rename_columns_bulk` | — | Rewrite column names by rule (lower / upper / snake_case / strip), then add a prefix / suffix; `columns` empty = all; resulting duplicate names raise. `rename` stays the explicit old -> new mapping. | `rule`, `prefix`, `suffix`, `columns`, `missing_ok` |
 | `replace_sentinels` | — | Turn sentinel values (-999, 'N/A', ...) into NaN, per column. | `sentinels` |
+| `replace_values` | — | Recode explicit values per column (`{column: {old: new}}`, new may be null → NaN), simultaneous (a↔b swap works). Keys are JSON strings: numeric match on numeric columns ('1' matches 1 and 1.0), 'true' / 'false' on booleans, exact text otherwise; two keys matching one value raise. | `mapping` |
+| `sample_rows` | — | Keep the first rows (`head`) or a seeded random subsample in original order; exactly one of `n` / `frac`; `random_state` required for `random`. Rows keep their `_rid`. Prefer target `train` (sampling test changes what is scored). | `mode`, `n`, `frac`, `random_state` |
+| `select_columns` | — | Keep only the listed columns, in the given order (survives columns added upstream, unlike `drop_columns` of the rest). | `columns`, `missing_ok` |
+| `sort_rows` | — | Stable sort by one or more columns; rows keep their `_rid`, only reordered. | `by`, `ascending`, `na_position` |
 | `standardize_text` | — | Strip / lowercase text columns, collapse separators (`-`/`_`/`.`/repeated whitespace) into a single space, and map variants to canonical values. | `columns`, `strip`, `lower`, `unify_separators`, `mapping` |
 | `to_numeric` | — | Parse text numbers (currency symbols/codes, thousands / decimal separators, percent signs) to float. | `columns`, `decimal`, `thousands`, `percent`, `errors` |
 
