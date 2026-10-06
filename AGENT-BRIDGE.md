@@ -100,6 +100,7 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
 | `list_workspaces`, `get_workspace` | `list_workspace_summaries`, `get_workspace` | read-only |
 | `get_rows`, `get_profiles` | `workspace_rows`, `column_profiles` | rows capped (default 50, max 500), columns filter |
 | `preview_step`, `align_report`, `source_columns` | same | dry runs, no write |
+| `preview_steps`, `evaluate` | same | dry run of a LIST of steps; stats of formula expressions at a version or after draft steps (#155) — the agent's scratch space, nothing reaches Studio |
 | `get_ui_context` | UI bridge | also published as MCP resource `studio://context` |
 | `propose_steps` | UI bridge → Studio | add / replace / remove steps; Studio applies through the reducer (undoable) and acks |
 | `open_window`, `select_columns`, `set_view` | UI bridge → Studio | `ToolId` + params, columns, role / version |
@@ -403,6 +404,35 @@ engine image installs the extra `agent`; `DTK_AGENT=1` starts `dtk-api --agent
 without `DTK_UI_TOKEN` (exit 64). The web container injects the token meta at
 start (`docker/40-dtk-ui-token.sh`); nginx streams the SSE, masks `token=` in
 its log and returns 404 for `/mcp` and the terminal. Loopback port only.
+
+## As built — epic #160, parkison dogfood fixes (engine #118, #119, #125, #127, 2026-10-06)
+
+- **Preview size** (#154): `preview_step` returns an object (never JSON in a
+  string); `changed`, `removed_rids`, fitted `state` cut to 20 items (200 with
+  `detail: true`), column lists to 200, `elided` gives full lengths. An
+  oversize result is shrunk list by list; `DTK_AGENT_MAX_CHARS` default 50k.
+- **Stable step ids** (#153): `Step.id` = `s` + opaque text, kept on replace;
+  a workspace without ids reads `s<position>` deterministically until saved.
+  Ids never enter the data identity nor the cache keys. `propose_steps` ops
+  `{replace: {id, step}}`, `{remove: {id}}`, `{add}` (appends); the tool layer
+  fills `base_steps {id: {op, target, params}}` the agent last saw. Rule
+  (Matteo): **rebase by id** — applies while every targeted id exists and is
+  unchanged, else ack `stale: [{id, reason: removed|changed}]`; acks carry
+  `added_ids`. Index ops keep the old base_identity rule (legacy).
+  Every tool result carries `identity` and, after a user-side edit,
+  `workspace_changes` (added / removed / changed ids, reviewed proposals).
+- **Context economy** (#151): each turn is prefixed with a `[Studio: …]` note
+  (view, identity, full step list on the first turn, then only the changes);
+  `get_profiles` (no `columns`), `align_report`, `list_keys`,
+  `list_transforms` compact unless `detail: true`. `usage` events split
+  `uncached_input_tokens` / `cache_creation_input_tokens` /
+  `cache_read_input_tokens` / `output_tokens` + `context_tokens`. History
+  compaction for the agent-sdk pack (Matteo): CLI auto-compact via
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, default ~60k, `DTK_AGENT_COMPACT_AT`.
+- **Scratch space** (#155, Matteo: stateless, no draft branch):
+  `preview_steps` (≤ 50 steps, in memory, per-step state) and `evaluate`
+  (≤ 20 expressions, `where` row filter, `count, missing, mean, std, min,
+  q25, median, q75, max, sum`). The system prompt forbids temporary steps.
 
 ## Decisions (Matteo, 2026-10-02 — all recommendations taken)
 
