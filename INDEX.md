@@ -44,5 +44,6 @@
 | `target_analysis` | analysis | `KEYS/target_analysis.md` |
 | `correlations` | analysis | `KEYS/correlations.md` |
 | `chart` | analysis | `KEYS/chart.md` |
+| `impute_benchmark` | analysis | `KEYS/impute_benchmark.md` |
 
 New key → copy `KEYS/_template.md`, add a row here.

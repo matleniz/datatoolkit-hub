@@ -21,6 +21,7 @@ test, never refitted on test).
 | `extract` | — | Pull named regex groups from a text column into new typed columns (numeric-looking groups cast to float); pattern length capped at 256 (stdlib `re`, no match timeout). | `column`, `pattern`, `prefix`, `errors` |
 | `filter_rows` | — | Keep the rows matching the conditions (no free-form expressions). | `conditions`, `combine` |
 | `parse_dates` | — | Parse columns to datetime; unparseable values raise, never become NaT. | `columns`, `format` |
+| `reorder_columns` | — | Move the listed columns (kept in the given order) to the start, the end, or just before / after an anchor column; the other columns keep their relative order. Stateless; never a full explicit order, so it survives columns added upstream. | `columns`, `position`, `anchor`, `missing_ok` |
 | `rename` | — | Rename columns via an old -> new mapping. | `mapping`, `missing_ok` |
 | `replace_sentinels` | — | Turn sentinel values (-999, 'N/A', ...) into NaN, per column. | `sentinels` |
 | `standardize_text` | — | Strip / lowercase text columns, collapse separators (`-`/`_`/`.`/repeated whitespace) into a single space, and map variants to canonical values. | `columns`, `strip`, `lower`, `unify_separators`, `mapping` |
@@ -63,7 +64,7 @@ test, never refitted on test).
 | `cyclical` | — | Encode a cyclic column as '<col>_sin' and '<col>_cos'. | `column`, `period` |
 | `datetime_parts` | — | Extract hour / dayofweek / month / year / is_weekend from a datetime column. | `column`, `parts` |
 | `derive` | — | Add a column combining two columns (ratio, difference, product, days_between). | `a`, `b`, `op`, `name`, `min_denominator` |
-| `group_agg` | yes | Join per-group statistics (fitted on train) onto each row. | `group`, `value`, `aggs`, `target` |
+| `group_agg` | yes | Join per-group statistics (fitted on train) onto each row: `mean` / `std` / `count` / `median` / `min` / `max`, and `first` / `last` (first / last observed value in `order`; rows with a missing `order` ignored). | `group`, `value`, `aggs`, `order`, `target` |
 | `interactions` | — | Add pairwise products '<a>*<b>' of the listed columns. Superseded by `polynomial` for new steps (kept for backward compat of saved workspaces). | `columns`, `interaction_only` |
 | `polynomial` | yes | Replace numeric columns by a `PolynomialFeatures` expansion; readable names (`a^2`, `a*b`); refuses when output width exceeds `max_output_columns`. | `columns`, `degree`, `interaction_only`, `include_bias`, `max_output_columns` |
 | `power_transform` | yes | Power-map columns in place (Yeo-Johnson / Box-Cox), fitted on train. | `columns`, `method`, `standardize` |
@@ -93,7 +94,7 @@ name for fit only.
 
 | Op | Fitted | What it does | Params |
 |---|---|---|---|
-| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables`, the constant `pi`, and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull (comparisons → 0/1), and the within-entity `group_mean(x, by=col)`, `group_prev(x, by=col, order=expr)`, `group_interp(x, by=col, order=expr)` (computed per frame; the only keyword arguments; `by=` names a column). | `name`, `expr`, `variables` |
+| `formula` | yes (variables) | New / replaced column from an expression over columns, numbers, `@variables`, the constant `pi`, and log / log1p / log2 / log10 / exp / sqrt / abs / round / min / max / sin / cos / tanh / floor / ceil / sign / square / clip / where / isnull, and the NaN-aware isna / notna (0/1, never NaN) / fillna(x, v) (comparisons → 0/1; `where(c, a, b)` returns NaN when `c` is NaN, so test missingness first, e.g. `where(isna(x), y - 5.6, x)`), and the within-entity `group_mean(x, by=col)`, `group_prev(x, by=col, order=expr)`, `group_interp(x, by=col, order=expr)` (computed per frame; the only keyword arguments; `by=` names a column). | `name`, `expr`, `variables` |
 
 The only free-form expression in the toolkit (approved 2026-09-27): parsed with
 Python `ast` against a node whitelist, never `eval`. `variables` =
@@ -148,6 +149,11 @@ exported as sklearn pipelines, so they stay a safe, deterministic subset.
   maps above 1 with minmax — on purpose); constant column → scale 1.
 - `clip` bounds and `bin(mode=qcut)` edges are fitted on train.
 - `group_agg` refuses to aggregate the declared `target` (leak); unseen groups → NaN.
+- `reorder_columns` (datatoolkit-issues#161): `position` = first | last | before | after;
+  `anchor` required for before / after, forbidden otherwise, never one of the moved
+  columns (rejected at parse); `columns` must not repeat. `missing_ok` applies to
+  `columns` only (as `drop_columns`); a missing `anchor` always raises, so train and
+  test cannot silently diverge.
 - `derive(days_between)` and `datetime_parts` coerce unparseable dates to NaT —
   run `parse_dates` first (it raises) if the column may be dirty.
 - `align_to_train` (MAT-58): modes `shift_mean`, `shift_median`, `standardize`
