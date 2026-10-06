@@ -427,7 +427,14 @@ its log and returns 404 for `/mcp` and the terminal. Loopback port only.
   characters. UI commands `remember {text, kind?, memory_id?}` / `forget
   {memory_id}` (field `memory_id`, `id` is the relay's), tool `get_memory`.
   Documents and memory are injected once per conversation and workspace,
-  after the `[Studio: …]` note. Studio: Memory view in the agent panel (list,
+  after the `[Studio: …]` note.
+  Ids are never reused (#180): `Workspace.id_counters {m, d}` keeps the
+  highest number handed out; the engine takes the stored counters as a floor
+  on save and Studio mints above them (undo restores the counter).
+- **Key catalogue and ack semantics** (#180): the once-per-conversation intro
+  note starts with `[Analysis keys (run_key; key_schema for params): …]`
+  generated from `list_keys` (~80 tokens); write tools state that an ok ack
+  means Studio has saved the change, so store reads see it. Studio: Memory view in the agent panel (list,
   edit, delete, clear); every change is one Undo entry.
 
 ## As built — epic #160, parkison dogfood fixes (engine #118, #119, #125, #127, 2026-10-06)
