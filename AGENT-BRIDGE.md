@@ -32,7 +32,8 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
   agent-free; the bridge is an optional layer like the HTTP API.
 - No multi-user / remote hosting: local, one user, same trust zone as
   `dtk-api` (bound to 127.0.0.1) or `dtk-studio`.
-- No agent memory, RAG or auto-pilot; the user drives, the agent assists.
+- No RAG or auto-pilot; the user drives, the agent assists. A small curated
+  per-workspace memory exists since #179 (below), not a retrieval system.
 - Docker: the in-Studio chat is opt-in in the image since 2026-10-04 (`DTK_AGENT=1`, token required, API packs only); no CLI packs, terminal or `/mcp` there (`HOWTO/run-with-docker.md`).
 - No bundled API key, no billing of our own.
 
@@ -407,6 +408,27 @@ engine image installs the extra `agent`; `DTK_AGENT=1` starts `dtk-api --agent
 without `DTK_UI_TOKEN` (exit 64). The web container injects the token meta at
 start (`docker/40-dtk-ui-token.sh`); nginx streams the SSE, masks `token=` in
 its log and returns 404 for `/mcp` and the terminal. Loopback port only.
+
+## As built — workspace documents and agent memory (engine #133, #134; web #130, #131, 2026-10-06)
+
+- **Documents** (#178, Matteo: Sources card section, PDF included):
+  `Workspace.documents` (≤ 50) = `{id: d<n>, name, path (upload ref,
+  content-addressed, never copied), mime, size, kind: text|pdf|table|other,
+  added_at, note?}`. Every read re-resolves the path under the upload dir
+  (symlinks followed; outside → refused). Text ≤ 1 MB; PDF text through the
+  optional extra `pdf` (`pypdf`, ≤ 50 MB / 500 pages; without it a PDF is
+  listed, not read); a table document is read with the usual tools on its
+  `source` spec. Agent: `list_documents`, `read_document` (sliced, framed as
+  data), UI command `keep_attachment` (a chat attachment becomes a document,
+  ack carries `document_id`). Export lists documents in the manifest.
+- **Agent memory** (#179, Matteo: in the workspace JSON, agent writes freely
+  with toast + Undo): `Workspace.memory` = `{id: m<n>, text ≤ 500, kind:
+  fact|decision|preference|todo, updated_at}`, ≤ 100 entries / 8,000
+  characters. UI commands `remember {text, kind?, memory_id?}` / `forget
+  {memory_id}` (field `memory_id`, `id` is the relay's), tool `get_memory`.
+  Documents and memory are injected once per conversation and workspace,
+  after the `[Studio: …]` note. Studio: Memory view in the agent panel (list,
+  edit, delete, clear); every change is one Undo entry.
 
 ## As built — epic #160, parkison dogfood fixes (engine #118, #119, #125, #127, 2026-10-06)
 

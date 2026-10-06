@@ -54,6 +54,13 @@ sanitised), `@xterm/xterm` + `@xterm/addon-fit` (terminal panel); approvals in
      `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
      `quantile_transform`, `spline` under Encode & transform). The same picker
      opens from the tool rail's **Transform** entry (MAT-233).
+   - **Documents and agent memory (2026-10-06, #178, #179)**: a Documents
+     section in the Sources card (upload by button or drag and drop, open /
+     download, note, remove; PDF text when the engine has the `pdf` extra); a
+     Memory view in the agent panel (list, edit, delete, clear). Notes,
+     documents and memory travel in the workspace PUT (the Sources save keeps
+     them) and each change is one Undo entry. The step picker lists every
+     engine op, including the #162–#167 basics (`src/bench/stages.ts`).
    - **Epic #160 behaviours (2026-10-06)**:
      **Reorder columns** (#161): drag a grid header onto another (left / right
      half = before / after) → one `reorder_columns` step (target `both`); a

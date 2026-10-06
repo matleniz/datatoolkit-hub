@@ -45,6 +45,7 @@ Status: `planned` (agreed direction) · `in progress` · `done` (card in `KEYS/`
 | front: column selectors, dataset input (any format, upload, options), workspace target prefill | front | analyse a personal dataset end to end without typing column names or JSON | done — MAT-98, MAT-102, MAT-118 |
 | `preprocessing_advisor` + workspace export (parquet + manifest) | analysis / pipeline | per-column recommendation → op; reproducible, provenance-tracked output | done — MAT-47 |
 | export formats: notebook (`.ipynb`), Python script, CSV; agent export tool | pipeline | replayable notebook with the notes as markdown; agent writes only under `$DTK_HOME/exports/<ws>` | done — datatoolkit-issues#156 |
+| workspace documents (text / markdown / csv / PDF) readable by the user and the agent; per-workspace agent memory across chat sessions | workspace / agent | reference material and session-spanning context kept with the project | done — datatoolkit-issues#178, #179 |
 | notes on steps, columns (renames followed) and the workspace | workspace | keep findings next to what they justify; agent reads / writes them | done — datatoolkit-issues#152 |
 | `impute_benchmark` key; agent scratch space (`preview_steps`, `evaluate`) | analysis / agent | compare imputations on masked known values; explore without touching the pipeline | done — datatoolkit-issues#159, #155 |
 | `align_to_train` complete (median / robust / quantile modes, per-group, small-frame guard) | transform | realign a shifted test column on train's distribution | done — MAT-58 |
