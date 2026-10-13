@@ -409,6 +409,43 @@ without `DTK_UI_TOKEN` (exit 64). The web container injects the token meta at
 start (`docker/40-dtk-ui-token.sh`); nginx streams the SSE, masks `token=` in
 its log and returns 404 for `/mcp` and the terminal. Loopback port only.
 
+## As built — agent improvements from real usage (order #183, engine #136–#145, 2026-10-13)
+
+Report: `reports/2026-10-13-agent-review.md` (Matteo's 2026-10-12 session: 48
+steps, 4 compactions at ~67k, 39 notes all written on request).
+
+- **Op discovery** (#185): compact `list_transforms` keeps a one-line summary
+  per op (~6.3k chars for 45 ops).
+- **Prompt** (#186): one step per user decision with the highest-level op, no
+  helper columns in the pipeline (explore with `preview_steps` / `evaluate`),
+  a note on every added step, a column note on created columns, a workspace
+  log line when a topic closes, working facts in memory, long pasted
+  references kept as documents.
+- **Workspace re-intro after a compaction** (#188): `ChatSession.reintro`,
+  set on the SDK `compact_boundary` and when an API pack drops turns; the next
+  turn gets the first-turn note (full step list) and the intro again.
+- **Compaction threshold** (#193): the claude CLI (2.1.296) floors
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW` at 100k and fires ~33k below it, so the
+  old 60k default really meant ~67k. Default now = 50% of the model's window
+  (learnt per model from `modelUsage.contextWindow` into
+  `$DTK_HOME/agent/model-windows.json`; 1M for Opus 5.5) clamped to
+  [100k, 200k] (100k until known) → trigger ~167k on Opus.
+  `DTK_AGENT_COMPACT_AT` = tokens, `NN%` or `off` overrides. Trade-off: ~2.5x
+  more context per call (mostly cache reads, ~0.1x); `150000` is the middle.
+- **Lighter reads** (#192): `get_workspace` compact by default (one line per
+  step, note heads), `detail: true` for all; `get_notes` caps texts at 200
+  chars, `full`, `step_id`, `columns` to narrow.
+- **Bridge** (#190): `send_command` waits `DTK_UI_RECONNECT_GRACE` (default
+  3 s) for a reconnecting Studio before `no_studio`; unread commands are
+  redelivered.
+- **Ops**: `formula` refuses text columns by name, accepts `col == "text"` /
+  `col != "text"` and raw `isna` / `notna` on text (#189); `onehot`
+  `missing: true` adds `<col>_missing` (#191); `impute` keeps integer dtypes
+  (`int64`, or `Int64` when NaN remains) when every value is integral (#196
+  part 2; existing workspaces: same values, integer dtype).
+- **Not merged**: engine #140 (optional `note` on proposed steps, #187) waits
+  for its Studio half (Studio drops `step.note` today).
+
 ## As built — workspace documents and agent memory (engine #133, #134; web #130, #131, 2026-10-06)
 
 - **Documents** (#178, Matteo: Sources card section, PDF included):
@@ -460,7 +497,8 @@ its log and returns 404 for `/mcp` and the terminal. Loopback port only.
   `uncached_input_tokens` / `cache_creation_input_tokens` /
   `cache_read_input_tokens` / `output_tokens` + `context_tokens`. History
   compaction for the agent-sdk pack (Matteo): CLI auto-compact via
-  `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, default ~60k, `DTK_AGENT_COMPACT_AT`.
+  `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, default ~60k, `DTK_AGENT_COMPACT_AT`
+  (superseded 2026-10-13 by #193, see below: the CLI floors the window at 100k).
 - **Scratch space** (#155, Matteo: stateless, no draft branch):
   `preview_steps` (≤ 50 steps, in memory, per-step state) and `evaluate`
   (≤ 20 expressions, `where` row filter, `count, missing, mean, std, min,
