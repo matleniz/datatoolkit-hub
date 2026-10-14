@@ -54,6 +54,11 @@ sanitised), `@xterm/xterm` + `@xterm/addon-fit` (terminal panel); approvals in
      `+ Step` opens the step picker (also lists `polynomial`, `power_transform`,
      `quantile_transform`, `spline` under Encode & transform). The same picker
      opens from the tool rail's **Transform** entry (MAT-233).
+   - **2026-10-14 (#196, #194)**: Sources target card has a "Keep target
+     column last" toggle (`Workspace.label_last`, default off, undoable, part
+     of the data identity); in the agent panel a paste over 4000 characters
+     becomes a text chat attachment (`src/bench/agent/attachments/pasteAttach.ts`),
+     kept as a workspace document only on request.
    - **Documents and agent memory (2026-10-06, #178, #179)**: a Documents
      section in the Sources card (upload by button or drag and drop, open /
      download, note, remove; PDF text when the engine has the `pdf` extra); a
