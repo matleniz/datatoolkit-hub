@@ -23,7 +23,7 @@
 | Web front "Studio" (screens, tests) | `~/datatoolkit-web-hub` (separate hub) |
 | What was done when, what's next | `ROADMAP.md` |
 | Course section → capability → Linear issue | `COURSE-MAP.md` |
-| Past QA runs (historical, findings already filed) | `reports/` |
+| Past QA runs and E2E transcripts (findings already filed) | `reports/` |
 
 ## Keys (one card each — open only the one you need)
 
