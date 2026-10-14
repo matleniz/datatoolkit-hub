@@ -253,7 +253,7 @@ rail and Suggestions call a fixed list of keys). Switching front = implement
 `HOWTO/add-a-front.md`, touch nothing in the engine. Deployment: nginx + engine
 containers (`HOWTO/run-with-docker.md`), or `dtk-studio` (datatoolkit-web
 `launcher/`), which mounts the engine's `create_app()` and Studio's static build
-in one ASGI app (`HOWTO/share-and-run.md`); either way Studio talks to the
+in one ASGI app (launcher `dtk-studio`, web hub); either way Studio talks to the
 engine over HTTP only.
 
 ## Engine internals: sources → ops → keys

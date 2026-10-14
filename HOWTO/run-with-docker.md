@@ -1,6 +1,6 @@
 # How to run datatoolkit with Docker (engine + Studio, one command)
 
-To share it, use the launcher (`HOWTO/share-and-run.md`): one line, Docker when
+To share it, use the launcher (web hub `HOWTO/share-and-run.md`): one line, Docker when
 usable, else uv, and it opens the browser. Raw compose, by hand: any machine
 with Docker (Docker Engine on Linux, Docker Desktop on macOS / Windows), no
 clone, no Python or Node:

@@ -16,10 +16,8 @@
 | Adding a transform op (workspace step / sklearn) | `HOWTO/add-a-transform.md` |
 | Which transform ops exist, what they fit, their params | `TRANSFORMS.md` |
 | Adding / switching a front | `HOWTO/add-a-front.md` |
-| Sharing / running anywhere: one-line launcher, Docker or uv (no Docker) | `HOWTO/share-and-run.md` |
 | In-Studio agent: MCP server over the contract, UI-context protocol, packs, security | `AGENT-BRIDGE.md` |
 | Plug your own agent CLI (Claude Code / gemini / opencode) into Studio | `HOWTO/plug-an-agent.md` |
-| Try the Studio agent chat (launch, scenarios, checklist) | `HOWTO/try-the-agent.md` |
 | Docker internals (GHCR images, compose, nginx, CI smoke) | `HOWTO/run-with-docker.md` |
 | HTTP API `dtk-api`: routes, errors, UI bridge auth | `HTTP-API.md` |
 | Web front "Studio" (screens, tests) | `~/datatoolkit-web-hub` (separate hub) |
