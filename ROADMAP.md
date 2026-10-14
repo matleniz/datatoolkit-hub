@@ -298,3 +298,13 @@ opt-in (`DTK_AGENT=1` + `DTK_UI_TOKEN`; engine #112, web #123, issues #147,
 still used by #105; each PR was green alone): fixed inside #112, and the
 engine now has a `ci` workflow, ruff + pytest on every PR and on `main`
 (engine #113, #149). #9 closed: phases 0-5 delivered.
+
+## 2026-10-15 — night: first-time-user pass, hub split
+Web docs moved to `~/datatoolkit-web-hub`; the engine HTTP reference is now
+`HTTP-API.md`. Baseline abae4fe green (ruff, pytest 1620). Scout review
+(#223-#226) and a fresh-venv E2E through Python, HTTP and MCP
+(`reports/2026-10-15-first-user-e2e.md`, #227-#233). Merged engine #157
+(#224 #227 #228: missing extra = one-line install hint, README extras +
+CSV quickstart), #158 (#223 #225: bad JSON body 422, `--port` validated),
+#159 (#231 #230: errors list valid names, MCP path refusal says how to fix).
+Open: #226, #229, #232, #233.

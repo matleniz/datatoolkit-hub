@@ -32,11 +32,16 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 500 for
-`WorkspaceCorruptError` (an unreadable workspace file, #206). A params
+`WorkspaceCorruptError` (an unreadable workspace file, #206). A malformed, non-UTF-8 or empty JSON body gives 422
+`KeyParamsError` ("request body is not valid JSON: …", #223). Unknown key,
+unknown param and missing column messages list the valid names (capped at 20,
+close match first, #231). A params
 validation failure gives a concise `message` (`<loc>: <msg>; …`, never the
 pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). CORS allows the
 Vite dev origin (localhost / 127.0.0.1 :5173) plus `DTK_CORS_ORIGINS`
-(comma-separated). `dtk-api --port 8765` runs uvicorn.
+(comma-separated). `dtk-api --port 8765` runs uvicorn; `--port` outside 1..65535 is a usage error,
+exit 2 (#225). Without the `api` extra, `dtk-api` prints the install command
+and exits 1 (#224).
 
 **UI bridge auth (datatoolkit-issues#62, #63).** The `/ui/*` routes need the
 per-run token (`Authorization: Bearer`, or `?token=` for `EventSource` and the
