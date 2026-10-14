@@ -432,6 +432,12 @@ steps, 4 compactions at ~67k, 39 notes all written on request).
   [100k, 200k] (100k until known) → trigger ~167k on Opus.
   `DTK_AGENT_COMPACT_AT` = tokens, `NN%` or `off` overrides. Trade-off: ~2.5x
   more context per call (mostly cache reads, ~0.1x); `150000` is the middle.
+  Fix #204 (engine #149): #193 still passed the threshold itself as the CLI
+  *window*, so compaction fired 33k early (~67k with the 100k default, seen 3x
+  in the #195 replay). The pack now passes `window = max(threshold + 33k,
+  100k)` capped at the model window, so the CLI's `autoCompactThreshold` equals
+  the documented threshold (100k → 100k, 150k → 150k, read from the real CLI);
+  thresholds under 67k are not reachable with this CLI.
 - **Lighter reads** (#192): `get_workspace` compact by default (one line per
   step, note heads), `detail: true` for all; `get_notes` caps texts at 200
   chars, `full`, `step_id`, `columns` to narrow.
