@@ -130,7 +130,9 @@ step fails on the data; raised unchanged by `run_key`). An unknown step op is
 `SourceError` (MAT-84). `WorkspaceCorruptError` (`dtk_engine.workspace`): a
 workspace file is unreadable (not JSON, wrong shape, or a `version` the engine
 does not know); short message, no absolute path (datatoolkit-issues#206).
-`list_workspaces` still fails as a whole on one such file (#215, open).
+`list_workspaces` / `list_workspace_summaries` list such a file as
+`{name, corrupt: true, error}` and return the others (datatoolkit-issues#215;
+Studio handling: #217). "Unsupported version" is said only for an int `version`.
 Source readers turn an empty / truncated / garbage `.xlsx`, parquet or JSON
 file into a `SourceError` naming the file, without parser internals
 (datatoolkit-issues#207).

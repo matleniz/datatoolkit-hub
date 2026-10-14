@@ -10,7 +10,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | pandas | tabular data in keys | engine |
 | plotly | figures (JSON contract) | engine, fronts |
 | ruff | lint: import sorting, complexity ≤ 10 (`C90`, `PLR09xx`), `SIM`, `PERF`, `B` (layer contract = `tests/test_layers.py`) | engine gate |
-| pytest | tests | gate; engine CI runs it on Python 3.11 and 3.13 (datatoolkit-issues#208) |
+| pytest | tests | gate; engine CI runs it on Python 3.11, 3.12 and 3.13 (datatoolkit-issues#208, #216) |
 | hatchling | build backend of the engine (invisible) | `pyproject.toml` |
 | numpy | numeric arrays (ops, transforms, sklearn interop) | engine (declared direct 2026-09-28, MAT-187) |
 | scikit-learn | fitted transforms (imputers, encoders, scalers), IsolationForest, `DtkTransformer` / `Pipeline` | engine (approved 2026-09-25) |
