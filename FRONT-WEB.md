@@ -229,7 +229,8 @@ Base `/api`. Bodies and responses are the contract's JSON, unchanged.
 | `/mcp` (outside `/api`) | MCP streamable HTTP, same token / Origin / Host guard (#64) |
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
-`WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`. A params
+`WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 500 for
+`WorkspaceCorruptError` (an unreadable workspace file, #206). A params
 validation failure gives a concise `message` (`<loc>: <msg>; …`, never the
 pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). CORS allows the
 Vite dev origin (localhost / 127.0.0.1 :5173) plus `DTK_CORS_ORIGINS`

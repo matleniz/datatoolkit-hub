@@ -94,7 +94,7 @@ def list_workspace_summaries() -> list[dict]
     # [{name, mtime, step_count, target, train:{kind,path,file,shape}, test:{...}|null}], lighter than list_workspaces
     # shape = [rows, cols] after steps, memoized content-addressed (first call may replay, later ones hit the
     # cache, MAT-200 / MAT-204); null when the role is absent or its frame cannot be loaded
-def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError)
+def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError); unreadable file -> WorkspaceCorruptError
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
 def delete_workspace(name: str) -> None
@@ -127,7 +127,13 @@ unknown source `kind`, or invalid workspace step params), `SourceError` (a
 source cannot be loaded — missing / empty / unreadable file — or a workspace
 step fails on the data; raised unchanged by `run_key`). An unknown step op is
 `UnknownTransformError` everywhere (save, preview, replay, export), never
-`SourceError` (MAT-84).
+`SourceError` (MAT-84). `WorkspaceCorruptError` (`dtk_engine.workspace`): a
+workspace file is unreadable (not JSON, wrong shape, or a `version` the engine
+does not know); short message, no absolute path (datatoolkit-issues#206).
+`list_workspaces` still fails as a whole on one such file (#215, open).
+Source readers turn an empty / truncated / garbage `.xlsx`, parquet or JSON
+file into a `SourceError` naming the file, without parser internals
+(datatoolkit-issues#207).
 
 **Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
 web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
