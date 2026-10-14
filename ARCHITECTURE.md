@@ -63,7 +63,7 @@ dtk_engine  ──  contract (JSON)  ──  HTTP API (dtk-api)  ──  front (
 | HTTP API | `datatoolkit` · `src/dtk_engine/http.py` (optional extra `api`) | `dtk_engine.contract`, `dtk_engine.ui_bridge`, `dtk_engine.agent` (top level: the pure-Python `attachments` / `commands`; the rest lazily, only with the extra `agent`), FastAPI |
 | UI bridge | `datatoolkit` · `src/dtk_engine/ui_bridge.py` (pure asyncio, in-memory UI context + command relay; imported only by `http.py` and `agent/`, enforced in `tests/test_layers.py`) | stdlib |
 | Agent | `datatoolkit` · `src/dtk_engine/agent/` (optional extras `agent` / `agent-sdk`: MCP server, packs, chat hub, terminal, attachments; imported only by `http.py`) | `dtk_engine.contract`, `dtk_engine.ui_bridge`, `dtk_engine.errors` (`_AGENT_ALLOWED` in `tests/test_layers.py`), `mcp`, `httpx`, `claude_agent_sdk` (agent-sdk pack only), stdlib |
-| Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`FRONT-WEB.md`). **Never** the engine. |
+| Front | `datatoolkit-web` · `src/` (client: `src/api/client.ts`) | the HTTP API only (`HTTP-API.md`). **Never** the engine. |
 
 Two repos since MAT-38 (2026-09-25): the engine is a standalone package
 (`uv add git+https://github.com/matleniz/datatoolkit`), usable from a notebook
@@ -138,7 +138,7 @@ file into a `SourceError` naming the file, without parser internals
 (datatoolkit-issues#207).
 
 **Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
-web front (`FRONT-WEB.md`, repo `datatoolkit-web`), backed by
+web front (repo `datatoolkit-web`, docs in `~/datatoolkit-web-hub`), backed by
 `dtk_engine/workspace/inspect.py`:
 
 ```python
@@ -174,7 +174,7 @@ stored for the front; formula steps carry their own snapshot) and `charts`
 (`[{name, params}]`: chart-key params minus `source`, unique names, saved by
 the Studio chart builder for reload — MAT-185). The HTTP API
 `dtk_engine/http.py` (extra `api`, `dtk-api --port 8765`) exposes the whole
-contract 1:1 — routes and error mapping in `FRONT-WEB.md`. Read-only compute
+contract 1:1 — routes and error mapping in `HTTP-API.md`. Read-only compute
 routes (`keys/{id}/run`, `source/columns`, workspace preview / rows /
 profiles / preview-step / align) run the engine through `run_in_threadpool`,
 so a slow key does not stall previews; store writes stay on the event loop
@@ -248,7 +248,7 @@ Recipe: `HOWTO/add-a-key.md`.
 A front renders the contract generically: forms from `key_schema` /
 `transform_schema` (JSON Schema → widgets, `x-dtk-widget` column selectors),
 results from `Result` (metrics, tables, figures, text). The front is Studio —
-screens, routes and tests in `FRONT-WEB.md`; it has no key catalog (its tool
+screens and tests in `~/datatoolkit-web-hub`, routes in `HTTP-API.md`; it has no key catalog (its tool
 rail and Suggestions call a fixed list of keys). Switching front = implement
 `HOWTO/add-a-front.md`, touch nothing in the engine. Deployment: nginx + engine
 containers (`HOWTO/run-with-docker.md`), or `dtk-studio` (datatoolkit-web
@@ -379,7 +379,7 @@ workspace "parkinson"
   to test). Catalog: `TRANSFORMS.md`.
 - **Front**: Studio's header shows the active workspace name and, on the
   Workbench, a Train / Test toggle; analysis keys get a `{kind: "dataset"}`
-  source for the workspace (`FRONT-WEB.md`, Refresh identity).
+  source for the workspace (web hub `FRONT-WEB.md`, Refresh identity).
 
 Implementation:
 - Package `dtk_engine/workspace/`: `models.py` (strict pydantic `Workspace`:

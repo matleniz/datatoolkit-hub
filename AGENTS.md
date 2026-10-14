@@ -10,7 +10,7 @@ pure-Python analysis engine behind a JSON contract, with swappable visual fronts
   a standalone Python package (notebook, scripts, any front). No front code.
 - `~/datatoolkit-web` (github matleniz/datatoolkit-web, fleet project
   `datatoolkit-web`) — the **active** front, "Studio" (React + TypeScript,
-  see `FRONT-WEB.md`), talks only to the engine's HTTP API. All current front
+  docs in `~/datatoolkit-web-hub`), talks only to the engine's HTTP API. All current front
   work happens here.
 - The first front (Streamlit) was dropped for Studio on 2026-09-27 and its
   repo archived on 2026-10-01 (`~/Archives/datatoolkit-streamlit`, GitHub

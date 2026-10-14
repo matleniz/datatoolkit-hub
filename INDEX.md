@@ -21,7 +21,8 @@
 | Plug your own agent CLI (Claude Code / gemini / opencode) into Studio | `HOWTO/plug-an-agent.md` |
 | Try the Studio agent chat (launch, scenarios, checklist) | `HOWTO/try-the-agent.md` |
 | Docker internals (GHCR images, compose, nginx, CI smoke) | `HOWTO/run-with-docker.md` |
-| Web front "Studio" (screens, HTTP API routes, tests) | `FRONT-WEB.md` |
+| HTTP API `dtk-api`: routes, errors, UI bridge auth | `HTTP-API.md` |
+| Web front "Studio" (screens, tests) | `~/datatoolkit-web-hub` (separate hub) |
 | What was done when, what's next | `ROADMAP.md` |
 | Course section → capability → Linear issue | `COURSE-MAP.md` |
 | Past QA runs (historical, findings already filed) | `reports/` |

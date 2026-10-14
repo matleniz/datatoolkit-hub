@@ -4,7 +4,7 @@ A front is a renderer of the contract in `ARCHITECTURE.md`; it knows nothing
 about individual keys.
 
 1. Talk to the engine through the HTTP API (`dtk-api`, routes in
-   `FRONT-WEB.md`) with one client module — Studio's is `src/api/client.ts`.
+   `HTTP-API.md`) with one client module — Studio's is `src/api/client.ts`.
    A Python front may instead call `dtk_engine.contract` in-process, from a
    single client module.
 2. Implement three generic views:

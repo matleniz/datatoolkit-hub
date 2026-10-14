@@ -24,7 +24,7 @@
 - text: a sampling note when rows were dropped
 
 ## Notes
-- The Studio Chart tool window (MAT-172 front, `FRONT-WEB.md` → Workbench →
+- The Studio Chart tool window (MAT-172 front, web hub `FRONT-WEB.md` → Workbench →
   Tool rail + dock) is the UI on top of this key; it prefills type/x/y from
   the grid selection and renders the returned figure via the same renderer
   used elsewhere for `Result.figures`. Saved chart specs are stored on the
