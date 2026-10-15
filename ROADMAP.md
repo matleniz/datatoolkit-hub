@@ -308,3 +308,7 @@ Web docs moved to `~/datatoolkit-web-hub`; the engine HTTP reference is now
 CSV quickstart), #158 (#223 #225: bad JSON body 422, `--port` validated),
 #159 (#231 #230: errors list valid names, MCP path refusal says how to fix).
 Open: #226, #229, #232, #233.
+Then (2026-10-15 day): #242 merged as engine #160 (9d7035e): CI job
+`install smoke` runs `scripts/smoke_install.sh`, a fresh venv per case (bare
+plus each extra read from pyproject), the README quickstart, and fails on any
+traceback; an extra with no smoke checks fails the job.
