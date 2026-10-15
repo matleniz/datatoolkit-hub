@@ -16,5 +16,7 @@
 - tables: `exact duplicates` (all members, keep=False), `duplicate groups` (numbered `duplicate_group`), `conflicting columns` (column, n_groups, pct_groups), `conflicting rows`
 - `duplicate groups` / `conflicting columns` / `conflicting rows` exist only when the subset (explicit or auto) is non-empty; every sample table is capped at `SAMPLE_ROWS = 20` rows
 
+- headline: exact duplicates (count, %, `<0.1 %` when non-zero but rounds to 0), plus groups / conflict groups on the subset, `(auto)` when auto-picked, e.g. `10 exact duplicate rows (4.8 %); 10 groups on id (auto)`
+
 ## Notes
 Ops: `ops/duplicates.py` (`exact_duplicates`, `duplicate_groups`, `conflicts`). Inspection only; fix with the `drop_duplicates` transform (explicit `sort_by`, keep last = most recent). Unhashable cells (lists, dicts) are compared as strings. Course: Duplicates and Inconsistencies.
