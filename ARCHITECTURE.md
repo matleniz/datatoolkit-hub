@@ -74,7 +74,8 @@ are in git history (before 2026-10-01).
 
 ## The contract (the only engine ↔ front boundary)
 
-Defined in `dtk_engine/contract.py`. Every input and output is plain JSON
+Defined in `dtk_engine/contract.py` (the listing below names every public
+function, checked 2026-10-18). Every input and output is plain JSON
 (dict / list / str / number / bool / None) — no pydantic object, numpy array or
 DataFrame crosses it.
 
@@ -101,6 +102,18 @@ def delete_workspace(name: str) -> None
 def rename_workspace(name: str, new_name: str) -> dict
 def duplicate_workspace(name: str, new_name: str) -> dict
     # full copy under new_name (datasets, label, merges, variables, charts, steps); content-addressed source refs stay shared, not copied
+def workspace_steps(name: str)  # the stored workspace's steps with ids filled; cheap digest of changes for the agent
+def workspace_memory(name: str)  # the stored workspace's agent memory entries [{id, text, kind, updated_at}]
+def memory_summary(name: str) -> dict       # {entries, chars, max_chars}: what the agent's get_memory answers
+
+# workspace documents (HTTP routes in HTTP-API.md)
+def describe_document(path: str, name: str | None = None) -> dict   # describe a file before attaching it
+def list_documents(workspace: str)
+def document_summaries(workspace: str)  # what an agent lists per document: {id, name, kind, mime, size, note, ...}
+def add_document(workspace: str, path: str, name: str | None = None, note: str | None = None) -> dict
+def remove_document(workspace: str, doc_id: str) -> dict
+def document_text(workspace: str, doc_id: str, offset: int = 0, max_chars: int | None = None) -> dict
+def document_path(workspace: str, doc_id: str) -> tuple[Path, dict]  # stored file + its record (serves GET .../file)
 
 def source_columns(spec: dict) -> list[dict]
     # columns of a source, file order: [{"name", "dtype", "numeric"}] (numeric = numeric and not bool);
@@ -112,6 +125,12 @@ def transform_schema(op: str) -> dict        # JSON Schema of the op's params; u
 def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
     # unsaved workspace dict, validated like save_workspace, replayed in memory (no store write):
     # {"shape": [rows, cols], "columns": [...], "head": records}; bad role / invalid ws -> KeyParamsError
+def preview_steps(ws: dict, steps: list[dict], role: str) -> dict
+    # dry run of a list of steps appended in memory (nothing saved, no undo entry):
+    # preview_step's diff for the whole list plus per-step {op, state, fitted_on}
+def evaluate(ws: dict, role: str, exprs: list[str], steps: list[dict] | None = None,
+             where: str | None = None, version: int | None = None) -> dict
+    # read-only statistics (count, missing, mean, ...) of formula expressions on a role
 
 # export (see "Export" above)
 def export_workspace(name: str, out_dir: str, overwrite: bool = False, formats: list[str] | None = None) -> dict

@@ -8,9 +8,13 @@ Local engine only (`uv`): the external CLI packs and the terminal are not availa
 ```bash
 uv sync --extra agent
 uv run dtk-api                                          # keep it running; open Studio
-uv run dtk-mcp config claude-code --write ~/dtk-agent   # prints the command to run
+uv run dtk-mcp config claude-code --write <dir>        # writes the pack config into <dir>, prints the command to run
 uv run dtk-mcp doctor                                   # engine / token / Studio / CLIs
 ```
+
+`<dir>` is any directory you pick for the agent's config (`~` is expanded,
+the directory is created if missing; there is no default). Without `--write`
+the config is only printed; an existing config file is kept unless `--force`.
 
 ## Packs
 | pack | file written | command printed | turned off |

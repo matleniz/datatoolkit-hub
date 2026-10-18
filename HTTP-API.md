@@ -4,23 +4,31 @@ Moved here from `FRONT-WEB.md` on 2026-10-15 when the web docs left this hub
 (they live in `~/datatoolkit-web-hub`). Any front talks to the engine only
 through these routes.
 
-Base `/api`. Bodies and responses are the contract's JSON, unchanged.
+Base `/api`. Bodies and responses are the contract's JSON, unchanged. Every
+JSON request body is described in `/openapi.json` (`WorkspaceBody` is generated
+from the `Workspace` model; datatoolkit-issues#229, engine #162). The handlers
+read the raw body, so the schema documents the shape without changing what is
+accepted (integers given as strings are still coerced).
 
 | Route | Contract |
 |---|---|
 | `GET /keys` · `GET /keys/{id}/schema` · `POST /keys/{id}/run` `{params}` | `list_keys`, `key_schema`, `run_key` |
 | `GET /transforms` · `GET /transforms/{op}/schema` | `list_transforms`, `transform_schema` |
-| `GET /workspaces` · `GET/PUT/DELETE /workspaces/{name}` | store |
+| `GET /workspaces` · `GET/PUT/DELETE /workspaces/{name}` | store; `PUT` body = the workspace without `name` (taken from the path), unknown fields → 422; returns the saved workspace; `DELETE` → 204 |
 | `GET /workspaces/summaries` | `list_workspace_summaries` (MAT-171) |
 | `POST /workspaces/{name}/rename` `{new_name}` | `rename_workspace` (MAT-171) |
 | `POST /workspaces/{name}/duplicate` `{new_name}` | `duplicate_workspace` (MAT-171) |
-| `POST /workspaces/{name}/export` `{out_dir, overwrite}` | `export_workspace` |
+| `POST /workspaces/{name}/export` `{out_dir, overwrite?, formats?}` | `export_workspace`; `formats` = list of `parquet`, `csv`, `ipynb`, `py` (default `["parquet"]`, checked in `workspace/export.py`) → manifest |
+| `GET /workspaces/{name}/documents` · `POST /workspaces/{name}/documents` `{path, name?, note?}` · `DELETE /workspaces/{name}/documents/{doc_id}` | `list_documents`, `add_document`, `remove_document` |
+| `GET /workspaces/{name}/documents/{doc_id}/text?offset=&max_chars=` · `GET /workspaces/{name}/documents/{doc_id}/file` (file response) | `document_text`; the stored document file |
+| `POST /documents/describe` `{path, name?}` | `describe_document` (before attaching) |
 | `POST /source/columns` `{spec}` | `source_columns` |
 | `POST /workspace/preview` `{workspace, role, head_rows}` | `preview_workspace` |
 | `POST /workspace/rows` `{workspace, role, version, offset, limit, columns?, filter?, sort?}` | `workspace_rows` (MAT-127; optional `columns` filter MAT-152; view-only `filter` / `sort`, `total_unfiltered`, datatoolkit-issues#87) |
 | `POST /workspace/profiles` `{workspace, role, version, columns?}` | `column_profiles` (optional `columns` filter MAT-152) |
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
+| `POST /workspace/column-notes` `{workspace, role="train", version?}` → `{notes, keys}` | column notes of a role (422 when `workspace` is missing) |
 | `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`) |
 | `PUT/GET /ui/context` · `GET /ui/events?session=&token=` (SSE) · `POST /ui/ack` · `POST /ui/commands` `{type, …}` (`?session=&timeout=`) | UI bridge, not the contract (`dtk_engine/ui_bridge.py`, datatoolkit-issues#62; `AGENT-BRIDGE.md`) |
 | `GET /ui/sessions` · `GET /ui/commands/schema` · `GET /ui/commands/{id}` | live Studio sessions, published Studio command schema (MCP tools are generated from it, #100), command status incl. `pending_review` (#95) |
