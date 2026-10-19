@@ -48,7 +48,10 @@ refused).
 (`processed/*.csv`), `ipynb` and `py` (`code/pipeline.*`: a replay of the steps
 through the notebook door, `api.workspace_frames` + `DtkTransformer`, step and
 column notes as markdown / comments; `.ipynb` is hand-built nbformat 4.5 JSON,
-no dependency). The manifest adds `formats` and `outputs.{train_csv, test_csv,
+no dependency). Notebook export (#249): intro + loading cells, then per step group a
+markdown cell (`## name`, intent, step ids) and one code cell holding the group's steps
+in order (`# sN · op target` comments); a workspace without groups gives one section
+per step. The manifest has one entry per step with `group_id`, plus `groups`. The manifest adds `formats` and `outputs.{train_csv, test_csv,
 notebook, script}`; `code/` is an owned dir for `overwrite`.
 
 ## Layers
