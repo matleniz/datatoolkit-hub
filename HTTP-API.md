@@ -40,7 +40,7 @@ accepted (integers given as strings are still coerced).
 
 Request body schemas (OpenAPI, #251) describe what the handlers really accept, with no
 validation added: `head_rows`, `offset`, `limit` are read with `int()` (numeric strings
-accepted; a non-numeric string, `null` or an array is a known 500, datatoolkit-issues#252);
+accepted; a non-numeric string, `null`, an array, `nan`/`inf` or `"5.0"`/`"1e3"` as a string is a 422 `KeyParamsError` naming the field, e.g. `head_rows: must be an integer, got 'abc'`, #252);
 `overwrite` is any JSON value (truthiness); `name` in the PUT workspace body is ignored (the
 path name wins); `role` is `train` | `test`; `version` is an integer >= 0 or null; `workspace`,
 `step` and `spec` reference the `Workspace`, `Step` and `SourceSpec` models.
