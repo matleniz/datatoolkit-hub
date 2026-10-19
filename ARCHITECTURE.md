@@ -20,7 +20,10 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
    merges}`, what an exported notebook starts from). DataFrame in → `Result` (displayed in Jupyter via
    `_repr_html_`) or DataFrame out. Keys and api share the same builders
    (`overview_result`, `check_result`), no duplication.
-3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, **params)`
+3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, /, **params)` (`op` is
+   positional-only, so an op param that is itself called `op`, like `derive`'s, goes in
+   `**params`; in `get_params`/`set_params` such a param is exposed as `param_op`, `op` stays
+   the transform's identity; `__sklearn_clone__` keeps `clone` correct; #253)
    (pandas in/out; the op's params are the estimator params, so `clone` /
    `set_params` / grid search work; fitted `state_`, `feature_names_out_`;
    params validated at fit; `set_params(op=...)` switching op keeps only the
