@@ -45,7 +45,14 @@ Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 unknown param and missing column messages list the valid names (capped at 20,
 close match first, #231). A params
 validation failure gives a concise `message` (`<loc>: <msg>; …`, never the
-pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). CORS allows the
+pydantic dump) plus `details: [{loc, msg, type}]` (MAT-142). A step-group invariant
+violation (`PUT /workspaces/{name}` or any route that validates a workspace, #249) adds
+`detail: {rule, group_id, step_id}` to that body: `rule` is one of `duplicate_group_id`,
+`step_shared`, `unknown_step`, `not_contiguous`, `out_of_order`, `invalid_name`; `group_id` /
+`step_id` name the offender and are `null` when the rule has none; other 422s have no
+`detail` key and `message` stays human text. Limits: a field error in the same body hides
+`detail`; a bad group id format, empty `step_ids`, an over-long name and duplicate step ids
+stay plain errors with `loc`; the document/note update routes do not add `detail`. CORS allows the
 Vite dev origin (localhost / 127.0.0.1 :5173) plus `DTK_CORS_ORIGINS`
 (comma-separated). `dtk-api --port 8765` runs uvicorn; `--port` outside 1..65535 is a usage error,
 exit 2 (#225). Without the `api` extra, `dtk-api` prints the install command
