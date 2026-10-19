@@ -29,7 +29,7 @@ accepted (integers given as strings are still coerced).
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
 | `POST /workspace/column-notes` `{workspace, role="train", version?}` → `{notes, keys}` | column notes of a role (422 when `workspace` is missing) |
-| `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`) |
+| `PUT /uploads/{filename}` (raw body) → `{path}` | content-addressed under `$DTK_UPLOAD_DIR` (default `$DTK_HOME/uploads`); the write is atomic (temp file in the same dir, then replace; the file mode follows the umask) and an already-stored file is reused only if its bytes equal the body, otherwise it is rewritten (#258). No size cap yet: the whole body is held in memory (#261) |
 | `PUT/GET /ui/context` · `GET /ui/events?session=&token=` (SSE) · `POST /ui/ack` · `POST /ui/commands` `{type, …}` (`?session=&timeout=`) | UI bridge, not the contract (`dtk_engine/ui_bridge.py`, datatoolkit-issues#62; `AGENT-BRIDGE.md`) |
 | `GET /ui/sessions` · `GET /ui/commands/schema` · `GET /ui/commands/{id}` | live Studio sessions, published Studio command schema (MCP tools are generated from it, #100), command status incl. `pending_review` (#95) |
 | `GET /ui/agent?session=` · `POST /ui/agent/send` `{session, text, attachments?}` · `POST /ui/agent/cancel` · `POST /ui/agent/permission` `{session, id, allow}` | agent chat (events `event: agent` on `/ui/events`; wire format in the engine's `docs/agent-chat-protocol.md`) |
