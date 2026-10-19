@@ -14,7 +14,7 @@ accepted (integers given as strings are still coerced).
 |---|---|
 | `GET /keys` · `GET /keys/{id}/schema` · `POST /keys/{id}/run` `{params}` | `list_keys`, `key_schema`, `run_key` |
 | `GET /transforms` · `GET /transforms/{op}/schema` | `list_transforms`, `transform_schema` |
-| `GET /workspaces` · `GET/PUT/DELETE /workspaces/{name}` | store; `PUT` body = the workspace without `name` (taken from the path), unknown fields → 422; returns the saved workspace; `DELETE` → 204 |
+| `GET /workspaces` · `GET/PUT/DELETE /workspaces/{name}` | store; `PUT` body = the workspace without `name` (taken from the path), unknown fields → 422; returns the saved workspace; `DELETE` → 204. Optional `groups: [{id, name, intent?, step_ids, origin?: "auto"\|"manual", produced_by?}]` (step groups, #249): contiguous slices of `steps` in step order, each step in exactly one group; steps without a group get a singleton auto group, empty groups are dropped, and the saved/returned workspace always carries the normalised `groups`. 422 `KeyParamsError` messages: `duplicate group id 'X'`, `step 'sN' is in groups 'A' and 'B'`, `group 'G' names unknown step id 'sN'`, `group 'G' is not a contiguous slice in step order: step 'sN' is at position P, expected Q` |
 | `GET /workspaces/summaries` | `list_workspace_summaries` (MAT-171) |
 | `POST /workspaces/{name}/rename` `{new_name}` | `rename_workspace` (MAT-171) |
 | `POST /workspaces/{name}/duplicate` `{new_name}` | `duplicate_workspace` (MAT-171) |

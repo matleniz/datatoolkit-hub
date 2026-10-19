@@ -372,6 +372,9 @@ workspace "parkinson"
     test  : X = SourceSpec   y = null
   label   : mode "order" (y has one column, same row count) | "key" (common column)
   steps   : [ {id, op, target: train|test|both, params, note?}, ... ]   ← full trace
+  groups  : [ {id, name, intent?, step_ids, origin: auto|manual, produced_by?}, ... ]   # optional, #249
+          # invariants: contiguous slices of `steps` in order, each step in exactly one group;
+          # uncovered steps are wrapped in singleton auto groups, empty groups dropped (lazy, no schema_version)
   notes   : {workspace: text?, columns: {origin name: text}}   # free text, max 4,000 chars
   charts  : [ {name, params}, ... ]   # saved chart-key params (minus source); unique names
 ```
@@ -384,7 +387,8 @@ workspace "parkinson"
   /api/workspace/column-notes` resolve names at a version through `rename` /
   `rename_columns_bulk`.
 - **Current state = sources + steps replayed in order.** Undo = drop the last
-  step and replay. The step log *is* the future reproducible pipeline (add input
+  step and replay (undo of a group = drop its steps and the group, via `PUT`;
+  the engine has no step-edit route, it only validates the groups invariants). The step log *is* the future reproducible pipeline (add input
   hashes + versions → run manifest).
 - **Keys stay unchanged**: a new SourceSpec `kind="dataset"`
   (`workspace`, `role: train|test`, `labeled`) loads the current state, so every
