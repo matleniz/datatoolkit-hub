@@ -38,6 +38,13 @@ accepted (integers given as strings are still coerced).
 | `WS /ui/terminal?session=&pack=&model=&cols=&rows=&token=` | terminal packs, a CLI in a PTY (opt-in `dtk-api --terminal`; close codes 4401 / 4403 / 4404 / 4409 / 4422, #120) |
 | `/mcp` (outside `/api`) | MCP streamable HTTP, same token / Origin / Host guard (#64) |
 
+Request body schemas (OpenAPI, #251) describe what the handlers really accept, with no
+validation added: `head_rows`, `offset`, `limit` are read with `int()` (numeric strings
+accepted; a non-numeric string, `null` or an array is a known 500, datatoolkit-issues#252);
+`overwrite` is any JSON value (truthiness); `name` in the PUT workspace body is ignored (the
+path name wins); `role` is `train` | `test`; `version` is an integer >= 0 or null; `workspace`,
+`step` and `spec` reference the `Workspace`, `Step` and `SourceSpec` models.
+
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 500 for
 `WorkspaceCorruptError` (an unreadable workspace file, #206). A malformed, non-UTF-8 or empty JSON body gives 422
