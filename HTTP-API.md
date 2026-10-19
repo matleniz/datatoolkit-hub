@@ -47,7 +47,7 @@ path name wins); `role` is `train` | `test`; `version` is an integer >= 0 or nul
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 500 for
-`WorkspaceCorruptError` (an unreadable workspace file, #206). A malformed, non-UTF-8 or empty JSON body gives 422
+`WorkspaceCorruptError` (an unreadable workspace file, #206: invalid JSON or schema, or not valid UTF-8, #257; the listings show such a workspace as a `corrupt` row and keep listing the others; a leading UTF-8 BOM is accepted and removed at the next save, #260). A malformed, non-UTF-8 or empty JSON body gives 422
 `KeyParamsError` ("request body is not valid JSON: …", #223). Unknown key,
 unknown param and missing column messages list the valid names (capped at 20,
 close match first, #231). A params
