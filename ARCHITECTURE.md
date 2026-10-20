@@ -23,7 +23,13 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, /, **params)` (`op` is
    positional-only, so an op param that is itself called `op`, like `derive`'s, goes in
    `**params`; in `get_params`/`set_params` such a param is exposed as `param_op`, `op` stays
-   the transform's identity; `__sklearn_clone__` keeps `clone` correct; #253)
+   the transform's identity; `__sklearn_clone__` keeps `clone` correct; #253). Estimator checks (#283, engine #181):
+   `tests/test_sklearn_checks.py` runs scikit-learn's `parametrize_with_checks` on 6 ops, 43 of 47
+   checks pass, 3 are listed with a reason in `EXPECTED_FAILED_CHECKS` (`check_dtype_object`,
+   `check_estimators_nan_inf`, `check_transformer_preserve_dtypes`); `op` defaults to `None` and a
+   missing op fails at `fit` with a clear error; numpy input goes through `check_array` (columns
+   `x0..`, width checked) while DataFrame behaviour is unchanged; a transformer pickled under the
+   previous layout still loads (`__setstate__`)
    (pandas in/out; the op's params are the estimator params, so `clone` /
    `set_params` / grid search work; fitted `state_`, `feature_names_out_`;
    params validated at fit; `set_params(op=...)` switching op keeps only the
