@@ -110,6 +110,8 @@ def list_workspace_summaries() -> list[dict]
 def get_workspace(name: str) -> dict         # unknown -> WorkspaceNotFoundError (a KeyError); unreadable file -> WorkspaceCorruptError
 def save_workspace(ws: dict) -> dict         # create / overwrite, returns the normalized dict; invalid shape or step params -> KeyParamsError,
     # unknown step op -> UnknownTransformError (steps checked at save, nothing written; MAT-83)
+    # merge tables: key unique and non-null checked at save (and at replay) -> MergeJoinError (a KeyParamsError, 422) naming the key and duplicates;
+    # reading a stored workspace never opens its source files (datatoolkit-issues#255)
 def delete_workspace(name: str) -> None
 def rename_workspace(name: str, new_name: str) -> dict
 def duplicate_workspace(name: str, new_name: str) -> dict
@@ -166,7 +168,10 @@ does not know); short message, no absolute path (datatoolkit-issues#206).
 Studio handling: #217). "Unsupported version" is said only for an int `version`.
 Source readers turn an empty / truncated / garbage `.xlsx`, parquet or JSON
 file into a `SourceError` naming the file, without parser internals
-(datatoolkit-issues#207).
+(datatoolkit-issues#207). A CSV with duplicate column names is refused at read time
+(`SourceError`, 422): `duplicate column names ['a'] in <path> (rename them to be unique)`, same
+wording as the export (`errors.duplicate_columns_message`; only duplicates inside `usecols`
+count; Excel still renames silently, #296; datatoolkit-issues#290).
 
 **Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
 web front (repo `datatoolkit-web`, docs in `~/datatoolkit-web-hub`), backed by
