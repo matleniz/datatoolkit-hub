@@ -45,6 +45,19 @@ accepted; a non-numeric string, `null`, an array, `nan`/`inf` or `"5.0"`/`"1e3"`
 path name wins); `role` is `train` | `test`; `version` is an integer >= 0 or null; `workspace`,
 `step` and `spec` reference the `Workspace`, `Step` and `SourceSpec` models.
 
+Write ordering (optional, #263): send `X-Dtk-Write-Seq: <integer 0..2^63-1>` on every
+`PUT /workspaces/{name}` of a session (suggested `Date.now()*1000 + counter` per tab). The engine
+remembers, per workspace name, the highest sequence it accepted (in memory, per `dtk-api`
+process, LRU of 512 names; a restart forgets it); a PUT with a **lower** sequence is refused with
+**409** `{type: "StaleWriteError", message, detail: {rule: "stale_write", last_seq}}` and nothing
+is written; an equal sequence is accepted (idempotent retry), a higher one becomes the new last;
+clients drop a 409 `stale_write` save silently. Without the header the PUT behaves as before and
+does not touch the remembered sequence; an invalid header (non-numeric, empty, negative, signed,
+repeated, more than 19 significant digits) is a 422 `KeyParamsError` naming the header. The guard
+covers only this route: documents, notes, column-notes, rename and agent/MCP step writes bypass it;
+leading zeros are accepted; delete forgets the sequence, rename forgets both names; edits from
+another client with a different sequence scale stay last-write-wins; CORS allows the header.
+
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 500 for
 `WorkspaceCorruptError` (an unreadable workspace file, #206: invalid JSON or schema, or not valid UTF-8, #257; the listings show such a workspace as a `corrupt` row and keep listing the others; a leading UTF-8 BOM is accepted and removed at the next save, #260). A malformed, non-UTF-8 or empty JSON body gives 422
