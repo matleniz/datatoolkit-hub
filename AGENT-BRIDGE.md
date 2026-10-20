@@ -98,6 +98,15 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
   `openWorldHint=false` everywhere because `policy.check_args` refuses `kind: sql` sources and
   file paths are limited to `$DTK_HOME`, uploads and workspace files). A test fails if a tool
   has no entry. Annotations are hints for UIs (clients treat them as untrusted), not security.
+- Argument validation (engine #182, datatoolkit-issues#286): `server.call_tool` checks the
+  arguments against each tool's `input_schema` before the handler runs (the SDK's low-level
+  `Server` does not). A violation is an `is_error=True` result with the HTTP-style body
+  `{type: "KeyParamsError", message, details: [{loc, msg, type}]}` (field path, bounded value,
+  at most 5 errors), the handler is not called and the audit log records the refusal. The
+  validator is our own and covers only the JSON Schema keywords the registered schemas use (no
+  new dependency); a test fails if a schema uses another keyword. Each tool's root object is
+  strict (`additionalProperties: false`, `session` always accepted); free-form nested objects
+  (`params`, `step`, `spec`) stay open.
 - Tools (names final at implementation; each one = one contract call):
 
 | Tool | Contract / bridge | Notes |
