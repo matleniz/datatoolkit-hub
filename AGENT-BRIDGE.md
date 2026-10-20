@@ -92,6 +92,12 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
   reach the open Studio), plus a **stdio** entry `dtk-mcp` for agents that
   only speak stdio (it proxies to the running `/mcp`, or runs contract-only
   without UI tools when no Studio is up).
+- Tool metadata (engine #180, datatoolkit-issues#282): every tool has a `title` and explicit
+  annotations from one table, `agent/tool_meta.py` (43 tools: 22 read-only, 21 that write;
+  `export_workspace`, `propose_steps`, `set_note`, `remember`, `forget` are destructive;
+  `openWorldHint=false` everywhere because `policy.check_args` refuses `kind: sql` sources and
+  file paths are limited to `$DTK_HOME`, uploads and workspace files). A test fails if a tool
+  has no entry. Annotations are hints for UIs (clients treat them as untrusted), not security.
 - Tools (names final at implementation; each one = one contract call):
 
 | Tool | Contract / bridge | Notes |
