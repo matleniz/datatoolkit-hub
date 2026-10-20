@@ -98,6 +98,7 @@ def list_keys() -> list[dict]
 def key_schema(key_id: str) -> dict
     # JSON Schema of the key's Params (pydantic model_json_schema())
 def run_key(key_id: str, params: dict) -> dict
+def result_schema() -> dict                   # JSON Schema of the Result (the MCP outputSchema of run_key, datatoolkit-issues#287)
     # Result.model_dump(mode="json"); invalid params (incl. unknown target) -> raises KeyParamsError
     # omitted source / test default to the shipped demo_data CSVs (run_key(id, {}) is not a no-op)
 

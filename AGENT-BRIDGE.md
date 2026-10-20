@@ -98,6 +98,7 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
   `openWorldHint=false` everywhere because `policy.check_args` refuses `kind: sql` sources and
   file paths are limited to `$DTK_HOME`, uploads and workspace files). A test fails if a tool
   has no entry. Annotations are hints for UIs (clients treat them as untrusted), not security.
+- Structured output (engine #192, datatoolkit-issues#287): `run_key` alone declares an `outputSchema` (envelope `identity` / `data` around the contract Result, from `contract.result_schema()`) and returns `structuredContent` next to the unchanged JSON text block (the payload is therefore sent twice, ~100 000 chars at the default cap; lower `DTK_AGENT_MAX_CHARS` if the client counts both). A truncated reply may carry `data: null` or cut nested keys; the schema accepts it. Error results (`isError`) carry no `structuredContent`. Other tools stay text only.
 - Argument validation (engine #182, datatoolkit-issues#286): `server.call_tool` checks the
   arguments against each tool's `input_schema` before the handler runs (the SDK's low-level
   `Server` does not). A violation is an `is_error=True` result with the HTTP-style body
