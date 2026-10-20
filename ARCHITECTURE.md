@@ -173,6 +173,7 @@ file into a `SourceError` naming the file, without parser internals
 (`SourceError`, 422): `duplicate column names ['a'] in <path> (rename them to be unique)`, same
 wording as the export (`errors.duplicate_columns_message`; only duplicates inside `usecols`
 count; Excel still renames silently, #296; datatoolkit-issues#290).
+Column names are strings: integer labels (e.g. a CSV read with `header=None` gives 0, 1, 2) are converted to `str` at the boundary, in `sources.load` and by a decorator on the notebook `api` functions that take a DataFrame (labels only, shallow copy; the caller's frame is untouched). Labels that collide after conversion (`1` and `'1'`) are a `SourceError` naming them. Behaviour change: `api.transform` returns `str` labels. `DtkTransformer` and `pipeline.py` keep the caller's labels (datatoolkit-issues#301).
 
 **Studio additions (built 2026-09-27, MAT-126; datatoolkit#30–33)** — for the
 web front (repo `datatoolkit-web`, docs in `~/datatoolkit-web-hub`), backed by
