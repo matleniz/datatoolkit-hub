@@ -36,3 +36,5 @@ skew, `top_k` adapted to cardinality) are computed per column by
 `ops/suggested.py` (Freedman–Diaconis / Sturges, integer-aligned for discrete
 ints) and exposed as `suggested_params` on each column's `column_profiles`
 entry (MAT-174) — fronts should read that instead of hard-coding a default.
+
+- Display sampling (#288): a numeric `by` scatter draws at most `SCATTER_MAX` = 2000 points per pair; when sampled the Result adds `n_points_shown`, `n_points_total` (most truncated plot) and a note naming it. Nothing is published when no scatter is sampled.

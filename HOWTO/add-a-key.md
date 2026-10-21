@@ -19,3 +19,5 @@ in `ops/<name>.py`, fit/apply mutators in `ops/transforms/<family>.py` (example:
 
 Rules: any new dependency → `STACK.md` + Matteo's approval first. Keys return
 data, never render. `fleet gate` must be clean before the PR.
+
+**Display-only sampling** (a figure or table that shows fewer rows or points than the data has): say so in the Result, with `ops/_util.sampling_metrics` / `sampling_note` (row-level: `n_rows_source`, `n_sampled_out`, as `chart`) or `points_disclosure` (point-level: `n_points_shown`, `n_points_total`), and publish nothing when nothing was sampled (datatoolkit-issues#288).

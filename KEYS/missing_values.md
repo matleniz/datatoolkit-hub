@@ -23,3 +23,5 @@
 
 ## Notes
 Ops: `ops/missing.py` (thresholds are module constants). Sentinels: -9999 … -1, 999, 9999, implausible 0 (only in continuous-looking columns where 0 dominates), 1900-01-01 / 1970-01-01, "unknown", "N/A", "-", "". Test spike: a value ≥ 10 rows, ≥ 1 % of test and ≥ 10× more frequent than in train (real case: `age_at_diagnosis` = 56.3). Fix with `replace_sentinels`, `drop_missing_target`, `drop_high_missing` (apply `suggested_steps`), `impute*`. Nested / binary object columns are not scanned for sentinels.
+
+- Display sampling (#288): the missingness matrix shows at most `MATRIX_ROWS_MAX` = 300 rows; when it is sampled the Result adds metrics `n_rows_source`, `n_sampled_out` and the note `Sampled 300 rows for the missingness matrix (N rows left out).` Statistics use the full frame.

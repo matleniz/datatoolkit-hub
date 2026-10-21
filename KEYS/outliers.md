@@ -26,3 +26,5 @@
 
 ## Notes
 Ops: `ops/outliers.py`. Screens `numeric` semantic columns only (ids and constants excluded); IsolationForest median-fills gaps. Fix with `clip` (bounds fitted on train), `log1p`, or `scale(method=robust)`.
+
+- Display sampling (#288): outlier points are drawn at most `OUTLIER_POINTS_MAX` = 500 per column (metrics `n_points_shown`, `n_points_total`, note naming the most truncated column); `flagged_rows` shows the `FLAGGED_SAMPLE` = 20 most anomalous with the note `Showing the 20 most anomalous of N flagged rows.` Fences, counts and isolation forest use the full frame. Other display caps are tracked in #313.
