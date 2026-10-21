@@ -148,8 +148,10 @@ def evaluate(ws: dict, role: str, exprs: list[str], steps: list[dict] | None = N
     # read-only statistics (count, missing, mean, ...) of formula expressions on a role
 
 # export (see "Export" above)
-def export_workspace(name: str, out_dir: str, overwrite: bool = False, formats: list[str] | None = None) -> dict
+def export_workspace(name: str, out_dir: str, overwrite: bool = False, formats: list[str] | None = None, pipeline: bool = False) -> dict
     # writes the chosen formats (parquet default, csv, ipynb, py) + manifest.json, returns the manifest; unknown -> WorkspaceNotFoundError;
+    # pipeline=True (needs the py format, else KeyParamsError; datatoolkit-issues#295) appends an unfitted sklearn PIPELINE of the 'both' steps to code/pipeline.py, standalone;
+    # row-changing, train-only/test-only steps are listed as '# skipped' comments, label-reading steps carry a comment; default off = exports unchanged
     # existing export without overwrite / output == raw input -> KeyParamsError; source or step failing on the data -> SourceError;
     # unknown step op -> UnknownTransformError, invalid step params -> KeyParamsError
 ```
