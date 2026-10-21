@@ -23,3 +23,5 @@
 
 ## Notes
 Pairwise-complete correlations; constant columns reported as undefined. `keep` follows the `drop_correlated` rule (more target-correlated kept, else first in column order); the suggested step is tested to drop the same column. Errors → `KeyParamsError`.
+
+- `max_rows` (#293, int > 0 or null, default null = no cap): the whole Result is computed on a reproducible seeded sample above the cap, disclosed with `n_rows_source`, `n_sampled_out` and the `Sampled N rows ...` note. Measured on 2M x 30: pearson gains little (~14 s of ~15 s are the id / constant column eligibility check on the full frame, follow-up #314).
