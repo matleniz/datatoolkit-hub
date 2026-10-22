@@ -23,7 +23,7 @@ Every capability lives once in `dtk_engine/ops/` and is reached through:
 3. **sklearn** — `dtk_engine/pipeline.py`: `DtkTransformer(op, /, **params)` (`op` is
    positional-only, so an op param that is itself called `op`, like `derive`'s, goes in
    `**params`; in `get_params`/`set_params` such a param is exposed as `param_op`, `op` stays
-   the transform's identity; `__sklearn_clone__` keeps `clone` correct; #253). Estimator checks (#283, engine #181):
+   the transform's identity; `__sklearn_clone__` keeps `clone` correct; #253). Opt-in `strict: bool = False` (keyword-only hyperparameter, engine #204, datatoolkit-issues#289): by default a DataFrame is matched by column name and NOT checked against `fit` (the label is legitimately absent from the test table, so exported scripts and replay rely on it); `strict=True` makes `transform` raise a sklearn-style `ValueError` listing missing and unexpected columns. A registry test forbids an op parameter named `strict`. Estimator checks (#283, engine #181):
    `tests/test_sklearn_checks.py` runs scikit-learn's `parametrize_with_checks` on 6 ops, 43 of 47
    checks pass, 3 are listed with a reason in `EXPECTED_FAILED_CHECKS` (`check_dtype_object`,
    `check_estimators_nan_inf`, `check_transformer_preserve_dtypes`); `op` defaults to `None` and a
