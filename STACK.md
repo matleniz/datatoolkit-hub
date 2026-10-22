@@ -29,7 +29,7 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | GitHub Actions + GHCR | PR smoke tests of the images, multi-arch publish of `ghcr.io/matleniz/datatoolkit-{engine,web}` | `.github/workflows/docker.yml` of both repos (approved 2026-09-30) |
 
 | pypdf | text extraction of PDF workspace documents (agent + Studio) | engine, optional extra (approved 2026-10-06, datatoolkit-issues#178) |
-| duckdb | out-of-core read / filter / export to parquet for large files | engine, optional extra `large` (`pip install dtk[large]`) (approved 2026-10-22, datatoolkit-issues#308) |
+| duckdb | out-of-core read / filter / export to parquet for large files | engine, optional extra `large` (`duckdb>=2.0.0`, also in the `dev` group so CI runs its tests; default install never imports it) (approved 2026-10-22, in place with engine #206, datatoolkit-issues#308) |
 
 Web front (Studio) tools: allow-list in `~/datatoolkit-web-hub` `STACK.md`.
 
