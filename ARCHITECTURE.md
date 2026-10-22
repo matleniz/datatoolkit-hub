@@ -143,6 +143,7 @@ def preview_workspace(ws: dict, role: str, head_rows: int = 5) -> dict
 def preview_steps(ws: dict, steps: list[dict], role: str) -> dict
     # dry run of a list of steps appended in memory (nothing saved, no undo entry):
     # preview_step's diff for the whole list plus per-step {op, state, fitted_on}
+    # + an additive per-step `checks` list for ops with a check hook (`Transform.check_fn`, e.g. expected_schema, datasets-issues#309): findings tagged split train|test, capped at 200
 def evaluate(ws: dict, role: str, exprs: list[str], steps: list[dict] | None = None,
              where: str | None = None, version: int | None = None) -> dict
     # read-only statistics (count, missing, mean, ...) of formula expressions on a role
