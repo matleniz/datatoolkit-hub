@@ -29,10 +29,10 @@ listed here needs Matteo's explicit approval first**, then a line here.
 | GitHub Actions + GHCR | PR smoke tests of the images, multi-arch publish of `ghcr.io/matleniz/datatoolkit-{engine,web}` | `.github/workflows/docker.yml` of both repos (approved 2026-09-30) |
 
 | pypdf | text extraction of PDF workspace documents (agent + Studio) | engine, optional extra (approved 2026-10-06, datatoolkit-issues#178) |
+| duckdb | out-of-core read / filter / export to parquet for large files | engine, optional extra `large` (`pip install dtk[large]`) (approved 2026-10-22, datatoolkit-issues#308) |
 
 Web front (Studio) tools: allow-list in `~/datatoolkit-web-hub` `STACK.md`.
 
 Retired: streamlit (first front, repo `datatoolkit-streamlit` archived 2026-10-01).
 
-Planned, not yet approved: polars, duckdb
-(fast readers).
+Not pursued: polars (duplicate of duckdb, datatoolkit-issues#307 closed 2026-10-22).
