@@ -189,7 +189,9 @@ def workspace_rows(ws, role, version=None, offset=0, limit=500, columns=None, fi
     # (datatoolkit-issues#87)
     # _rid = row position in the raw (post-label, post-merge) frame, kept through row-dropping steps
     # columns: non-empty list restricts column meta + row cells to those names, in order; unknown -> KeyParamsError (MAT-152)
-def column_profiles(ws, role, version=None, columns=None) -> dict   # {columns[profile], version}
+def column_profiles(ws, role, version=None, columns=None, sample_rows=None) -> dict   # {columns[profile], version}
+    # sample_rows (int > 0 or null = full frame, datatoolkit-issues#312): above the cap a seeded sample (seed 0, ops/_util.sample_rows) is profiled;
+    # then the response also has sampled, n_rows_source, n_sampled_out and a note saying missing / distinct / kind are estimates; absent when sample_rows is null
     # columns: non-empty list profiles only those names, in order; unknown -> KeyParamsError; None/empty = all (MAT-152)
     # profile: kind, count, missing, sentinel_candidates, distinct, histogram | top_values,
     # iqr_bounds, outliers, variants, looks_like_dates, numbers_as_text (',' or '.'), skewed

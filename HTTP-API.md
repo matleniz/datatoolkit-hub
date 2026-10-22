@@ -25,7 +25,7 @@ accepted (integers given as strings are still coerced).
 | `POST /source/columns` `{spec}` | `source_columns` |
 | `POST /workspace/preview` `{workspace, role, head_rows}` | `preview_workspace` |
 | `POST /workspace/rows` `{workspace, role, version, offset, limit, columns?, filter?, sort?}` | `workspace_rows` (MAT-127; optional `columns` filter MAT-152; view-only `filter` / `sort`, `total_unfiltered`, datatoolkit-issues#87) |
-| `POST /workspace/profiles` `{workspace, role, version, columns?}` | `column_profiles` (optional `columns` filter MAT-152) |
+| `POST /workspace/profiles` `{workspace, role, version, columns?, sample_rows?}` | `column_profiles` (optional `columns` filter MAT-152; `sample_rows` int > 0, else 422 naming the field: profile a seeded sample of that many rows, #312; the response then adds `sampled`, `n_rows_source`, `n_sampled_out` and, when really sampled, a `note` (missing / distinct / kind are estimates); without it the response is unchanged; ~3.6-5 s → 0.06 s on 1M rows) |
 | `POST /workspace/preview-step` `{workspace, step, role}` | `preview_step` |
 | `POST /workspace/align` `{workspace}` | `align_report` |
 | `POST /workspace/column-notes` `{workspace, role="train", version?}` → `{notes, keys}` | column notes of a role (422 when `workspace` is missing) |

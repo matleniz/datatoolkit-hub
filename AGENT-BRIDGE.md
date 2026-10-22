@@ -116,7 +116,7 @@ Code: engine `~/datatoolkit`, front `~/datatoolkit-web`.
 | `list_keys`, `key_schema`, `run_key` | same | `source` defaults to the viewed identity (`{kind: dataset, workspace, role, version}`); other sources go through the path guard |
 | `list_transforms`, `transform_schema` | same | |
 | `list_workspaces`, `get_workspace` | `list_workspace_summaries`, `get_workspace` | read-only |
-| `get_rows`, `get_profiles` | `workspace_rows`, `column_profiles` | rows capped (default 50, max 500), columns filter |
+| `get_rows`, `get_profiles` | `workspace_rows`, `column_profiles` | rows capped (default 50, max 500), columns filter; `get_profiles` also takes `sample_rows` (#312, estimates note when sampled) |
 | `preview_step`, `align_report`, `source_columns` | same | dry runs, no write |
 | `preview_steps`, `evaluate` | same | dry run of a LIST of steps; stats of formula expressions at a version or after draft steps (#155) — the agent's scratch space, nothing reaches Studio |
 | `get_notes` | `column_notes` + workspace | workspace / step (by id) / column notes, renames followed (#152) |
