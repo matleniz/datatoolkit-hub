@@ -84,6 +84,9 @@ front (Streamlit, in-process client, MAT-38 → MAT-121) was replaced by Studio
 on 2026-09-27 and its repo archived on 2026-10-01; its sections of this file
 are in git history (before 2026-10-01).
 
+## Engine agnosticism (engine #209, 2026-10-23)
+The engine knows neither the Studio, datatoolkit-web nor any web/UI framework. `tests/test_agnostic.py` (part of CHECK and CI) scans `src/dtk_engine` for those names and fails on a new hit; known remaining leaks are frozen in `KNOWN_LEAKS` (`ui_bridge.py`, `http.py` Studio router, `agent/*`) and can only go down. Moving or generalising them is an open decision.
+
 ## The contract (the only engine ↔ front boundary)
 
 Defined in `dtk_engine/contract.py` (the listing below names every public
