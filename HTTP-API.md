@@ -58,6 +58,23 @@ covers only this route: documents, notes, column-notes, rename and agent/MCP ste
 leading zeros are accepted; delete forgets the sequence, rename forgets both names; edits from
 another client with a different sequence scale stay last-write-wins; CORS allows the header.
 
+## Very large CSV (engine `duckdb`; engine #211, datatoolkit-issues engine #210)
+
+Role with `x` = CSV `engine: "duckdb"`, no `y`/merge/`label_last`, steps only `filter_rows` / `drop_columns`: same
+requests, no pandas frame. Any other role keeps the pandas path and response (no `engine` field). Full contract and
+measures: engine repo `docs/large-csv.md`.
+
+- `POST /workspace/rows`: window `[offset, offset+limit)` + `total`; any offset ~0.1-0.2 s; response adds `engine: "duckdb"`,
+  `columns[].approximate` (`["kind","semantic"]`: computed on the whole table, not on the view-filtered rows), `_rid` per row.
+  `filter`/`sort` run in DuckDB (sorted page at offset 2M ~0.8 s).
+- `POST /workspace/profiles`: always the whole table; `sample_rows` ignored (`sampled: false`). Adds `engine`, `n_rows`, per
+  column `stats {min,max,mean,std,q1,median,q3}` (number columns) and `approximate: [field names]`. A field not listed is exact.
+  Up to 1M rows all exact but `kind`; above, `distinct` (HyperLogLog, exact if estimate <= 100k), quartiles (`approx_quantile`)
+  and what derives from them (`iqr_bounds`, `outliers`, `skewed`, `suggested_params`), `top_values`/`variants` are approximate.
+- Other calls (`preview`, `source/columns`, `workspaces/summaries`): same shapes, no frame.
+- Peak server memory 483 MB on a 618 MB / 4M-row CSV (pandas: killed > 2.5 GB); cold CSV conversion ~18 s (128 MB DuckDB cap).
+- Saved workspace sources no longer write the default `engine: "pandas"`.
+
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 413 for `UploadTooLargeError` (`PUT /uploads`); 500 for
 `WorkspaceCorruptError` (an unreadable workspace file, #206: invalid JSON or schema, or not valid UTF-8, #257; the listings show such a workspace as a `corrupt` row and keep listing the others; a leading UTF-8 BOM is accepted and removed at the next save, #260). A malformed, non-UTF-8 or empty JSON body gives 422
