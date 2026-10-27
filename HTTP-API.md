@@ -75,7 +75,7 @@ measures: engine repo `docs/large-csv.md`.
 - Peak server memory 483 MB on a 618 MB / 4M-row CSV (pandas: killed > 2.5 GB); cold CSV conversion ~18 s (128 MB DuckDB cap).
 - Saved workspace sources no longer write the default `engine: "pandas"`.
 - `POST /workspace/column-notes` reads column names from the DuckDB plan (engine #212, issue #330: it replayed the role and OOM-killed the server at 5.7 GB). Still full-frame on a duckdb role: steps with `rename` / `rename_columns_bulk`, `/workspace/preview-step`, `/workspace/align`, formula evaluation (issue #331).
-- Cold bursts (engine #213, issue #332): one computation per cache key (others wait), at most 3 concurrent DuckDB connections, one CSV -> parquet conversion at a time; 22 cold requests on 4M rows peak 520 MB under a 2 GB cap. Known: a sort on a float column at 4M rows answers 422 `OutOfMemory` (128 MB DuckDB limit, issue #333).
+- Cold bursts (engine #213, issue #332): one computation per cache key (others wait), at most 3 concurrent DuckDB connections, one CSV -> parquet conversion at a time; 22 cold requests on 4M rows peak 520 MB under a 2 GB cap. Guard (engine #214, issue #334): a whole-frame load of a duckdb CSV above `DTK_MAX_FRAME_MB` (default 1024, estimate = parquet uncompressed x 6, ~250 MB of CSV) answers 422 `SourceError` naming the limit; validated at startup. Sorted pages (engine #215, issue #333): page rows and text-key sorts on 1 thread, 0.3-5 s on 4M rows, peak ~500 MB.
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 413 for `UploadTooLargeError` (`PUT /uploads`); 500 for
