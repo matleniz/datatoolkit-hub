@@ -74,6 +74,7 @@ measures: engine repo `docs/large-csv.md`.
 - Other calls (`preview`, `source/columns`, `workspaces/summaries`): same shapes, no frame.
 - Peak server memory 483 MB on a 618 MB / 4M-row CSV (pandas: killed > 2.5 GB); cold CSV conversion ~18 s (128 MB DuckDB cap).
 - Saved workspace sources no longer write the default `engine: "pandas"`.
+- `POST /workspace/column-notes` reads column names from the DuckDB plan (engine #212, issue #330: it replayed the role and OOM-killed the server at 5.7 GB). Still full-frame on a duckdb role: steps with `rename` / `rename_columns_bulk`, `/workspace/preview-step`, `/workspace/align`, formula evaluation (issue #331).
 
 Errors: `{type, message}`; 404 for `UnknownKeyError`, `UnknownTransformError`,
 `WorkspaceNotFoundError`; 422 for `KeyParamsError`, `SourceError`; 413 for `UploadTooLargeError` (`PUT /uploads`); 500 for
